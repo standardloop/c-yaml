@@ -7,6 +7,7 @@
 #include "./yaml.h"
 
 static void advanceChar(YAMLLexer *);
+static void backtrackChar(YAMLLexer *);
 
 extern YAMLLexer *YAMLLexerInit()
 {
@@ -48,74 +49,82 @@ static void advanceChar(YAMLLexer *lexer)
     lexer->read_position++;
 }
 
+static void backtrackChar(YAMLLexer *lexer)
+{
+    lexer->position -= 2;
+    lexer->read_position--;
+    lexer->current_char = lexer->input[lexer->read_position];
+}
+
 extern YAMLToken *YAMLLex(YAMLLexer *lexer)
 {
-    u_int32_t start_position = lexer->position + 1; // move pass quotes
-    char prev_char = lexer->current_char;
     advanceChar(lexer);
-    bool is_error = false;
     if (lexer->current_char == NULL_CHAR)
     {
         return NULL;
     }
-    while (ALWAYS)
+
+    u_int32_t curr_pos = lexer->position;
+    YAMLToken *token = NULL;
+    if (lexer->current_char == COLON_CHAR)
     {
-        if (lexer->current_char == COLON_CHAR)
+        advanceChar(lexer);
+        if (lexer->current_char != SPACE_CHAR)
         {
+            token = YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->position + 1, lexer->line, NULL);
         }
-        else if (lexer->current_char == DASH_MINUS_CHAR)
-        {
-        }
-        else if (lexer->current_char == CURLY_OPEN_CHAR)
-        {
-        }
-        else if (lexer->current_char == CURLY_CLOSE_CHAR)
-        {
-        }
-        else if (lexer->current_char == BRACKET_OPEN_CHAR)
-        {
-        }
-        else if (lexer->current_char == BRACKET_OPEN_CHAR)
-        {
-        }
-        else if (lexer->current_char == DOUBLE_QUOTES_CHAR)
-        {
-        }
-        else if (lexer->current_char == SINGLE_QUOTES_CHAR)
-        {
-        }
-        else if (lexer->current_char == '|')
-        {
-        }
-        else if (lexer->current_char == '*')
-        {
-        }
-        else if (lexer->current_char == '&')
-        {
-        }
-        else if (lexer->current_char == QUESTION_CHAR)
-        {
-        }
-        else if (lexer->current_char == '#')
-        {
-        }
-        else if (lexer->current_char == '#')
-        {
-        }
-        else if (lexer->current_char == '.')
-        {
-        }
-        else if (lexer->current_char == '%')
-        {
-        }
-        else if (lexer->current_char == NULL_CHAR)
-        {
-            break;
-        }
-        else
-        {
-            // must be a value
-        }
+    }
+    else if (lexer->current_char == DASH_MINUS_CHAR)
+    {
+    }
+    else if (lexer->current_char == CURLY_OPEN_CHAR)
+    {
+    }
+    else if (lexer->current_char == CURLY_CLOSE_CHAR)
+    {
+    }
+    else if (lexer->current_char == BRACKET_OPEN_CHAR)
+    {
+    }
+    else if (lexer->current_char == BRACKET_OPEN_CHAR)
+    {
+    }
+    else if (lexer->current_char == DOUBLE_QUOTES_CHAR)
+    {
+    }
+    else if (lexer->current_char == SINGLE_QUOTES_CHAR)
+    {
+    }
+    else if (lexer->current_char == '|')
+    {
+    }
+    else if (lexer->current_char == '*')
+    {
+    }
+    else if (lexer->current_char == '&')
+    {
+    }
+    else if (lexer->current_char == QUESTION_CHAR)
+    {
+    }
+    else if (lexer->current_char == '#')
+    {
+    }
+    else if (lexer->current_char == '#')
+    {
+    }
+    else if (lexer->current_char == '.')
+    {
+    }
+    else if (lexer->current_char == '%')
+    {
+    }
+    else if (lexer->current_char == NULL_CHAR)
+    {
+    }
+    else
+    {
+        // must be a value
     }
 }
 
