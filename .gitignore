@@ -58,3 +58,5 @@ dkms.conf
 # custom
 lab
 .task
+test
+test-sanitize
