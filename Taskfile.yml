@@ -8,6 +8,7 @@ vars:
   SOURCE_FILES:
     - lexer.c
     - parser.c
+    - yaml.c
   DYN_LIBS_USED_PATH: -L/usr/local/lib/standardloop
   DYN_LIBS_USED: "-lstandardloop-util -lstandardloop-collections"
   DYLIB_NAME: libstandardloop-yaml.dylib
@@ -33,6 +34,11 @@ tasks:
   default:
     deps:
       - test
+    
+  clean:
+    cmds:
+      - rm -f test
+      - rm -f test-sanitize
 
   check-version:
     silent: true
@@ -50,7 +56,7 @@ tasks:
   dependencies:util:
     vars:
       REPO_NAME: c-util
-      DYLIB_VERSION: 0.0.7
+      DYLIB_VERSION: 0.0.8
       DYLIB_NAME: util
     cmds:
       - sudo -v

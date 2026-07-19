@@ -7,6 +7,7 @@
 
 extern YAML *YAMLInit()
 {
+    return NULL;
 }
 
 extern YAML *StringToYAML(char *yaml_string)
@@ -20,27 +21,40 @@ extern YAML *StringToYAML(char *yaml_string)
 
 extern YAML *YAMLFromFile(char *filename)
 {
-    FILE *file_ptr = fopen(filename, "rb");
+    FILE *file_ptr = fopen(filename, "r");
     if (file_ptr == NULL)
     {
         return NULL;
     }
 
-    fseek(file_ptr, 0, SEEK_END);
-    u_int64_t length = ftell(file_ptr);
-    fseek(file_ptr, 0, SEEK_SET);
-    char *buffer = malloc(length + 1);
-    if (buffer == NULL)
+    char raw_yaml_buffer[LEXER_BUFFER_SIZE] = {NULL_CHAR};
+    size_t bytes_read;
+
+    YAMLLexer *lexer = YAMLLexerInit();
+    if (lexer == NULL)
     {
-        fclose(file_ptr);
-        errno = ENOMEM;
         return NULL;
     }
+    // Loop until the end of the file is reached
+    while ((bytes_read = fread(raw_yaml_buffer, 1, sizeof(raw_yaml_buffer), file_ptr)) > 0)
+    {
 
-    fread(buffer, 1, length, file_ptr);
-    fclose(file_ptr);
-    buffer[length] = NULL_CHAR;
+        lexer->input = raw_yaml_buffer;
+        lexer->input_len = bytes_read;
+        YAMLLex(lexer);
+        // printf("Successfully read a chunk of %zu bytes.\n", bytes_read);
+    }
 
+    // Check if the loop terminated due to an error or EOF
+    if (ferror(file_ptr))
+    {
+        perror("Error reading file");
+    }
+    else if (feof(file_ptr))
+    {
+        fclose(file_ptr);
+    }
+    exit(1);
     return NULL;
 }
 
@@ -53,7 +67,7 @@ extern char *YAMLToString(YAML *yaml)
     return NULL;
 }
 
-extern void FreeYAML(YAML *yaml)
+extern void YAMLFree(YAML *yaml)
 {
     if (yaml == NULL)
     {
@@ -61,7 +75,7 @@ extern void FreeYAML(YAML *yaml)
     }
 }
 
-extern void PrintYAML(YAML *yaml)
+extern void YAMLPrint(YAML *yaml)
 {
     if (yaml == NULL)
     {
