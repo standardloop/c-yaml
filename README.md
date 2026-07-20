@@ -8,6 +8,7 @@
 ## Implementation Goals
 
 - streaming lexer instead of reading of of a files contents into memory
+- don't fail on first syntax error, recover so can print multiple errors
 
 ## Examples
 

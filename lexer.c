@@ -23,6 +23,7 @@ extern YAMLLexer *YAMLLexerInit()
     lexer->position = -2;
     lexer->read_position = -1;
     lexer->line = 1;
+    lexer->error = NULL;
 
     return lexer;
 }
@@ -31,6 +32,11 @@ extern void YAMLLexerFree(YAMLLexer *lexer)
 {
     if (lexer != NULL)
     {
+        if (lexer->error != NULL)
+        {
+            // can we keep this on the stack?
+            free(lexer->error);
+        }
         free(lexer);
     }
 }

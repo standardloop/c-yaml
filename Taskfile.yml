@@ -10,7 +10,7 @@ vars:
     - parser.c
     - yaml.c
   DYN_LIBS_USED_PATH: -L/usr/local/lib/standardloop
-  DYN_LIBS_USED: "-lstandardloop-util -lstandardloop-collections"
+  DYN_LIBS_USED: "-lstandardloop-util -lstandardloop-collections -lstandardloop-logger"
   DYLIB_NAME: libstandardloop-yaml.dylib
   DYLIB_PATH: /usr/local/lib/standardloop/
   DYLIB_INCLUDE_PATH: /usr/local/include/standardloop/
@@ -52,6 +52,7 @@ tasks:
     deps:
       - dependencies:util
       - dependencies:collections
+      - dependencies:logger
 
   dependencies:util:
     vars:
@@ -70,6 +71,18 @@ tasks:
       REPO_NAME: c-collections
       DYLIB_VERSION: 0.0.0
       DYLIB_NAME: collections
+    cmds:
+      - sudo -v
+      - *download-dependency
+    status:
+      - otool -L /usr/local/lib/standardloop/libstandardloop-{{.DYLIB_NAME}}.dylib | head -n 2 | tail -n 1 | grep "current version {{.DYLIB_VERSION}}"
+      - cat /usr/local/include/standardloop/{{.DYLIB_NAME}}.h | grep "STANDARDLOOP_{{.DYLIB_NAME | upper}}_H_VERSION \"{{.DYLIB_VERSION}}\""
+
+  dependencies:logger:
+    vars:
+      REPO_NAME: c-logger
+      DYLIB_VERSION: 0.0.17
+      DYLIB_NAME: logger
     cmds:
       - sudo -v
       - *download-dependency

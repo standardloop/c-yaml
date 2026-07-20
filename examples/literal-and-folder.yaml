@@ -1,0 +1,9 @@
+literal_block: |
+  The quick brown
+  fox jumps over
+  the lazy dog.
+
+folded_block: >
+  The quick brown
+  fox jumps over
+  the lazy dog.

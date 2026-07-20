@@ -8,20 +8,32 @@
 
 #include <standardloop/collections.h>
 
-#define LEXER_BUFFER_SIZE 4096
+#define LEXER_BUFFER_SIZE 4
 
 // ————————— LEXER START —————————
 enum YAMLTokenType
 {
-    YAMLTokenEOF,
+    YAMLTokenStartOfDocument, // ---
+    YAMLTokenEndOfDocument,   // ...
 
-    YAMLTokenColon,           // :
-    YAMLTokenOpenCurlyBrace,  // {
-    YAMLTokenCloseCurlyBrace, // }
-    YAMLTokenOpenBracket,     // [
-    YAMLTokenCloseBracket,    // ]
-    YAMLTokenDash,            // -
-    YAMLTokenComma,           // ,
+    YAMLTokenDirective, // %
+    // %YAML
+    // %TAG
+
+    // spaces
+    YAMLTokenIndent,
+    YAMLTokenDedent,
+    YAMLTokenSpace, //
+
+    // general
+    YAMLTokenKey,               // part before the colon
+    YAMLTokenValueIndicator,    // :
+    YAMLTokenFlowMappingStart,  // {
+    YAMLTokenFlowMappingEnd,    // }
+    YAMLTokenFlowSequenceStart, // [
+    YAMLTokenFlowSequenceEnd,   // ]
+    YAMLTokenListDash,          // -
+    YAMLTokenComma,             // ,
 
     YAMLTokenValue,  // do we want general value? or the below
     YAMLTokenBool,   // TRUE, true, FALSE, false
@@ -32,26 +44,29 @@ enum YAMLTokenType
     YAMLTokenSingleQuotes, // "
     YAMLTokenDoubleQuotes, // "
 
-    YAMLTokenPipe,          // |
-    YAMLTokenAsterisk,      // *
-    YAMLTokenAmpersand,     // &
-    YAMLTokenQuestionMarch, // ?
+    YAMLTokenLiteralBlockStart, // |
+    YAMLTokenFoldedBlockStart,  // >
+    YAMLTokenListChompingDash,  // -
+    YAMLTokenListKeepChomping,  // +
+    YAMLTokenChompingNumber,    // 1-9
 
-    YAMLTokenPound, // #
+    YAMLTokenAlias,        // *
+    YAMLTokenAnchor,       // &
+    YAMLTokenKeyIndicator, // ? // TODO: understand this one more
 
-    YAMLTokenStartOfDocument, // ---
-    YAMLTokenEndOfDocument,   // ...
+    YAMLTokenTag, // !
 
-    YAMLTokenDirective, // %
+    YAMLTokenComment, // #
 
+    // reserved
+    YAMLTokenAT,       // @
+    YAMLTokenBacktick, // `
+    // yaml 1.1
+    YAMLTokenMerge, // <<
+
+    YAMLTokenHungry, // we need more tokens to know.
+    YAMLTokenEOF,
     YAMLTokenIllegal
-
-    // yaml 1.1 stuff and reserved
-    // YAMLTokenGreaterThan,  // >
-    // YAMLTokenLessThan,     // <
-    // YAMLTokenAT,           // @
-    // YAMLTokenBacktick,     // `
-
 };
 
 typedef struct
@@ -71,8 +86,10 @@ typedef struct
     u_int32_t position;
     u_int32_t read_position;
     u_int32_t line;
+    char *error;
 } YAMLLexer;
 
+extern YAMLToken *YAMLLex(YAMLLexer *);
 extern YAMLLexer *YAMLLexerInit();
 extern void YAMLLexerFree(YAMLLexer *);
 

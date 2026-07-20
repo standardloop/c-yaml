@@ -27,7 +27,7 @@ extern YAML *YAMLFromFile(char *filename)
         return NULL;
     }
 
-    char raw_yaml_buffer[LEXER_BUFFER_SIZE] = {NULL_CHAR};
+    char raw_yaml_buffer[LEXER_BUFFER_SIZE + 1] = {NULL_CHAR};
     size_t bytes_read;
 
     YAMLLexer *lexer = YAMLLexerInit();
@@ -38,10 +38,13 @@ extern YAML *YAMLFromFile(char *filename)
     // Loop until the end of the file is reached
     while ((bytes_read = fread(raw_yaml_buffer, 1, sizeof(raw_yaml_buffer), file_ptr)) > 0)
     {
+        do
+        {
+            lexer->input = raw_yaml_buffer;
+            lexer->input_len = bytes_read;
+            YAMLToken *token = YAMLLex(lexer);
+        } while (true);
 
-        lexer->input = raw_yaml_buffer;
-        lexer->input_len = bytes_read;
-        YAMLLex(lexer);
         // printf("Successfully read a chunk of %zu bytes.\n", bytes_read);
     }
 
