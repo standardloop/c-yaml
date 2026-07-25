@@ -302,6 +302,12 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
         else if (lexer->current_char == NEWLINE_CHAR)
         {
             token = YAMLTokenInit(YAMLTokenValue, curr_pos, lexer->position + 1, lexer->line, value_or_key);
+            backtrackChar(lexer);
+        }
+        else if (lexer->current_char == NULL_CHAR)
+        {
+            token = YAMLTokenInit(YAMLTokenValue, curr_pos, lexer->position + 1, lexer->line, value_or_key);
+            lexer->hungry = true;
         }
     }
     return token;
