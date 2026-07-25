@@ -68,6 +68,7 @@ LexerReload(YAMLLexer *lexer, char *buffer, size_t size, bool is_last_chunk)
                 larger_input[i] = buffer[i - lexer->temp_input_len];
             }
         }
+        larger_input[new_size - 1] = NULL_CHAR;
         free(lexer->temp_input);
         lexer->temp_input = NULL;
         lexer->temp_input_len = 0;
@@ -279,6 +280,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
 
         // must be a value or key
         char *value_or_key = captureValueOrKey(lexer);
+        // Log(DEBUG, "%s", value_or_key);
         // how to we know if we captured the full value?
         // did we run out of buffer?
         if (lexer->current_char == NULL_CHAR && !lexer->is_last_chunk)

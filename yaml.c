@@ -64,7 +64,8 @@ extern YAML *YAMLFromFile(char *filename)
     {
         size_t next_bytes = fread(next_buffer, sizeof(char), LEXER_BUFFER_SIZE, file_ptr);
 
-        // Log(DEBUG, "%d", (int)bytes_read);
+        // Log(ERROR, "%s", current_buffer);
+        Log(DEBUG, "%d", (int)next_bytes);
         LexerReload(lexer, current_buffer, current_bytes, next_bytes == 0);
         while (!IsLexerHungry(lexer))
         {
