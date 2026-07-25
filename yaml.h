@@ -109,7 +109,7 @@ typedef struct
     size_t temp_input_len;
 
     // maybe
-    //
+    enum YAMLLexerState state;
 } YAMLLexer;
 
 extern YAMLToken *YAMLLex(YAMLLexer *);
