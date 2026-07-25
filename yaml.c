@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <standardloop/util.h>
+#include <standardloop/logger.h>
 
 #include "./yaml.h"
 
@@ -27,28 +28,41 @@ extern YAML *YAMLFromFile(char *filename)
         return NULL;
     }
 
-    char raw_yaml_buffer[LEXER_BUFFER_SIZE + 1] = {NULL_CHAR};
-    size_t bytes_read;
-
+    char *raw_yaml_buffer = calloc(LEXER_BUFFER_SIZE + 1, sizeof(char));
+    if (raw_yaml_buffer == NULL)
+    {
+        Log(ERROR, "no mem for raw_yaml_buffer");
+        return NULL;
+    }
+    size_t bytes_read = 0;
     YAMLLexer *lexer = YAMLLexerInit();
+
     if (lexer == NULL)
     {
         return NULL;
     }
-    // Loop until the end of the file is reached
-    while ((bytes_read = fread(raw_yaml_buffer, 1, sizeof(raw_yaml_buffer), file_ptr)) > 0)
-    {
-        do
-        {
-            lexer->input = raw_yaml_buffer;
-            lexer->input_len = bytes_read;
-            YAMLToken *token = YAMLLex(lexer);
-        } while (true);
 
-        // printf("Successfully read a chunk of %zu bytes.\n", bytes_read);
+    bool is_last_chunk = false;
+    while ((bytes_read = fread(raw_yaml_buffer, 1, LEXER_BUFFER_SIZE, file_ptr)) > 0)
+    {
+        // for (size_t i = 0; i < bytes_read; i++)
+        // {
+        // printf("%c", raw_yaml_buffer[i]);
+        // }
+        is_last_chunk = bytes_read < LEXER_BUFFER_SIZE;
+
+        Log(DEBUG, "%d", (int)bytes_read);
+        LexerReload(lexer, raw_yaml_buffer, bytes_read);
+        while (!IsLexerHungry(lexer))
+        {
+            YAMLToken *token = YAMLLex(lexer);
+            if (token != NULL)
+            {
+                YAMLTokenPrint(token);
+            }
+        }
     }
 
-    // Check if the loop terminated due to an error or EOF
     if (ferror(file_ptr))
     {
         perror("Error reading file");
@@ -57,7 +71,7 @@ extern YAML *YAMLFromFile(char *filename)
     {
         fclose(file_ptr);
     }
-    exit(1);
+
     return NULL;
 }
 

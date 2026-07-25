@@ -8,7 +8,7 @@
 
 #include <standardloop/collections.h>
 
-#define LEXER_BUFFER_SIZE 4
+#define LEXER_BUFFER_SIZE 2
 
 // ————————— LEXER START —————————
 enum YAMLTokenType
@@ -64,7 +64,6 @@ enum YAMLTokenType
     // yaml 1.1
     YAMLTokenMerge, // <<
 
-    YAMLTokenHungry, // we need more tokens to know.
     YAMLTokenEOF,
     YAMLTokenIllegal
 };
@@ -78,20 +77,32 @@ typedef struct
     char *literal;
 } YAMLToken;
 
+extern YAMLToken *YAMLTokenInit(enum YAMLTokenType, u_int32_t, u_int32_t, u_int32_t, char *);
+
+extern char *YAMLTokenTypeToString(enum YAMLTokenType);
+extern void YAMLTokenPrint(YAMLToken *);
+
 typedef struct
 {
     char *input;
-    u_int32_t input_len;
+    size_t input_len;
     char current_char;
     u_int32_t position;
     u_int32_t read_position;
     u_int32_t line;
     char *error;
+
+    // Hungry means the lexer needs more input before it can finish a token
+    bool hungry;
+    char *temp_input;
+    size_t *temp_input_len;
 } YAMLLexer;
 
 extern YAMLToken *YAMLLex(YAMLLexer *);
 extern YAMLLexer *YAMLLexerInit();
+extern void LexerReload(YAMLLexer *, char *, size_t);
 extern void YAMLLexerFree(YAMLLexer *);
+extern bool IsLexerHungry(YAMLLexer *);
 
 // ————————— LEXER END —————————
 

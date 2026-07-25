@@ -1,0 +1,10 @@
+# Double quotes allow escape sequences like \n
+"user:email": "alex@example.com"
+"first name": "Alex"
+
+# Single quotes treat everything as literal text
+'project#id': 94823
+'discount%': 15
+
+# Standard unquoted key for comparison
+status: "active"

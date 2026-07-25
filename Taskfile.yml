@@ -114,6 +114,7 @@ tasks:
         -o {{.DYLIB_NAME}}
     sources:
       - "*.c"
+      - "*.h"
     generates:
       - "{{.DYLIB_NAME}}"
   
@@ -171,6 +172,7 @@ tasks:
         -o {{.TEST_EXECUTABLE_NAME}}
     sources:
       - "*.c"
+      - "*.h"
     generates:
       - "{{.TEST_EXECUTABLE_NAME}}"
   
@@ -194,6 +196,7 @@ tasks:
         -o {{.TEST_EXECUTABLE_NAME}}-sanitize
     sources:
       - "*.c"
+      - "*.h"
     generates:
       - "{{.TEST_EXECUTABLE_NAME}}-sanitize"
 
