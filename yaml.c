@@ -22,19 +22,37 @@ extern YAML *StringToYAML(char *yaml_string)
 
 extern YAML *YAMLFromFile(char *filename)
 {
-    FILE *file_ptr = fopen(filename, "r");
+    FILE *file_ptr = fopen(filename, "rb");
     if (file_ptr == NULL)
     {
         return NULL;
     }
 
-    char *raw_yaml_buffer = calloc(LEXER_BUFFER_SIZE + 1, sizeof(char));
-    if (raw_yaml_buffer == NULL)
+    char *raw_yaml_buffer_a = calloc(LEXER_BUFFER_SIZE + 1, sizeof(char));
+    if (raw_yaml_buffer_a == NULL)
     {
-        Log(ERROR, "no mem for raw_yaml_buffer");
+        Log(ERROR, "no mem for raw_yaml_buffer_a");
         return NULL;
     }
-    size_t bytes_read = 0;
+    char *raw_yaml_buffer_b = calloc(LEXER_BUFFER_SIZE + 1, sizeof(char));
+    if (raw_yaml_buffer_b == NULL)
+    {
+        Log(ERROR, "no mem for raw_yaml_buffer_a");
+        return NULL;
+    }
+
+    char *current_buffer = raw_yaml_buffer_a;
+    char *next_buffer = raw_yaml_buffer_b;
+
+    size_t current_bytes = fread(current_buffer, sizeof(char), LEXER_BUFFER_SIZE, file_ptr);
+
+    if (current_bytes == 0)
+    {
+        Log(ERROR, "the file is empty");
+        fclose(file_ptr);
+        return NULL;
+    }
+
     YAMLLexer *lexer = YAMLLexerInit();
 
     if (lexer == NULL)
@@ -42,17 +60,22 @@ extern YAML *YAMLFromFile(char *filename)
         return NULL;
     }
 
-    bool is_last_chunk = false;
-    while ((bytes_read = fread(raw_yaml_buffer, 1, LEXER_BUFFER_SIZE, file_ptr)) > 0)
+    while (ALWAYS)
     {
-        // for (size_t i = 0; i < bytes_read; i++)
-        // {
-        // printf("%c", raw_yaml_buffer[i]);
-        // }
-        is_last_chunk = bytes_read < LEXER_BUFFER_SIZE;
+        size_t next_bytes = fread(next_buffer, sizeof(char), LEXER_BUFFER_SIZE, file_ptr);
 
-        Log(DEBUG, "%d", (int)bytes_read);
-        LexerReload(lexer, raw_yaml_buffer, bytes_read);
+        if (next_bytes == 0)
+        {
+            LexerReload(lexer, current_buffer, current_bytes, true);
+            YAMLToken *token = YAMLLex(lexer);
+            if (token != NULL)
+            {
+                YAMLTokenPrint(token);
+            }
+            break;
+        }
+        // Log(DEBUG, "%d", (int)bytes_read);
+        LexerReload(lexer, current_buffer, current_bytes, false);
         while (!IsLexerHungry(lexer))
         {
             YAMLToken *token = YAMLLex(lexer);
@@ -61,6 +84,13 @@ extern YAML *YAMLFromFile(char *filename)
                 YAMLTokenPrint(token);
             }
         }
+
+        // loop
+        char *temp = current_buffer;
+        current_buffer = next_buffer;
+        next_buffer = temp;
+
+        current_bytes = next_bytes;
     }
 
     if (ferror(file_ptr))

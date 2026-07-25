@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <stdbool.h>
+#include <strings.h>
 
 #include <standardloop/util.h>
 #include <standardloop/logger.h>
@@ -45,7 +46,7 @@ static bool isAtEndOfLexerInput(YAMLLexer *lexer)
 }
 
 extern void
-LexerReload(YAMLLexer *lexer, char *buffer, size_t size)
+LexerReload(YAMLLexer *lexer, char *buffer, size_t size, bool is_last_chunk)
 {
     lexer->input = buffer;
     lexer->input_len = size;
@@ -53,6 +54,7 @@ LexerReload(YAMLLexer *lexer, char *buffer, size_t size)
     // FIXME need to calculate
     lexer->position = -1;
     lexer->read_position = 0;
+    lexer->is_last_chunk = is_last_chunk;
 
     // TODO
     lexer->hungry = false;
@@ -75,6 +77,8 @@ extern YAMLLexer *YAMLLexerInit()
     lexer->read_position = 0;
     lexer->line = 1;
     lexer->error = NULL;
+
+    lexer->is_last_chunk = false;
 
     lexer->hungry = false;
     lexer->temp_input = NULL;
@@ -130,10 +134,6 @@ static char *captureValueOrKey(YAMLLexer *lexer)
             break;
         }
         advanceChar(lexer);
-    }
-    if (lexer->current_char == NULL_CHAR)
-    {
-        // need to see if actual got to the end
     }
     // Log(DEBUG, "%d", lexer->current_char);
     // Log(DEBUG, "%d", (int)lexer->input_len);
@@ -222,7 +222,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     else if (lexer->current_char == NULL_CHAR)
     {
         token = YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->position + 1, lexer->line, NULL);
-        lexer->hungry = true;
+        // lexer->hungry = true;
     }
     // else if (lexer->current_char == DOUBLE_QUOTES_CHAR || lexer->current_char == SINGLE_QUOTES_CHAR)
     // {
@@ -233,14 +233,17 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     {
         // must be a value or key
         char *value_or_key = captureValueOrKey(lexer);
-
         // how to we know if we captured the full value?
         // did we run out of buffer?
-        if (lexer->current_char == NULL_CHAR)
+        if (lexer->current_char == NULL_CHAR && !lexer->is_last_chunk)
         {
-            Log(FATAL, "here");
+            Log(DEBUG, "need to freeup");
+            // this should mean that we aren't done
+            lexer->hungry = true;
+            lexer->temp_input = value_or_key;
+            lexer->temp_input_len = strlen(value_or_key); // FIXME lazy
+            return NULL;
         }
-
         if (lexer->current_char == COLON_CHAR)
         {
             token = YAMLTokenInit(YAMLTokenKey, curr_pos, lexer->position + 1, lexer->line, value_or_key);

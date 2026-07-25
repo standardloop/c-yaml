@@ -82,6 +82,15 @@ extern YAMLToken *YAMLTokenInit(enum YAMLTokenType, u_int32_t, u_int32_t, u_int3
 extern char *YAMLTokenTypeToString(enum YAMLTokenType);
 extern void YAMLTokenPrint(YAMLToken *);
 
+enum YAMLLexerState
+{
+    YAMLLexerStateNormal,
+    YAMLLexerStateIncomplete,
+
+    YAMLLexerStateInSingleQuotes,
+    YAMLLexerStateInDoubleQuotes,
+};
+
 typedef struct
 {
     char *input;
@@ -92,15 +101,20 @@ typedef struct
     u_int32_t line;
     char *error;
 
+    bool is_last_chunk;
+
     // Hungry means the lexer needs more input before it can finish a token
     bool hungry;
     char *temp_input;
-    size_t *temp_input_len;
+    size_t temp_input_len;
+
+    // maybe
+    //
 } YAMLLexer;
 
 extern YAMLToken *YAMLLex(YAMLLexer *);
 extern YAMLLexer *YAMLLexerInit();
-extern void LexerReload(YAMLLexer *, char *, size_t);
+extern void LexerReload(YAMLLexer *, char *, size_t, bool);
 extern void YAMLLexerFree(YAMLLexer *);
 extern bool IsLexerHungry(YAMLLexer *);
 
