@@ -20,10 +20,11 @@ enum YAMLTokenType
     // %YAML
     // %TAG
 
-    // spaces
+    // spacing
     YAMLTokenIndent,
     YAMLTokenDedent,
-    YAMLTokenSpace, //
+    YAMLTokenSpace,   //
+    YAMLTokenNewline, // do we need this?
 
     // general
     YAMLTokenKey,               // part before the colon

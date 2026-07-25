@@ -211,6 +211,11 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     {
         token = YAMLTokenInit(YAMLTokenSpace, curr_pos, lexer->position + 1, lexer->line, NULL);
     }
+    else if (lexer->current_char == NEWLINE_CHAR)
+    {
+        lexer->line++;
+        token = YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->position + 1, lexer->line, NULL);
+    }
     else if (lexer->current_char == DASH_MINUS_CHAR)
     {
     }
@@ -278,6 +283,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
         // did we run out of buffer?
         if (lexer->current_char == NULL_CHAR && !lexer->is_last_chunk)
         {
+            // Log(DEBUG, "請加多字");
             // this should mean that we aren't done
             lexer->hungry = true;
             lexer->temp_input = value_or_key;
@@ -286,15 +292,17 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
             return NULL;
         }
 
+        // if after the string there is colon, then this is a key
         if (lexer->current_char == COLON_CHAR)
         {
             token = YAMLTokenInit(YAMLTokenKey, curr_pos, lexer->position + 1, lexer->line, value_or_key);
+            backtrackChar(lexer);
         }
-        else
+        // this is a value
+        else if (lexer->current_char == NEWLINE_CHAR)
         {
             token = YAMLTokenInit(YAMLTokenValue, curr_pos, lexer->position + 1, lexer->line, value_or_key);
         }
-        backtrackChar(lexer);
     }
     return token;
 }
@@ -485,6 +493,10 @@ extern char *YAMLTokenTypeToString(enum YAMLTokenType type)
     else if (type == YAMLTokenIllegal)
     {
         return "YAMLTokenIllegal";
+    }
+    else if (type == YAMLTokenNewline)
+    {
+        return "YAMLTokenNewline";
     }
     return "ERROR";
 }
