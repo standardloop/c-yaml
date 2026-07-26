@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <standardloop/util.h>
 #include <standardloop/logger.h>
+#include <unistd.h>
 
 #include "./yaml.h"
 
@@ -45,6 +46,7 @@ extern YAML *YAMLFromFile(char *filename)
     char *next_buffer = raw_yaml_buffer_b;
 
     size_t current_bytes = fread(current_buffer, sizeof(char), LEXER_BUFFER_SIZE, file_ptr);
+    current_buffer[LEXER_BUFFER_SIZE] = NULL_CHAR;
 
     if (current_bytes == 0)
     {
@@ -60,12 +62,15 @@ extern YAML *YAMLFromFile(char *filename)
         return NULL;
     }
 
+    bool done = false;
     while (ALWAYS)
     {
         size_t next_bytes = fread(next_buffer, sizeof(char), LEXER_BUFFER_SIZE, file_ptr);
+        current_buffer[LEXER_BUFFER_SIZE] = NULL_CHAR;
+        next_buffer[LEXER_BUFFER_SIZE] = NULL_CHAR;
 
         // Log(ERROR, "%s", current_buffer);
-        // Log(DEBUG, "%d", (int)next_bytes);
+        // Log(ERROR, "%d", (int)next_bytes);
         LexerReload(lexer, current_buffer, current_bytes, next_bytes == 0);
         while (!IsLexerHungry(lexer))
         {
@@ -75,11 +80,18 @@ extern YAML *YAMLFromFile(char *filename)
                 YAMLTokenPrint(token);
                 if (token->type == YAMLTokenEOF)
                 {
+                    done = true;
                     break;
                 }
             }
+            // sleep(1);
         }
-        if (next_bytes == 0)
+        // if (next_bytes == 0)
+        // {
+        //     break;
+        // }
+
+        if (done)
         {
             break;
         }

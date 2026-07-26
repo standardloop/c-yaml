@@ -48,15 +48,21 @@ static bool isAtEndOfLexerInput(YAMLLexer *lexer)
 extern void
 LexerReload(YAMLLexer *lexer, char *buffer, size_t size, bool is_last_chunk)
 {
-
     if (lexer->temp_input != NULL && lexer->temp_input_len > 0)
     {
-        size_t new_size = lexer->temp_input_len + size + 1;
+        // printf("temp buffer: ");
+        // PrintBuffer(lexer->temp_input, lexer->temp_input_len, true);
+        // printf("\n");
+        // printf("incoming buffer: ");
+        // PrintBuffer(buffer, size, true);
+        // printf("\n");
+        size_t new_size = lexer->temp_input_len + size + 1; // -1 for extra null char?
         char *larger_input = calloc(new_size, sizeof(char));
 
         // Log(ERROR, "%s", lexer->temp_input);
         // Log(ERROR, "%s", buffer);
 
+        // Log(ERROR, "%d", lexer->temp_input_len);
         for (size_t i = 0; i < new_size; i++)
         {
             if (i < lexer->temp_input_len)
@@ -75,8 +81,11 @@ LexerReload(YAMLLexer *lexer, char *buffer, size_t size, bool is_last_chunk)
 
         lexer->input = larger_input;
         lexer->input_len = new_size;
+        // printf("combined: ");
+        // PrintBuffer(lexer->input, new_size, true);
+        // printf("\n");
 
-        // Log(DEBUG, "%s", larger_input);
+        Log(ERROR, "%s", larger_input);
     }
     else
     {
@@ -205,7 +214,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
 
     u_int32_t curr_pos = lexer->position;
     YAMLToken *token = NULL;
-    // Log(DEBUG, "%d", lexer->current_char);
+    Log(DEBUG, "%d", lexer->current_char);
     if (lexer->current_char == NULL_CHAR)
     {
         // Log(ERROR, "%s", lexer->is_last_chunk ? "true" : "false");
@@ -292,7 +301,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
             // this should mean that we aren't done
             lexer->hungry = true;
             lexer->temp_input = value_or_key;
-            lexer->temp_input_len = strlen(value_or_key); // FIXME lazy
+            lexer->temp_input_len = strlen(value_or_key); // FIXME lazy to use strlen // +1 for NULL_CHAR?
             lexer->state = YAMLLexerStateIncomplete;
             return NULL;
         }
