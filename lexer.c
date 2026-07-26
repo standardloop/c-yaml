@@ -191,9 +191,11 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
 
     if (isAtEndOfLexerInput(lexer))
     {
-        lexer->hungry = true;
-        return NULL;
+        pass;
+        // lexer->hungry = true;
+        // return NULL;
     }
+
     advanceChar(lexer);
     // Log(DEBUG, "%c", lexer->current_char);
     //  if (lexer->current_char == NULL_CHAR)
@@ -203,8 +205,20 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
 
     u_int32_t curr_pos = lexer->position;
     YAMLToken *token = NULL;
-    // printf("%c", lexer->current_char);
-    if (lexer->current_char == COLON_CHAR)
+    // Log(DEBUG, "%d", lexer->current_char);
+    if (lexer->current_char == NULL_CHAR)
+    {
+        // Log(ERROR, "%s", lexer->is_last_chunk ? "true" : "false");
+        if (!lexer->is_last_chunk)
+        {
+            lexer->hungry = true;
+        }
+        else
+        {
+            token = YAMLTokenInit(YAMLTokenEOF, curr_pos, lexer->position + 1, lexer->line, NULL);
+        }
+    }
+    else if (lexer->current_char == COLON_CHAR)
     {
         token = YAMLTokenInit(YAMLTokenValueIndicator, curr_pos, lexer->position + 1, lexer->line, NULL);
     }
@@ -255,17 +269,6 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     }
     else if (lexer->current_char == '%')
     {
-    }
-    else if (lexer->current_char == NULL_CHAR)
-    {
-        if (lexer->current_char == NULL_CHAR && !lexer->is_last_chunk)
-        {
-            lexer->hungry = true;
-        }
-        else
-        {
-            token = YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->position + 1, lexer->line, NULL);
-        }
     }
     else
     {

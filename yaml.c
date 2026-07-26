@@ -28,13 +28,13 @@ extern YAML *YAMLFromFile(char *filename)
         return NULL;
     }
 
-    char *raw_yaml_buffer_a = calloc(LEXER_BUFFER_SIZE, sizeof(char));
+    char *raw_yaml_buffer_a = calloc(LEXER_BUFFER_SIZE + 1, sizeof(char));
     if (raw_yaml_buffer_a == NULL)
     {
         Log(ERROR, "no mem for raw_yaml_buffer_a");
         return NULL;
     }
-    char *raw_yaml_buffer_b = calloc(LEXER_BUFFER_SIZE, sizeof(char));
+    char *raw_yaml_buffer_b = calloc(LEXER_BUFFER_SIZE + 1, sizeof(char));
     if (raw_yaml_buffer_b == NULL)
     {
         Log(ERROR, "no mem for raw_yaml_buffer_a");
@@ -65,7 +65,7 @@ extern YAML *YAMLFromFile(char *filename)
         size_t next_bytes = fread(next_buffer, sizeof(char), LEXER_BUFFER_SIZE, file_ptr);
 
         // Log(ERROR, "%s", current_buffer);
-        Log(DEBUG, "%d", (int)next_bytes);
+        // Log(DEBUG, "%d", (int)next_bytes);
         LexerReload(lexer, current_buffer, current_bytes, next_bytes == 0);
         while (!IsLexerHungry(lexer))
         {
@@ -73,6 +73,10 @@ extern YAML *YAMLFromFile(char *filename)
             if (token != NULL)
             {
                 YAMLTokenPrint(token);
+                if (token->type == YAMLTokenEOF)
+                {
+                    break;
+                }
             }
         }
         if (next_bytes == 0)
