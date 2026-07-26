@@ -8,7 +8,9 @@
 
 #include <standardloop/collections.h>
 
-#define LEXER_BUFFER_SIZE 2
+#define LEXER_MIN_BUFFER_SIZE 1
+#define LEXER_DEFAULT_BUFFER_SIZE 4096
+#define LEXER_MAX_BUFFER_SIZE 1048576
 
 // ————————— LEXER START —————————
 enum YAMLTokenType
@@ -134,7 +136,7 @@ typedef struct
 
 extern YAML *YAMLInit();
 extern YAML *StringToYAML(char *);
-extern YAML *YAMLFromFile(char *);
+extern YAML *YAMLFromFile(char *, size_t);
 extern char *YAMLToString(YAML *);
 
 extern void YAMLFree(YAML *);

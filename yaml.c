@@ -21,7 +21,7 @@ extern YAML *StringToYAML(char *yaml_string)
     return NULL;
 }
 
-extern YAML *YAMLFromFile(char *filename)
+extern YAML *YAMLFromFile(char *filename, size_t buffer_size)
 {
     FILE *file_ptr = fopen(filename, "rb");
     if (file_ptr == NULL)
@@ -29,13 +29,13 @@ extern YAML *YAMLFromFile(char *filename)
         return NULL;
     }
 
-    char *raw_yaml_buffer_a = calloc(LEXER_BUFFER_SIZE + 1, sizeof(char));
+    char *raw_yaml_buffer_a = calloc(buffer_size + 1, sizeof(char));
     if (raw_yaml_buffer_a == NULL)
     {
         Log(ERROR, "no mem for raw_yaml_buffer_a");
         return NULL;
     }
-    char *raw_yaml_buffer_b = calloc(LEXER_BUFFER_SIZE + 1, sizeof(char));
+    char *raw_yaml_buffer_b = calloc(buffer_size + 1, sizeof(char));
     if (raw_yaml_buffer_b == NULL)
     {
         Log(ERROR, "no mem for raw_yaml_buffer_a");
@@ -45,8 +45,8 @@ extern YAML *YAMLFromFile(char *filename)
     char *current_buffer = raw_yaml_buffer_a;
     char *next_buffer = raw_yaml_buffer_b;
 
-    size_t current_bytes = fread(current_buffer, sizeof(char), LEXER_BUFFER_SIZE, file_ptr);
-    current_buffer[LEXER_BUFFER_SIZE] = NULL_CHAR;
+    size_t current_bytes = fread(current_buffer, sizeof(char), buffer_size, file_ptr);
+    current_buffer[buffer_size] = NULL_CHAR;
 
     if (current_bytes == 0)
     {
@@ -65,9 +65,9 @@ extern YAML *YAMLFromFile(char *filename)
     bool done = false;
     while (ALWAYS)
     {
-        size_t next_bytes = fread(next_buffer, sizeof(char), LEXER_BUFFER_SIZE, file_ptr);
-        current_buffer[LEXER_BUFFER_SIZE] = NULL_CHAR;
-        next_buffer[LEXER_BUFFER_SIZE] = NULL_CHAR;
+        size_t next_bytes = fread(next_buffer, sizeof(char), buffer_size, file_ptr);
+        current_buffer[buffer_size] = NULL_CHAR;
+        next_buffer[buffer_size] = NULL_CHAR;
 
         // Log(ERROR, "%s", current_buffer);
         // Log(ERROR, "%d", (int)next_bytes);

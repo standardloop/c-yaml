@@ -85,7 +85,7 @@ LexerReload(YAMLLexer *lexer, char *buffer, size_t size, bool is_last_chunk)
         // PrintBuffer(lexer->input, new_size, true);
         // printf("\n");
 
-        Log(ERROR, "%s", larger_input);
+        //Log(ERROR, "%s", larger_input);
     }
     else
     {
@@ -214,7 +214,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
 
     u_int32_t curr_pos = lexer->position;
     YAMLToken *token = NULL;
-    Log(DEBUG, "%d", lexer->current_char);
+    // Log(DEBUG, "%d", lexer->current_char);
     if (lexer->current_char == NULL_CHAR)
     {
         // Log(ERROR, "%s", lexer->is_last_chunk ? "true" : "false");
