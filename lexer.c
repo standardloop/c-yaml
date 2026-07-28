@@ -14,24 +14,15 @@ static void advanceChar(YAMLLexer *);
 static void backtrackChar(YAMLLexer *);
 static bool isAtEndOfLexerInput(YAMLLexer *);
 static char *captureValueOrKey(YAMLLexer *);
+static char *createStringLiteral(YAMLLexer *, size_t);
 
 static void resetLexerState(YAMLLexer *);
-static bool checkThenSaveBufferAndSignalHungry(YAMLLexer *, char *);
 
-static bool checkThenSaveBufferAndSignalHungry(YAMLLexer *lexer, char *buffer)
+static bool checkIfGettingHungry(YAMLLexer *);
+
+static bool checkIfGettingHungry(YAMLLexer *lexer)
 {
-    if (lexer->current_char == NULL_CHAR && !lexer->is_last_chunk)
-    {
-        // Log(DEBUG, "請加多字");
-        // this should mean that we aren't done
-        lexer->hungry = true;
-        lexer->temp_input = buffer;
-        lexer->temp_input_len = strlen(buffer); // FIXME lazy to use strlen // +1 for NULL_CHAR?
-        // lexer->state = YAMLLexerStateIncomplete;
-
-        return true;
-    }
-    return false;
+    return lexer->current_char == NULL_CHAR && !lexer->is_last_chunk;
 }
 
 static void resetLexerState(YAMLLexer *lexer)
@@ -184,9 +175,12 @@ static void advanceChar(YAMLLexer *lexer)
 
 static void backtrackChar(YAMLLexer *lexer)
 {
-    lexer->position -= 2;
-    lexer->read_position--;
-    lexer->current_char = lexer->input[lexer->read_position];
+    if (lexer->position > 0)
+    {
+        lexer->position -= 1;
+        lexer->read_position -= 1;
+        lexer->current_char = lexer->input[lexer->position];
+    }
 }
 
 static char *captureValueOrKey(YAMLLexer *lexer)
@@ -207,10 +201,31 @@ static char *captureValueOrKey(YAMLLexer *lexer)
             break;
         }
 
-        if (lexer->state == YAMLLexerStateNormal && (lexer->current_char == NEWLINE_CHAR || lexer->current_char == COLON_CHAR))
+        if (lexer->state == YAMLLexerStateNormal)
         {
-            break;
+            if (lexer->current_char == NEWLINE_CHAR || lexer->current_char == COLON_CHAR)
+            {
+                break;
+            }
+            else if (lexer->current_char == SPACE_CHAR)
+            {
+                advanceChar(lexer);
+                if (checkIfGettingHungry(lexer))
+                {
+                    return createStringLiteral(lexer, start_position);
+                }
+                if (lexer->current_char == '#')
+                {
+                    backtrackChar(lexer);
+                    break;
+                }
+                else
+                {
+                    continue;
+                }
+            }
         }
+
         if (lexer->state == YAMLLexerStateInDoubleQuotes && lexer->current_char == DOUBLE_QUOTES_CHAR)
         {
             advanceChar(lexer);
@@ -232,9 +247,11 @@ static char *captureValueOrKey(YAMLLexer *lexer)
         resetLexerState(lexer);
     }
 
-    // Log(DEBUG, "%d", lexer->current_char);
-    // Log(DEBUG, "%d", (int)lexer->input_len);
+    return createStringLiteral(lexer, start_position);
+}
 
+static char *createStringLiteral(YAMLLexer *lexer, size_t start_position)
+{
     u_int32_t string_literal_size = (lexer->position - start_position) + 1;
     char *string_literal = malloc(sizeof(char) * string_literal_size);
     if (string_literal == NULL)
@@ -243,7 +260,6 @@ static char *captureValueOrKey(YAMLLexer *lexer)
     }
     copyString(lexer->input, string_literal, string_literal_size, start_position);
     string_literal[string_literal_size - 1] = NULL_CHAR;
-    // Log(DEBUG, "%s", string_literal);
     return string_literal;
 }
 
@@ -298,30 +314,39 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     }
     else if (lexer->current_char == DASH_MINUS_CHAR)
     {
+        Log(FATAL, "TODO");
     }
     else if (lexer->current_char == CURLY_OPEN_CHAR)
     {
+        Log(FATAL, "TODO");
     }
     else if (lexer->current_char == CURLY_CLOSE_CHAR)
     {
+        Log(FATAL, "TODO");
     }
     else if (lexer->current_char == BRACKET_OPEN_CHAR)
     {
+        Log(FATAL, "TODO");
     }
     else if (lexer->current_char == BRACKET_OPEN_CHAR)
     {
+        Log(FATAL, "TODO");
     }
     else if (lexer->current_char == '|')
     {
+        Log(FATAL, "TODO");
     }
     else if (lexer->current_char == '*')
     {
+        Log(FATAL, "TODO");
     }
     else if (lexer->current_char == '&')
     {
+        Log(FATAL, "TODO");
     }
     else if (lexer->current_char == QUESTION_CHAR)
     {
+        Log(FATAL, "TODO");
     }
     else if (lexer->current_char == '#')
     {
@@ -334,15 +359,17 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
             backtrackChar(lexer);
         }
     }
-    else if (lexer->current_char == '.')
+    else if (lexer->current_char == DOT_CHAR)
     {
-        advanceChar(lexer);
-        if (lexer->current_char != '.')
-        {
-        }
+        Log(FATAL, "TODO");
+        // advanceChar(lexer);
+        // if (lexer->current_char != DOT_CHAR)
+        // {
+        // }
     }
     else if (lexer->current_char == '%')
     {
+        Log(FATAL, "TODO");
     }
     else
     {
@@ -357,11 +384,15 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
 
         // must be a value or key
         char *value_or_key = captureValueOrKey(lexer);
-        // Log(DEBUG, "%s", value_or_key);
+        Log(DEBUG, "%s", value_or_key);
+        PrintBuffer(value_or_key, strlen(value_or_key), true);
         // how to we know if we captured the full value?
         // did we run out of buffer?
-        if (checkThenSaveBufferAndSignalHungry(lexer, value_or_key))
+        if (checkIfGettingHungry(lexer))
         {
+            lexer->hungry = true;
+            lexer->temp_input = value_or_key;
+            lexer->temp_input_len = strlen(value_or_key);
             return NULL;
         }
 
@@ -372,7 +403,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
             backtrackChar(lexer);
         }
         // this is a value
-        else if (lexer->current_char == NEWLINE_CHAR)
+        else if (lexer->current_char == NEWLINE_CHAR || lexer->current_char == '#')
         {
             token = YAMLTokenInit(YAMLTokenValue, curr_pos, lexer->position + 1, lexer->line, value_or_key);
             backtrackChar(lexer);
