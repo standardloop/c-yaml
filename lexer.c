@@ -299,6 +299,32 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
             token = YAMLTokenInit(YAMLTokenEOF, curr_pos, lexer->position + 1, lexer->line, NULL);
         }
     }
+    else if (lexer->current_char == '#' || lexer->state == YAMLLexerStateEatingComment)
+    {
+        if (lexer->current_char == '#')
+        {
+            Log(TRACE, "Found a comment....");
+        }
+        else
+        {
+            Log(TRACE, "Continuing to munch a comment...");
+        }
+        do
+        {
+            advanceChar(lexer);
+            if (checkIfGettingHungry(lexer))
+            {
+                lexer->hungry = true;
+                lexer->state = YAMLLexerStateEatingComment;
+                return NULL;
+            }
+        } while (lexer->current_char != NULL_CHAR && lexer->current_char != NEWLINE_CHAR);
+        if (lexer->current_char == NEWLINE_CHAR)
+        {
+            backtrackChar(lexer);
+        }
+        lexer->state = YAMLLexerStateNormal;
+    }
     else if (lexer->current_char == COLON_CHAR)
     {
         token = YAMLTokenInit(YAMLTokenValueIndicator, curr_pos, lexer->position + 1, lexer->line, NULL);
@@ -352,18 +378,6 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     else if (lexer->current_char == QUESTION_CHAR)
     {
         Log(FATAL, "TODO");
-    }
-    else if (lexer->current_char == '#')
-    {
-        Log(TRACE, "found a comment....");
-        do
-        {
-            advanceChar(lexer);
-        } while (lexer->current_char != NULL_CHAR && lexer->current_char != NEWLINE_CHAR);
-        if (lexer->current_char == NEWLINE_CHAR)
-        {
-            backtrackChar(lexer);
-        }
     }
     else if (lexer->current_char == DOT_CHAR)
     {

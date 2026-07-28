@@ -8,9 +8,9 @@
 
 #include <standardloop/collections.h>
 
-#define LEXER_MIN_BUFFER_SIZE 1
+#define LEXER_MIN_BUFFER_SIZE 4096
 #define LEXER_DEFAULT_BUFFER_SIZE 4096
-#define LEXER_MAX_BUFFER_SIZE 1048576
+#define LEXER_MAX_BUFFER_SIZE 1048576 // TODO
 
 // ————————— LEXER START —————————
 enum YAMLTokenType
@@ -90,6 +90,7 @@ enum YAMLLexerState
     YAMLLexerStateNormal,
     YAMLLexerStateIncomplete,
 
+    YAMLLexerStateEatingComment,
     YAMLLexerStateInSingleQuotes,
     YAMLLexerStateInDoubleQuotes,
 };
