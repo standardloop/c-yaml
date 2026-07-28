@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <strings.h>
+#include <assert.h>
 
 #include <standardloop/util.h>
 #include <standardloop/logger.h>
@@ -14,8 +15,17 @@ static void backtrackChar(YAMLLexer *);
 static bool isAtEndOfLexerInput(YAMLLexer *);
 static char *captureValueOrKey(YAMLLexer *);
 
+static void resetLexerState(YAMLLexer *);
+
+static void resetLexerState(YAMLLexer *lexer)
+{
+    assert(lexer != NULL);
+    lexer->state = YAMLLexerStateNormal;
+}
+
 extern bool IsLexerHungry(YAMLLexer *lexer)
 {
+    assert(lexer != NULL);
     return lexer->hungry;
 }
 
@@ -85,7 +95,7 @@ LexerReload(YAMLLexer *lexer, char *buffer, size_t size, bool is_last_chunk)
         // PrintBuffer(lexer->input, new_size, true);
         // printf("\n");
 
-        //Log(ERROR, "%s", larger_input);
+        // Log(ERROR, "%s", larger_input);
     }
     else
     {
@@ -167,15 +177,38 @@ static char *captureValueOrKey(YAMLLexer *lexer)
     size_t start_position = lexer->position;
     // char prev_char = lexer->current_char;
     // bool is_error = false;
+    if (lexer->state == YAMLLexerStateInDoubleQuotes || lexer->state == YAMLLexerStateInSingleQuotes)
+    {
+        advanceChar(lexer);
+    }
 
     while (ALWAYS)
     {
-        if (lexer->current_char == NEWLINE_CHAR || lexer->current_char == NULL_CHAR || lexer->current_char == COLON_CHAR)
+        if (lexer->current_char == NULL_CHAR)
         {
             break;
         }
+
+        if (lexer->state == YAMLLexerStateNormal && (lexer->current_char == NEWLINE_CHAR || lexer->current_char == COLON_CHAR))
+        {
+            break;
+        }
+        if (lexer->state == YAMLLexerStateInDoubleQuotes && lexer->current_char == DOUBLE_QUOTES_CHAR)
+        {
+            advanceChar(lexer);
+            break;
+        }
+        else if (lexer->state == YAMLLexerStateInSingleQuotes && lexer->current_char == SINGLE_QUOTES_CHAR)
+        {
+            advanceChar(lexer);
+            break;
+        }
+
         advanceChar(lexer);
     }
+
+    resetLexerState(lexer);
+
     // Log(DEBUG, "%d", lexer->current_char);
     // Log(DEBUG, "%d", (int)lexer->input_len);
 
@@ -269,9 +302,14 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     }
     else if (lexer->current_char == '#')
     {
-    }
-    else if (lexer->current_char == '#')
-    {
+        do
+        {
+            advanceChar(lexer);
+        } while (lexer->current_char != NULL_CHAR && lexer->current_char != NEWLINE_CHAR);
+        if (lexer->current_char == NEWLINE_CHAR)
+        {
+            backtrackChar(lexer);
+        }
     }
     else if (lexer->current_char == '.')
     {
@@ -281,14 +319,14 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     }
     else
     {
-        // if (lexer->current_char == DOUBLE_QUOTES_CHAR)
-        // {
-
-        //     lexer->state =
-        // }
-        // else if (lexer->current_char == SINGLE_QUOTES_CHAR)
-        // {
-        // }
+        if (lexer->current_char == DOUBLE_QUOTES_CHAR)
+        {
+            lexer->state = YAMLLexerStateInDoubleQuotes;
+        }
+        else if (lexer->current_char == SINGLE_QUOTES_CHAR)
+        {
+            lexer->state = YAMLLexerStateInSingleQuotes;
+        }
 
         // must be a value or key
         char *value_or_key = captureValueOrKey(lexer);
