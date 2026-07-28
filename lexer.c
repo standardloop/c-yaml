@@ -16,6 +16,23 @@ static bool isAtEndOfLexerInput(YAMLLexer *);
 static char *captureValueOrKey(YAMLLexer *);
 
 static void resetLexerState(YAMLLexer *);
+static bool checkThenSaveBufferAndSignalHungry(YAMLLexer *, char *);
+
+static bool checkThenSaveBufferAndSignalHungry(YAMLLexer *lexer, char *buffer)
+{
+    if (lexer->current_char == NULL_CHAR && !lexer->is_last_chunk)
+    {
+        // Log(DEBUG, "請加多字");
+        // this should mean that we aren't done
+        lexer->hungry = true;
+        lexer->temp_input = buffer;
+        lexer->temp_input_len = strlen(buffer); // FIXME lazy to use strlen // +1 for NULL_CHAR?
+        // lexer->state = YAMLLexerStateIncomplete;
+
+        return true;
+    }
+    return false;
+}
 
 static void resetLexerState(YAMLLexer *lexer)
 {
@@ -181,6 +198,7 @@ static char *captureValueOrKey(YAMLLexer *lexer)
     {
         advanceChar(lexer);
     }
+    bool broke_with_matching_quotes = false;
 
     while (ALWAYS)
     {
@@ -196,18 +214,23 @@ static char *captureValueOrKey(YAMLLexer *lexer)
         if (lexer->state == YAMLLexerStateInDoubleQuotes && lexer->current_char == DOUBLE_QUOTES_CHAR)
         {
             advanceChar(lexer);
+            broke_with_matching_quotes = true;
             break;
         }
         else if (lexer->state == YAMLLexerStateInSingleQuotes && lexer->current_char == SINGLE_QUOTES_CHAR)
         {
             advanceChar(lexer);
+            broke_with_matching_quotes = true;
             break;
         }
 
         advanceChar(lexer);
     }
 
-    resetLexerState(lexer);
+    if (broke_with_matching_quotes)
+    {
+        resetLexerState(lexer);
+    }
 
     // Log(DEBUG, "%d", lexer->current_char);
     // Log(DEBUG, "%d", (int)lexer->input_len);
@@ -313,6 +336,10 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     }
     else if (lexer->current_char == '.')
     {
+        advanceChar(lexer);
+        if (lexer->current_char != '.')
+        {
+        }
     }
     else if (lexer->current_char == '%')
     {
@@ -333,14 +360,8 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
         // Log(DEBUG, "%s", value_or_key);
         // how to we know if we captured the full value?
         // did we run out of buffer?
-        if (lexer->current_char == NULL_CHAR && !lexer->is_last_chunk)
+        if (checkThenSaveBufferAndSignalHungry(lexer, value_or_key))
         {
-            // Log(DEBUG, "請加多字");
-            // this should mean that we aren't done
-            lexer->hungry = true;
-            lexer->temp_input = value_or_key;
-            lexer->temp_input_len = strlen(value_or_key); // FIXME lazy to use strlen // +1 for NULL_CHAR?
-            lexer->state = YAMLLexerStateIncomplete;
             return NULL;
         }
 

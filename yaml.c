@@ -26,19 +26,22 @@ extern YAML *YAMLFromFile(char *filename, size_t buffer_size)
     FILE *file_ptr = fopen(filename, "rb");
     if (file_ptr == NULL)
     {
+        Log(FATAL, "Unable to open file %s", filename);
         return NULL;
     }
 
     char *raw_yaml_buffer_a = calloc(buffer_size + 1, sizeof(char));
     if (raw_yaml_buffer_a == NULL)
     {
-        Log(ERROR, "no mem for raw_yaml_buffer_a");
+        fclose(file_ptr);
+        Log(FATAL, "no mem for raw_yaml_buffer_a");
         return NULL;
     }
     char *raw_yaml_buffer_b = calloc(buffer_size + 1, sizeof(char));
     if (raw_yaml_buffer_b == NULL)
     {
-        Log(ERROR, "no mem for raw_yaml_buffer_a");
+        fclose(file_ptr);
+        Log(FATAL, "no mem for raw_yaml_buffer_b");
         return NULL;
     }
 
@@ -50,9 +53,10 @@ extern YAML *YAMLFromFile(char *filename, size_t buffer_size)
 
     if (current_bytes == 0)
     {
-        Log(ERROR, "the file is empty");
+
+        Log(DEBUG, "the file is empty");
         fclose(file_ptr);
-        return NULL;
+        return NULL; // fixme, maybe we can still return an initialized yaml struct
     }
 
     YAMLLexer *lexer = YAMLLexerInit();
