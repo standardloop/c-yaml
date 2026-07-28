@@ -305,7 +305,12 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     }
     else if (lexer->current_char == SPACE_CHAR)
     {
-        token = YAMLTokenInit(YAMLTokenSpace, curr_pos, lexer->position + 1, lexer->line, NULL);
+        backtrackChar(lexer);
+        if (lexer->current_char == COLON_CHAR)
+        {
+            token = YAMLTokenInit(YAMLTokenSpace, curr_pos, lexer->position + 1, lexer->line, NULL);
+        }
+        advanceChar(lexer);
     }
     else if (lexer->current_char == NEWLINE_CHAR)
     {
@@ -350,6 +355,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     }
     else if (lexer->current_char == '#')
     {
+        Log(TRACE, "found a comment....");
         do
         {
             advanceChar(lexer);
@@ -384,8 +390,8 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
 
         // must be a value or key
         char *value_or_key = captureValueOrKey(lexer);
-        Log(DEBUG, "%s", value_or_key);
-        PrintBuffer(value_or_key, strlen(value_or_key), true);
+        // Log(DEBUG, "%s", value_or_key);
+        // PrintBuffer(value_or_key, strlen(value_or_key), true);
         // how to we know if we captured the full value?
         // did we run out of buffer?
         if (checkIfGettingHungry(lexer))
@@ -402,8 +408,8 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
             token = YAMLTokenInit(YAMLTokenKey, curr_pos, lexer->position + 1, lexer->line, value_or_key);
             backtrackChar(lexer);
         }
-        // this is a value
-        else if (lexer->current_char == NEWLINE_CHAR || lexer->current_char == '#')
+        // this is a value // TODO -> we may want have a function for any whitespace here
+        else if (lexer->current_char == NEWLINE_CHAR || lexer->current_char == SPACE_CHAR)
         {
             token = YAMLTokenInit(YAMLTokenValue, curr_pos, lexer->position + 1, lexer->line, value_or_key);
             backtrackChar(lexer);
