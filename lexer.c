@@ -116,6 +116,7 @@ LexerReload(YAMLLexer *lexer, char *buffer, size_t size, bool is_last_chunk)
     lexer->hungry = false;
     lexer->position = -1;
     lexer->read_position = 0;
+    lexer->sequential_dashes = 0;
     lexer->is_last_chunk = is_last_chunk;
 }
 
@@ -286,6 +287,16 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
 
     u_int32_t curr_pos = lexer->position;
     YAMLToken *token = NULL;
+
+    if (lexer->current_char == DASH_MINUS_CHAR)
+    {
+        lexer->sequential_dashes++;
+    }
+    else
+    {
+        lexer->sequential_dashes = 0;
+    }
+
     // Log(DEBUG, "%d", lexer->current_char);
     if (lexer->current_char == NULL_CHAR)
     {
@@ -331,12 +342,20 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     }
     else if (lexer->current_char == SPACE_CHAR)
     {
-        backtrackChar(lexer);
-        if (lexer->current_char == COLON_CHAR)
+        if (lexer->position == 0 && lexer->state == YAMLLexerStateWaitSpaceAfterDash)
         {
             token = YAMLTokenInit(YAMLTokenSpace, curr_pos, lexer->position + 1, lexer->line, NULL);
+            resetLexerState(lexer);
         }
-        advanceChar(lexer);
+        else
+        {
+            backtrackChar(lexer);
+            if (lexer->current_char == COLON_CHAR || lexer->current_char == DASH_MINUS_CHAR)
+            {
+                token = YAMLTokenInit(YAMLTokenSpace, curr_pos, lexer->position + 1, lexer->line, NULL);
+            }
+            advanceChar(lexer);
+        }
     }
     else if (lexer->current_char == NEWLINE_CHAR)
     {
@@ -345,7 +364,62 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     }
     else if (lexer->current_char == DASH_MINUS_CHAR)
     {
-        Log(FATAL, "TODO");
+        assert(lexer->sequential_dashes >= 1);
+
+        if (lexer->sequential_dashes == 3)
+        {
+            token = YAMLTokenInit(YAMLTokenStartOfDocument, curr_pos, lexer->position + 1, lexer->line, NULL);
+            lexer->sequential_dashes = 0;
+        }
+        else if (lexer->sequential_dashes == 2)
+        {
+            advanceChar(lexer);
+            if (checkIfGettingHungry(lexer))
+            {
+                lexer->hungry = true;
+            }
+            else if (lexer->current_char == DASH_MINUS_CHAR)
+            {
+                token = YAMLTokenInit(YAMLTokenStartOfDocument, curr_pos, lexer->position + 1, lexer->line, NULL);
+                lexer->sequential_dashes = 0;
+            }
+            else
+            {
+                token = YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->position + 1, lexer->line, NULL);
+                lexer->sequential_dashes = 0;
+                backtrackChar(lexer);
+            }
+        }
+        else if (lexer->state == YAMLLexerStateWaitingForChompingDash)
+        {
+            token = YAMLTokenInit(YAMLTokenListChompingDash, curr_pos, lexer->position + 1, lexer->line, NULL);
+            resetLexerState(lexer);
+        }
+        else
+        {
+            advanceChar(lexer);
+            if (checkIfGettingHungry(lexer))
+            {
+                lexer->state = YAMLLexerStateWaitSpaceAfterDash;
+                lexer->hungry = true;
+            }
+            else if (lexer->current_char == SPACE_CHAR)
+            {
+                token = YAMLTokenInit(YAMLTokenListDash, curr_pos, lexer->position + 1, lexer->line, NULL);
+                lexer->sequential_dashes = 0;
+                backtrackChar(lexer);
+            }
+            else if (lexer->current_char == DASH_MINUS_CHAR)
+            {
+                backtrackChar(lexer);
+            }
+            else
+            {
+                token = YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->position + 1, lexer->line, NULL);
+                lexer->sequential_dashes = 0;
+                backtrackChar(lexer);
+            }
+        }
     }
     else if (lexer->current_char == CURLY_OPEN_CHAR)
     {
@@ -365,7 +439,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     }
     else if (lexer->current_char == '|')
     {
-        Log(FATAL, "TODO");
+        token = YAMLTokenInit(YAMLTokenLiteralBlockStart, curr_pos, lexer->position + 1, lexer->line, NULL);
     }
     else if (lexer->current_char == '*')
     {
@@ -382,10 +456,6 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     else if (lexer->current_char == DOT_CHAR)
     {
         Log(FATAL, "TODO");
-        // advanceChar(lexer);
-        // if (lexer->current_char != DOT_CHAR)
-        // {
-        // }
     }
     else if (lexer->current_char == '%')
     {

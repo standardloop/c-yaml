@@ -93,6 +93,8 @@ enum YAMLLexerState
     YAMLLexerStateEatingComment,
     YAMLLexerStateInSingleQuotes,
     YAMLLexerStateInDoubleQuotes,
+    YAMLLexerStateWaitingForChompingDash,
+    YAMLLexerStateWaitSpaceAfterDash,
 };
 
 typedef struct
@@ -111,6 +113,8 @@ typedef struct
     bool hungry;
     char *temp_input;
     size_t temp_input_len;
+
+    int sequential_dashes;
 
     // maybe
     enum YAMLLexerState state;
