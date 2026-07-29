@@ -114,7 +114,8 @@ typedef struct
     char *temp_input;
     size_t temp_input_len;
 
-    int sequential_dashes;
+    int sequential_dashes; // tracking document start
+    int sequential_dots;   // tracking document end
 
     // maybe
     enum YAMLLexerState state;

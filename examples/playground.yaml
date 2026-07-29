@@ -1,0 +1,9 @@
+---
+example: hi
+
+test:
+- foo
+- bar
+
+this: |-
+  yup
