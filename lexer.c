@@ -289,7 +289,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     //  {
     //      return NULL;
     //  }
-    if (lexer->state != YAMLLexerStatePopDedent && lexer->state != YAMLLexerStateFoundEOFNeedToOutputDedent)
+    if (lexer->state != YAMLLexerStatePopDedent && lexer->state != YAMLLexerStateFoundEOFNeedToPopRemainingDedent && lexer->state != YAMLLexerStateFoundEOFNeedToPopRemainingDedent)
     {
         advanceChar(lexer);
     }
@@ -307,10 +307,13 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
         {
             Log(FATAL, "tab is not supported WIP");
         }
-        else if (lexer->current_char == NEWLINE_CHAR || lexer->current_char == '#')
+        else if (lexer->current_char == NEWLINE_CHAR)
         {
-            pass;
-            // Log(DEBUG, "WIP");
+            token = YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->position + 1, lexer->line, NULL);
+        }
+        else if (lexer->current_char == '#')
+        {
+            Log(DEBUG, "TODO");
         }
         else
         {
@@ -340,20 +343,25 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
             }
         }
     }
-    else if (lexer->state == YAMLLexerStatePopDedent || lexer->state == YAMLLexerStateFoundEOFNeedToOutputDedent)
+    else if (lexer->state == YAMLLexerStatePopDedent || lexer->state == YAMLLexerStateFoundEOFNeedToPopRemainingDedent)
     {
         if (lexer->indent_stack->size > 1)
         {
+            assert(lexer->indent_stack->items[0] != NULL);
+
             Item *dedent_item = ListPopFirst(lexer->indent_stack);
             int dedent_item_value = *(int *)dedent_item->value;
             if (dedent_item_value > lexer->space_count)
             {
                 token = YAMLTokenInit(YAMLTokenDedent, curr_pos, lexer->position + 1, lexer->line, NULL);
-                ItemFree(dedent_item);
+            }
+            else
+            {
+                Log(DEBUG, "idk fam");
             }
             ItemFree(dedent_item);
         }
-        else if (lexer->state == YAMLLexerStateFoundEOFNeedToOutputDedent)
+        else if (lexer->state == YAMLLexerStateFoundEOFNeedToPopRemainingDedent)
         {
             resetLexerState(lexer);
             token = YAMLTokenInit(YAMLTokenEOF, curr_pos, lexer->position + 1, lexer->line, NULL);
@@ -399,7 +407,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
             }
             else
             {
-                lexer->state = YAMLLexerStateFoundEOFNeedToOutputDedent;
+                lexer->state = YAMLLexerStateFoundEOFNeedToPopRemainingDedent;
                 // token = YAMLTokenInit(YAMLTokenEOF, curr_pos, lexer->position + 1, lexer->line, NULL);
             }
         }

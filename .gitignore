@@ -60,3 +60,4 @@ lab
 .task
 test
 test-sanitize
+*.txt
