@@ -142,7 +142,17 @@ extern YAMLLexer *YAMLLexerInit()
     lexer->temp_input = NULL;
     lexer->temp_input_len = 0;
 
-    lexer->state = YAMLLexerStateNormal;
+    // lexer->indent_stack = NULL;
+    lexer->indent_stack = ListInitDefault();
+    int *zero_int = malloc(sizeof(int));
+    *zero_int = 0;
+    Item *indent_zero_start = ItemInit(zero_int, NULL, NULL);
+    ListAddFirst(lexer->indent_stack, indent_zero_start);
+
+    lexer->space_count = 0;
+
+    // lexer->state = YAMLLexerStateJustGotNewline;
+    resetLexerState(lexer);
 
     return lexer;
 }
@@ -266,10 +276,6 @@ static char *createStringLiteral(YAMLLexer *lexer, size_t start_position)
 
 extern YAMLToken *YAMLLex(YAMLLexer *lexer)
 {
-    if (false)
-    {
-        backtrackChar(lexer);
-    }
 
     if (isAtEndOfLexerInput(lexer))
     {
@@ -278,7 +284,6 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
         // return NULL;
     }
 
-    advanceChar(lexer);
     // Log(DEBUG, "%c", lexer->current_char);
     //  if (lexer->current_char == NULL_CHAR)
     //  {
@@ -288,278 +293,355 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     u_int32_t curr_pos = lexer->position;
     YAMLToken *token = NULL;
 
-    if (lexer->current_char == DASH_MINUS_CHAR)
+    if (lexer->state == YAMLLexerStateJustGotNewline)
     {
-        lexer->sequential_dashes++;
+        if (lexer->current_char == SPACE_CHAR)
+        {
+            lexer->space_count++;
+            // return NULL;
+        }
+        else if (lexer->current_char == TAB_CHAR)
+        {
+            Log(FATAL, "tab is not supported WIP");
+        }
+        else if (lexer->current_char == NEWLINE_CHAR || lexer->current_char == '#')
+        {
+            advanceChar(lexer);
+            Log(DEBUG, "WIP");
+        }
+        else
+        {
+            int top_of_stack_value = *(int *)ListGetFirst(lexer->indent_stack)->value;
+            if (lexer->space_count > top_of_stack_value)
+            {
+                int *new_top = malloc(sizeof(int));
+                *new_top = lexer->space_count;
+                Item *new_top_item = ItemInit(new_top, NULL, NULL);
+                ListAddFirst(lexer->indent_stack, new_top_item);
+
+                lexer->space_count = 0;
+
+                token = YAMLTokenInit(YAMLTokenIndent, curr_pos, lexer->position + 1, lexer->line, NULL);
+                resetLexerState(lexer);
+            }
+            else if (lexer->space_count < top_of_stack_value)
+            {
+                lexer->state = YAMLLexerStatePopDedent;
+            }
+            else
+            {
+                resetLexerState(lexer);
+            }
+        }
+    }
+    else if (lexer->state == YAMLLexerStatePopDedent)
+    {
+        if (lexer->indent_stack->size > 0)
+        {
+            Item *dedent_item = ListPopFirst(lexer->indent_stack);
+            int dedent_item_value = *(int *)dedent_item->value;
+            if (dedent_item_value > lexer->space_count)
+            {
+                token = YAMLTokenInit(YAMLTokenDedent, curr_pos, lexer->position + 1, lexer->line, NULL);
+            }
+            ItemFree(dedent_item);
+        }
+        else
+        {
+            int minumum_indent = *(int *)ListGetFirst(lexer->indent_stack)->value;
+            if (minumum_indent != lexer->space_count)
+            {
+                Log(FATAL, "HUH");
+            }
+            lexer->space_count = 0;
+            resetLexerState(lexer);
+        }
     }
     else
     {
-        lexer->sequential_dashes = 0;
-    }
-
-    if (lexer->current_char == DOT_CHAR)
-    {
-        lexer->sequential_dots++;
-    }
-    else
-    {
-        lexer->sequential_dots = 0;
-    }
-
-    // Log(DEBUG, "%d", lexer->current_char);
-    if (lexer->current_char == NULL_CHAR)
-    {
-        // Log(ERROR, "%s", lexer->is_last_chunk ? "true" : "false");
-        if (!lexer->is_last_chunk)
+        advanceChar(lexer);
+        if (lexer->current_char == DASH_MINUS_CHAR)
         {
-            lexer->hungry = true;
+            lexer->sequential_dashes++;
         }
         else
         {
-            token = YAMLTokenInit(YAMLTokenEOF, curr_pos, lexer->position + 1, lexer->line, NULL);
-        }
-    }
-    else if (lexer->current_char == '#' || lexer->state == YAMLLexerStateEatingComment)
-    {
-        if (lexer->current_char == '#')
-        {
-            Log(TRACE, "Found a comment....");
-        }
-        else
-        {
-            Log(TRACE, "Continuing to munch a comment...");
-        }
-        do
-        {
-            advanceChar(lexer);
-            if (checkIfGettingHungry(lexer))
-            {
-                lexer->hungry = true;
-                lexer->state = YAMLLexerStateEatingComment;
-                return NULL;
-            }
-        } while (lexer->current_char != NULL_CHAR && lexer->current_char != NEWLINE_CHAR);
-        if (lexer->current_char == NEWLINE_CHAR)
-        {
-            backtrackChar(lexer);
-        }
-        lexer->state = YAMLLexerStateNormal;
-    }
-    else if (lexer->current_char == COLON_CHAR)
-    {
-        token = YAMLTokenInit(YAMLTokenValueIndicator, curr_pos, lexer->position + 1, lexer->line, NULL);
-    }
-    else if (lexer->current_char == SPACE_CHAR)
-    {
-        if (lexer->position == 0 && lexer->state == YAMLLexerStateWaitSpaceAfterDash)
-        {
-            token = YAMLTokenInit(YAMLTokenSpace, curr_pos, lexer->position + 1, lexer->line, NULL);
-            resetLexerState(lexer);
-        }
-        else
-        {
-            backtrackChar(lexer);
-            if (lexer->current_char == COLON_CHAR || lexer->current_char == DASH_MINUS_CHAR)
-            {
-                token = YAMLTokenInit(YAMLTokenSpace, curr_pos, lexer->position + 1, lexer->line, NULL);
-            }
-            advanceChar(lexer);
-        }
-    }
-    else if (lexer->current_char == NEWLINE_CHAR)
-    {
-        lexer->line++;
-        token = YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->position + 1, lexer->line, NULL);
-    }
-    else if (lexer->current_char == DASH_MINUS_CHAR)
-    {
-        assert(lexer->sequential_dashes >= 1);
-
-        if (lexer->sequential_dashes == 3)
-        {
-            resetLexerState(lexer);
-            token = YAMLTokenInit(YAMLTokenStartOfDocument, curr_pos, lexer->position + 1, lexer->line, NULL);
             lexer->sequential_dashes = 0;
         }
-        else if (lexer->sequential_dashes == 2)
+
+        if (lexer->current_char == DOT_CHAR)
         {
-            resetLexerState(lexer);
-            advanceChar(lexer);
-            if (checkIfGettingHungry(lexer))
+            lexer->sequential_dots++;
+        }
+        else
+        {
+            lexer->sequential_dots = 0;
+        }
+
+        // Log(DEBUG, "%d", lexer->current_char);
+        if (lexer->current_char == NULL_CHAR)
+        {
+            // Log(ERROR, "%s", lexer->is_last_chunk ? "true" : "false");
+            if (!lexer->is_last_chunk)
             {
                 lexer->hungry = true;
             }
-            else if (lexer->current_char == DASH_MINUS_CHAR)
+            else
             {
+                token = YAMLTokenInit(YAMLTokenEOF, curr_pos, lexer->position + 1, lexer->line, NULL);
+            }
+        }
+        else if (lexer->current_char == '#' || lexer->state == YAMLLexerStateEatingComment)
+        {
+            if (lexer->current_char == '#')
+            {
+                Log(TRACE, "Found a comment....");
+            }
+            else
+            {
+                Log(TRACE, "Continuing to munch a comment...");
+            }
+            do
+            {
+                advanceChar(lexer);
+                if (checkIfGettingHungry(lexer))
+                {
+                    lexer->hungry = true;
+                    lexer->state = YAMLLexerStateEatingComment;
+                    return NULL;
+                }
+            } while (lexer->current_char != NULL_CHAR && lexer->current_char != NEWLINE_CHAR);
+            if (lexer->current_char == NEWLINE_CHAR)
+            {
+                backtrackChar(lexer);
+            }
+            lexer->state = YAMLLexerStateNormal;
+        }
+        else if (lexer->current_char == COLON_CHAR)
+        {
+            token = YAMLTokenInit(YAMLTokenValueIndicator, curr_pos, lexer->position + 1, lexer->line, NULL);
+        }
+        // I want to revist this one
+        else if (lexer->current_char == SPACE_CHAR)
+        {
+            if (lexer->position == 0 && lexer->state == YAMLLexerStateWaitSpaceAfterDash)
+            {
+                token = YAMLTokenInit(YAMLTokenSpace, curr_pos, lexer->position + 1, lexer->line, NULL);
+                resetLexerState(lexer);
+            }
+            else
+            {
+                if (lexer->position > 0)
+                {
+                    backtrackChar(lexer);
+                    if (lexer->current_char == COLON_CHAR || lexer->current_char == DASH_MINUS_CHAR)
+                    {
+                        token = YAMLTokenInit(YAMLTokenSpace, curr_pos, lexer->position + 1, lexer->line, NULL);
+                    }
+                    advanceChar(lexer);
+                }
+                else
+                {
+                    Log(FATAL, "what to do?");
+                }
+            }
+        }
+        else if (lexer->current_char == NEWLINE_CHAR)
+        {
+            lexer->line++;
+            token = YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->position + 1, lexer->line, NULL);
+            lexer->state = YAMLLexerStateJustGotNewline;
+        }
+        else if (lexer->current_char == DASH_MINUS_CHAR)
+        {
+            assert(lexer->sequential_dashes >= 1);
+
+            if (lexer->sequential_dashes == 3)
+            {
+                resetLexerState(lexer);
                 token = YAMLTokenInit(YAMLTokenStartOfDocument, curr_pos, lexer->position + 1, lexer->line, NULL);
                 lexer->sequential_dashes = 0;
             }
+            else if (lexer->sequential_dashes == 2)
+            {
+                resetLexerState(lexer);
+                advanceChar(lexer);
+                if (checkIfGettingHungry(lexer))
+                {
+                    lexer->hungry = true;
+                }
+                else if (lexer->current_char == DASH_MINUS_CHAR)
+                {
+                    token = YAMLTokenInit(YAMLTokenStartOfDocument, curr_pos, lexer->position + 1, lexer->line, NULL);
+                    lexer->sequential_dashes = 0;
+                }
+                else
+                {
+                    token = YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->position + 1, lexer->line, NULL);
+                    lexer->sequential_dashes = 0;
+                    backtrackChar(lexer);
+                }
+            }
+            else if (lexer->state == YAMLLexerStateWaitingForChompingDash)
+            {
+                token = YAMLTokenInit(YAMLTokenListChompingDash, curr_pos, lexer->position + 1, lexer->line, NULL);
+                resetLexerState(lexer);
+            }
             else
             {
-                token = YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->position + 1, lexer->line, NULL);
-                lexer->sequential_dashes = 0;
-                backtrackChar(lexer);
+                resetLexerState(lexer);
+                advanceChar(lexer);
+                if (checkIfGettingHungry(lexer))
+                {
+                    lexer->state = YAMLLexerStateWaitSpaceAfterDash;
+                    lexer->hungry = true;
+                }
+                else if (lexer->current_char == SPACE_CHAR)
+                {
+                    token = YAMLTokenInit(YAMLTokenListDash, curr_pos, lexer->position + 1, lexer->line, NULL);
+                    lexer->sequential_dashes = 0;
+                    backtrackChar(lexer);
+                }
+                else if (lexer->current_char == DASH_MINUS_CHAR)
+                {
+                    backtrackChar(lexer);
+                }
+                else
+                {
+                    token = YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->position + 1, lexer->line, NULL);
+                    lexer->sequential_dashes = 0;
+                    backtrackChar(lexer);
+                }
             }
         }
-        else if (lexer->state == YAMLLexerStateWaitingForChompingDash)
+        else if (lexer->current_char == CURLY_OPEN_CHAR)
         {
-            token = YAMLTokenInit(YAMLTokenListChompingDash, curr_pos, lexer->position + 1, lexer->line, NULL);
-            resetLexerState(lexer);
+            Log(FATAL, "TODO");
+        }
+        else if (lexer->current_char == CURLY_CLOSE_CHAR)
+        {
+            Log(FATAL, "TODO");
+        }
+        else if (lexer->current_char == BRACKET_OPEN_CHAR)
+        {
+            Log(FATAL, "TODO");
+        }
+        else if (lexer->current_char == BRACKET_OPEN_CHAR)
+        {
+            Log(FATAL, "TODO");
+        }
+        else if (lexer->current_char == '|')
+        {
+            token = YAMLTokenInit(YAMLTokenLiteralBlockStart, curr_pos, lexer->position + 1, lexer->line, NULL);
+            lexer->state = YAMLLexerStateWaitingForChompingDash;
+        }
+        else if (lexer->current_char == '*')
+        {
+            Log(FATAL, "TODO");
+        }
+        else if (lexer->current_char == '&')
+        {
+            Log(FATAL, "TODO");
+        }
+        else if (lexer->current_char == QUESTION_CHAR)
+        {
+            Log(FATAL, "TODO");
+        }
+        else if (lexer->current_char == DOT_CHAR)
+        {
+            assert(lexer->sequential_dots >= 1);
+
+            if (lexer->sequential_dots == 3)
+            {
+                token = YAMLTokenInit(YAMLTokenEndOfDocument, curr_pos, lexer->position + 1, lexer->line, NULL);
+            }
+            else if (lexer->sequential_dots == 2)
+            {
+                resetLexerState(lexer);
+                advanceChar(lexer);
+                if (checkIfGettingHungry(lexer))
+                {
+                    lexer->hungry = true;
+                }
+                else if (lexer->current_char == DOT_CHAR)
+                {
+                    token = YAMLTokenInit(YAMLTokenEndOfDocument, curr_pos, lexer->position + 1, lexer->line, NULL);
+                    lexer->sequential_dashes = 0;
+                }
+                else
+                {
+                    token = YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->position + 1, lexer->line, NULL);
+                    lexer->sequential_dashes = 0;
+                    backtrackChar(lexer);
+                }
+            }
+            else if (lexer->sequential_dots == 1)
+            {
+                resetLexerState(lexer);
+                advanceChar(lexer);
+                if (checkIfGettingHungry(lexer))
+                {
+                    lexer->hungry = true;
+                }
+                else if (lexer->current_char == DOT_CHAR)
+                {
+                    // catch it next loop
+                    backtrackChar(lexer);
+                }
+                else
+                {
+                    token = YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->position + 1, lexer->line, NULL);
+                    lexer->sequential_dashes = 0;
+                    backtrackChar(lexer);
+                }
+            }
+        }
+        else if (lexer->current_char == '%')
+        {
+            Log(FATAL, "TODO");
         }
         else
         {
-            resetLexerState(lexer);
-            advanceChar(lexer);
-            if (checkIfGettingHungry(lexer))
+            if (lexer->current_char == DOUBLE_QUOTES_CHAR)
             {
-                lexer->state = YAMLLexerStateWaitSpaceAfterDash;
-                lexer->hungry = true;
+                lexer->state = YAMLLexerStateInDoubleQuotes;
             }
-            else if (lexer->current_char == SPACE_CHAR)
+            else if (lexer->current_char == SINGLE_QUOTES_CHAR)
             {
-                token = YAMLTokenInit(YAMLTokenListDash, curr_pos, lexer->position + 1, lexer->line, NULL);
-                lexer->sequential_dashes = 0;
-                backtrackChar(lexer);
+                lexer->state = YAMLLexerStateInSingleQuotes;
             }
-            else if (lexer->current_char == DASH_MINUS_CHAR)
-            {
-                backtrackChar(lexer);
-            }
-            else
-            {
-                token = YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->position + 1, lexer->line, NULL);
-                lexer->sequential_dashes = 0;
-                backtrackChar(lexer);
-            }
-        }
-    }
-    else if (lexer->current_char == CURLY_OPEN_CHAR)
-    {
-        Log(FATAL, "TODO");
-    }
-    else if (lexer->current_char == CURLY_CLOSE_CHAR)
-    {
-        Log(FATAL, "TODO");
-    }
-    else if (lexer->current_char == BRACKET_OPEN_CHAR)
-    {
-        Log(FATAL, "TODO");
-    }
-    else if (lexer->current_char == BRACKET_OPEN_CHAR)
-    {
-        Log(FATAL, "TODO");
-    }
-    else if (lexer->current_char == '|')
-    {
-        token = YAMLTokenInit(YAMLTokenLiteralBlockStart, curr_pos, lexer->position + 1, lexer->line, NULL);
-        lexer->state = YAMLLexerStateWaitingForChompingDash;
-    }
-    else if (lexer->current_char == '*')
-    {
-        Log(FATAL, "TODO");
-    }
-    else if (lexer->current_char == '&')
-    {
-        Log(FATAL, "TODO");
-    }
-    else if (lexer->current_char == QUESTION_CHAR)
-    {
-        Log(FATAL, "TODO");
-    }
-    else if (lexer->current_char == DOT_CHAR)
-    {
-        assert(lexer->sequential_dots >= 1);
 
-        if (lexer->sequential_dots == 3)
-        {
-            token = YAMLTokenInit(YAMLTokenEndOfDocument, curr_pos, lexer->position + 1, lexer->line, NULL);
-        }
-        else if (lexer->sequential_dots == 2)
-        {
-            resetLexerState(lexer);
-            advanceChar(lexer);
+            // must be a value or key
+            char *value_or_key = captureValueOrKey(lexer);
+            // Log(DEBUG, "%s", value_or_key);
+            // PrintBuffer(value_or_key, strlen(value_or_key), true);
+            // how to we know if we captured the full value?
+            // did we run out of buffer?
             if (checkIfGettingHungry(lexer))
             {
                 lexer->hungry = true;
+                lexer->temp_input = value_or_key;
+                lexer->temp_input_len = strlen(value_or_key);
+                return NULL;
             }
-            else if (lexer->current_char == DOT_CHAR)
+
+            // if after the string there is colon, then this is a key
+            if (lexer->current_char == COLON_CHAR)
             {
-                token = YAMLTokenInit(YAMLTokenEndOfDocument, curr_pos, lexer->position + 1, lexer->line, NULL);
-                lexer->sequential_dashes = 0;
-            }
-            else
-            {
-                token = YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->position + 1, lexer->line, NULL);
-                lexer->sequential_dashes = 0;
+                token = YAMLTokenInit(YAMLTokenKey, curr_pos, lexer->position + 1, lexer->line, value_or_key);
                 backtrackChar(lexer);
             }
-        }
-        else if (lexer->sequential_dots == 1)
-        {
-            resetLexerState(lexer);
-            advanceChar(lexer);
-            if (checkIfGettingHungry(lexer))
+            // this is a value // TODO -> we may want have a function for any whitespace here
+            else if (lexer->current_char == NEWLINE_CHAR || lexer->current_char == SPACE_CHAR)
             {
+                token = YAMLTokenInit(YAMLTokenValue, curr_pos, lexer->position + 1, lexer->line, value_or_key);
+                backtrackChar(lexer);
+            }
+            else if (lexer->current_char == NULL_CHAR)
+            {
+                token = YAMLTokenInit(YAMLTokenValue, curr_pos, lexer->position + 1, lexer->line, value_or_key);
                 lexer->hungry = true;
             }
-            else if (lexer->current_char == DOT_CHAR)
-            {
-                // catch it next loop
-                backtrackChar(lexer);
-            }
-            else
-            {
-                token = YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->position + 1, lexer->line, NULL);
-                lexer->sequential_dashes = 0;
-                backtrackChar(lexer);
-            }
-        }
-    }
-    else if (lexer->current_char == '%')
-    {
-        Log(FATAL, "TODO");
-    }
-    else
-    {
-        if (lexer->current_char == DOUBLE_QUOTES_CHAR)
-        {
-            lexer->state = YAMLLexerStateInDoubleQuotes;
-        }
-        else if (lexer->current_char == SINGLE_QUOTES_CHAR)
-        {
-            lexer->state = YAMLLexerStateInSingleQuotes;
-        }
-
-        // must be a value or key
-        char *value_or_key = captureValueOrKey(lexer);
-        // Log(DEBUG, "%s", value_or_key);
-        // PrintBuffer(value_or_key, strlen(value_or_key), true);
-        // how to we know if we captured the full value?
-        // did we run out of buffer?
-        if (checkIfGettingHungry(lexer))
-        {
-            lexer->hungry = true;
-            lexer->temp_input = value_or_key;
-            lexer->temp_input_len = strlen(value_or_key);
-            return NULL;
-        }
-
-        // if after the string there is colon, then this is a key
-        if (lexer->current_char == COLON_CHAR)
-        {
-            token = YAMLTokenInit(YAMLTokenKey, curr_pos, lexer->position + 1, lexer->line, value_or_key);
-            backtrackChar(lexer);
-        }
-        // this is a value // TODO -> we may want have a function for any whitespace here
-        else if (lexer->current_char == NEWLINE_CHAR || lexer->current_char == SPACE_CHAR)
-        {
-            token = YAMLTokenInit(YAMLTokenValue, curr_pos, lexer->position + 1, lexer->line, value_or_key);
-            backtrackChar(lexer);
-        }
-        else if (lexer->current_char == NULL_CHAR)
-        {
-            token = YAMLTokenInit(YAMLTokenValue, curr_pos, lexer->position + 1, lexer->line, value_or_key);
-            lexer->hungry = true;
         }
     }
     return token;

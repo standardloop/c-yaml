@@ -95,6 +95,8 @@ enum YAMLLexerState
     YAMLLexerStateInDoubleQuotes,
     YAMLLexerStateWaitingForChompingDash,
     YAMLLexerStateWaitSpaceAfterDash,
+    YAMLLexerStateJustGotNewline,
+    YAMLLexerStatePopDedent,
 };
 
 typedef struct
@@ -107,6 +109,8 @@ typedef struct
     u_int32_t line;
     char *error;
 
+    List *indent_stack;
+
     bool is_last_chunk;
 
     // Hungry means the lexer needs more input before it can finish a token
@@ -116,6 +120,7 @@ typedef struct
 
     int sequential_dashes; // tracking document start
     int sequential_dots;   // tracking document end
+    int space_count;
 
     // maybe
     enum YAMLLexerState state;

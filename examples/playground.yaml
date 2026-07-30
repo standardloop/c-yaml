@@ -1,6 +1,9 @@
 ---
 example: hi
 
+this:
+  that: yes
+
 test:
 - foo
 - bar

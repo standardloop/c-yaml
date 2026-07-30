@@ -74,7 +74,7 @@ tasks:
   dependencies:collections:
     vars:
       REPO_NAME: c-collections
-      DYLIB_VERSION: 0.0.0
+      DYLIB_VERSION: 0.0.1
       DYLIB_NAME: collections
     cmds:
       - sudo -v
