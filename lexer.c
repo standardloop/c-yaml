@@ -289,7 +289,10 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     //  {
     //      return NULL;
     //  }
-    advanceChar(lexer);
+    if (lexer->state != YAMLLexerStatePopDedent && lexer->state != YAMLLexerStateFoundEOFNeedToOutputDedent)
+    {
+        advanceChar(lexer);
+    }
     u_int32_t curr_pos = lexer->position;
     YAMLToken *token = NULL;
 
@@ -337,7 +340,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
             }
         }
     }
-    else if (lexer->state == YAMLLexerStatePopDedent)
+    else if (lexer->state == YAMLLexerStatePopDedent || lexer->state == YAMLLexerStateFoundEOFNeedToOutputDedent)
     {
         if (lexer->indent_stack->size > 1)
         {
@@ -349,6 +352,11 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
                 ItemFree(dedent_item);
             }
             ItemFree(dedent_item);
+        }
+        else if (lexer->state == YAMLLexerStateFoundEOFNeedToOutputDedent)
+        {
+            resetLexerState(lexer);
+            token = YAMLTokenInit(YAMLTokenEOF, curr_pos, lexer->position + 1, lexer->line, NULL);
         }
         else
         {
@@ -391,7 +399,8 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
             }
             else
             {
-                token = YAMLTokenInit(YAMLTokenEOF, curr_pos, lexer->position + 1, lexer->line, NULL);
+                lexer->state = YAMLLexerStateFoundEOFNeedToOutputDedent;
+                // token = YAMLTokenInit(YAMLTokenEOF, curr_pos, lexer->position + 1, lexer->line, NULL);
             }
         }
         else if (lexer->current_char == '#' || lexer->state == YAMLLexerStateEatingComment)

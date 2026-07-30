@@ -97,6 +97,7 @@ enum YAMLLexerState
     YAMLLexerStateWaitSpaceAfterDash,
     YAMLLexerStateJustGotNewline,
     YAMLLexerStatePopDedent,
+    YAMLLexerStateFoundEOFNeedToOutputDedent,
 };
 
 typedef struct
