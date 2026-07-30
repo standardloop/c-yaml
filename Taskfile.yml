@@ -160,8 +160,10 @@ tasks:
         sudo mv yaml.h {{.DYLIB_INCLUDE_PATH}}
 
   test:
-    deps:
-      - test:build
+    cmds:
+      - task: test:build
+      - task: test:build-sanitize
+  
 
   test:build:
     run: once
@@ -183,7 +185,7 @@ tasks:
   
   test:sanitize:
     deps:
-      - test:run-sanitize
+      - test:build-sanitize
 
   test:build-sanitize:
     run: once
@@ -195,7 +197,7 @@ tasks:
         {{.DYN_LIBS_USED_PATH}} \
         {{.DYN_LIBS_USED}} \
         -O0 \
-        -lstandardloop-yaml \
+        # -lstandardloop-yaml \
         -fno-omit-frame-pointer \
         -fsanitize=address \
         -o {{.TEST_EXECUTABLE_NAME}}-sanitize

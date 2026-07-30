@@ -289,7 +289,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     //  {
     //      return NULL;
     //  }
-
+    advanceChar(lexer);
     u_int32_t curr_pos = lexer->position;
     YAMLToken *token = NULL;
 
@@ -306,8 +306,8 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
         }
         else if (lexer->current_char == NEWLINE_CHAR || lexer->current_char == '#')
         {
-            advanceChar(lexer);
-            Log(DEBUG, "WIP");
+            pass;
+            // Log(DEBUG, "WIP");
         }
         else
         {
@@ -323,26 +323,30 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
 
                 token = YAMLTokenInit(YAMLTokenIndent, curr_pos, lexer->position + 1, lexer->line, NULL);
                 resetLexerState(lexer);
+                backtrackChar(lexer);
             }
             else if (lexer->space_count < top_of_stack_value)
             {
                 lexer->state = YAMLLexerStatePopDedent;
+                backtrackChar(lexer);
             }
             else
             {
+                backtrackChar(lexer);
                 resetLexerState(lexer);
             }
         }
     }
     else if (lexer->state == YAMLLexerStatePopDedent)
     {
-        if (lexer->indent_stack->size > 0)
+        if (lexer->indent_stack->size > 1)
         {
             Item *dedent_item = ListPopFirst(lexer->indent_stack);
             int dedent_item_value = *(int *)dedent_item->value;
             if (dedent_item_value > lexer->space_count)
             {
                 token = YAMLTokenInit(YAMLTokenDedent, curr_pos, lexer->position + 1, lexer->line, NULL);
+                ItemFree(dedent_item);
             }
             ItemFree(dedent_item);
         }
@@ -359,7 +363,6 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     }
     else
     {
-        advanceChar(lexer);
         if (lexer->current_char == DASH_MINUS_CHAR)
         {
             lexer->sequential_dashes++;
