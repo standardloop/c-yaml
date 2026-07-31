@@ -15,10 +15,16 @@ static void backtrackChar(YAMLLexer *);
 static bool isAtEndOfLexerInput(YAMLLexer *);
 static char *captureValueOrKey(YAMLLexer *);
 static char *createStringLiteral(YAMLLexer *, size_t);
-
 static void resetLexerState(YAMLLexer *);
-
+static void handleComment(YAMLLexer *);
 static bool checkIfGettingHungry(YAMLLexer *);
+static bool isAllowedChompingNumber(char);
+
+static bool isAllowedChompingNumber(char to_check)
+{
+    int to_check_as_int = to_check - '0';
+    return (to_check_as_int >= 1 && to_check_as_int <= 9);
+}
 
 static bool checkIfGettingHungry(YAMLLexer *lexer)
 {
@@ -194,6 +200,31 @@ static void backtrackChar(YAMLLexer *lexer)
     }
 }
 
+static void handleComment(YAMLLexer *lexer)
+{
+    bool did_break = false;
+    do
+    {
+        advanceChar(lexer);
+        if (checkIfGettingHungry(lexer))
+        {
+            lexer->hungry = true;
+            lexer->state = YAMLLexerStateEatingComment;
+            did_break = true;
+            break;
+        }
+    } while (lexer->current_char != NULL_CHAR && lexer->current_char != NEWLINE_CHAR);
+
+    if (!did_break)
+    {
+        if (lexer->current_char == NEWLINE_CHAR)
+        {
+            backtrackChar(lexer);
+        }
+        resetLexerState(lexer);
+    }
+}
+
 static char *captureValueOrKey(YAMLLexer *lexer)
 {
     size_t start_position = lexer->position;
@@ -307,6 +338,10 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
         {
             Log(FATAL, "tab is not supported WIP");
         }
+        else if (lexer->current_char == '#')
+        {
+            handleComment(lexer);
+        }
         else if (lexer->current_char == NEWLINE_CHAR)
         {
             token = YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->position + 1, lexer->line, NULL);
@@ -379,6 +414,11 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     }
     else
     {
+        if (lexer->current_char != DASH_MINUS_CHAR && lexer->current_char != PLUS_CHAR && lexer->state == YAMLLexerStateWaitingForChompingDashOrPlus)
+        {
+            Log(DEBUG, "only | or > was found, no |-, |+ or >-, >+... reseting lexer state");
+            resetLexerState(lexer);
+        }
         if (lexer->current_char == DASH_MINUS_CHAR)
         {
             lexer->sequential_dashes++;
@@ -421,21 +461,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
             {
                 Log(TRACE, "Continuing to munch a comment...");
             }
-            do
-            {
-                advanceChar(lexer);
-                if (checkIfGettingHungry(lexer))
-                {
-                    lexer->hungry = true;
-                    lexer->state = YAMLLexerStateEatingComment;
-                    return NULL;
-                }
-            } while (lexer->current_char != NULL_CHAR && lexer->current_char != NEWLINE_CHAR);
-            if (lexer->current_char == NEWLINE_CHAR)
-            {
-                backtrackChar(lexer);
-            }
-            lexer->state = YAMLLexerStateNormal;
+            handleComment(lexer);
         }
         else if (lexer->current_char == COLON_CHAR)
         {
@@ -472,6 +498,20 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
             token = YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->position + 1, lexer->line, NULL);
             lexer->state = YAMLLexerStateJustGotNewline;
         }
+        else if (lexer->current_char == PLUS_CHAR)
+        {
+            if (lexer->state == YAMLLexerStateWaitingForChompingDashOrPlus)
+            {
+                token = YAMLTokenInit(YAMLTokenListKeepChomping, curr_pos, lexer->position + 1, lexer->line, NULL);
+                resetLexerState(lexer);
+                lexer->state = YAMLLexerStateWaitingForChompingNumber;
+            }
+            else
+            {
+                token = YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->position + 1, lexer->line, NULL);
+                resetLexerState(lexer);
+            }
+        }
         else if (lexer->current_char == DASH_MINUS_CHAR)
         {
             assert(lexer->sequential_dashes >= 1);
@@ -502,10 +542,10 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
                     backtrackChar(lexer);
                 }
             }
-            else if (lexer->state == YAMLLexerStateWaitingForChompingDash)
+            else if (lexer->state == YAMLLexerStateWaitingForChompingDashOrPlus)
             {
                 token = YAMLTokenInit(YAMLTokenListChompingDash, curr_pos, lexer->position + 1, lexer->line, NULL);
-                resetLexerState(lexer);
+                lexer->state = YAMLLexerStateWaitingForChompingNumber;
             }
             else
             {
@@ -553,7 +593,12 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
         else if (lexer->current_char == '|')
         {
             token = YAMLTokenInit(YAMLTokenLiteralBlockStart, curr_pos, lexer->position + 1, lexer->line, NULL);
-            lexer->state = YAMLLexerStateWaitingForChompingDash;
+            lexer->state = YAMLLexerStateWaitingForChompingDashOrPlus;
+        }
+        else if (lexer->current_char == '>')
+        {
+            token = YAMLTokenInit(YAMLTokenFoldedBlockStart, curr_pos, lexer->position + 1, lexer->line, NULL);
+            lexer->state = YAMLLexerStateWaitingForChompingDashOrPlus;
         }
         else if (lexer->current_char == '*')
         {
@@ -622,45 +667,64 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
         }
         else
         {
-            if (lexer->current_char == DOUBLE_QUOTES_CHAR)
+            if (lexer->state == YAMLLexerStateWaitingForChompingNumber && isAllowedChompingNumber(lexer->current_char))
             {
-                lexer->state = YAMLLexerStateInDoubleQuotes;
+                // Log(TRACE, "asd");
+                char *chomping_number_string = malloc(sizeof(char) * 2);
+                if (chomping_number_string == NULL)
+                {
+                    Log(FATAL, "chomping_number_string == NULL");
+                }
+                else
+                {
+                    chomping_number_string[0] = lexer->current_char;
+                    chomping_number_string[1] = NULL_CHAR;
+                    token = YAMLTokenInit(YAMLTokenChompingNumber, curr_pos, lexer->position + 1, lexer->line, chomping_number_string);
+                    resetLexerState(lexer);
+                }
             }
-            else if (lexer->current_char == SINGLE_QUOTES_CHAR)
+            else
             {
-                lexer->state = YAMLLexerStateInSingleQuotes;
-            }
+                if (lexer->current_char == DOUBLE_QUOTES_CHAR)
+                {
+                    lexer->state = YAMLLexerStateInDoubleQuotes;
+                }
+                else if (lexer->current_char == SINGLE_QUOTES_CHAR)
+                {
+                    lexer->state = YAMLLexerStateInSingleQuotes;
+                }
 
-            // must be a value or key
-            char *value_or_key = captureValueOrKey(lexer);
-            // Log(DEBUG, "%s", value_or_key);
-            // PrintBuffer(value_or_key, strlen(value_or_key), true);
-            // how to we know if we captured the full value?
-            // did we run out of buffer?
-            if (checkIfGettingHungry(lexer))
-            {
-                lexer->hungry = true;
-                lexer->temp_input = value_or_key;
-                lexer->temp_input_len = strlen(value_or_key);
-                return NULL;
-            }
+                // must be a value or key
+                char *value_or_key = captureValueOrKey(lexer);
+                // Log(DEBUG, "%s", value_or_key);
+                // PrintBuffer(value_or_key, strlen(value_or_key), true);
+                // how to we know if we captured the full value?
+                // did we run out of buffer?
+                if (checkIfGettingHungry(lexer))
+                {
+                    lexer->hungry = true;
+                    lexer->temp_input = value_or_key;
+                    lexer->temp_input_len = strlen(value_or_key);
+                    return NULL;
+                }
 
-            // if after the string there is colon, then this is a key
-            if (lexer->current_char == COLON_CHAR)
-            {
-                token = YAMLTokenInit(YAMLTokenKey, curr_pos, lexer->position + 1, lexer->line, value_or_key);
-                backtrackChar(lexer);
-            }
-            // this is a value // TODO -> we may want have a function for any whitespace here
-            else if (lexer->current_char == NEWLINE_CHAR || lexer->current_char == SPACE_CHAR)
-            {
-                token = YAMLTokenInit(YAMLTokenValue, curr_pos, lexer->position + 1, lexer->line, value_or_key);
-                backtrackChar(lexer);
-            }
-            else if (lexer->current_char == NULL_CHAR)
-            {
-                token = YAMLTokenInit(YAMLTokenValue, curr_pos, lexer->position + 1, lexer->line, value_or_key);
-                lexer->hungry = true;
+                // if after the string there is colon, then this is a key
+                if (lexer->current_char == COLON_CHAR)
+                {
+                    token = YAMLTokenInit(YAMLTokenKey, curr_pos, lexer->position + 1, lexer->line, value_or_key);
+                    backtrackChar(lexer);
+                }
+                // this is a value // TODO -> we may want have a function for any whitespace here
+                else if (lexer->current_char == NEWLINE_CHAR || lexer->current_char == SPACE_CHAR)
+                {
+                    token = YAMLTokenInit(YAMLTokenValue, curr_pos, lexer->position + 1, lexer->line, value_or_key);
+                    backtrackChar(lexer);
+                }
+                else if (lexer->current_char == NULL_CHAR)
+                {
+                    token = YAMLTokenInit(YAMLTokenValue, curr_pos, lexer->position + 1, lexer->line, value_or_key);
+                    lexer->hungry = true;
+                }
             }
         }
     }

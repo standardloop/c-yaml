@@ -1,12 +1,33 @@
----
-example: hi
+# ---
+# a: hi
 
-this:
-  that: yes
+# b:
+#   that: yes
 
-test:
-- foo
-- bar
+# c:
+# - foo
+# - bar
 
-this: |-
+d: |
+  yup
+
+e: |-
+  yup
+
+f: |+
+  yup
+
+g: |+2
+  yup
+
+h: >
+  yup
+
+i: >-
+  yup
+
+j: >+
+  yup
+
+k: >+2
   yup

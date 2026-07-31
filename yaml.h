@@ -93,11 +93,12 @@ enum YAMLLexerState
     YAMLLexerStateEatingComment,
     YAMLLexerStateInSingleQuotes,
     YAMLLexerStateInDoubleQuotes,
-    YAMLLexerStateWaitingForChompingDash,
+    YAMLLexerStateWaitingForChompingDashOrPlus,
     YAMLLexerStateWaitSpaceAfterDash,
     YAMLLexerStateJustGotNewline,
     YAMLLexerStatePopDedent,
     YAMLLexerStateFoundEOFNeedToPopRemainingDedent,
+    YAMLLexerStateWaitingForChompingNumber,
 };
 
 typedef struct
