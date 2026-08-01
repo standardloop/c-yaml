@@ -1,12 +1,12 @@
-# ---
-# a: hi
+---
+a: hi
 
-# b:
-#   that: yes
+b:
+  that: yes
 
-# c:
-# - foo
-# - bar
+c:
+- foo
+- bar
 
 d: |
   yup
@@ -31,3 +31,4 @@ j: >+
 
 k: >+2
   yup
+...

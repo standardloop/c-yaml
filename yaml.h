@@ -99,6 +99,8 @@ enum YAMLLexerState
     YAMLLexerStatePopDedent,
     YAMLLexerStateFoundEOFNeedToPopRemainingDedent,
     YAMLLexerStateWaitingForChompingNumber,
+    YAMLLexerStateCurlyFlow,
+    YAMLLexerStateBracketFlow
 };
 
 typedef struct

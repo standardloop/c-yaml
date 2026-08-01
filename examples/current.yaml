@@ -1,0 +1,12 @@
+---
+test-normal:
+  - foo
+  - bar
+
+test-bracket: [
+  foo,
+  bar,
+]
+
+test-bracket: [foo,bar]
+...
