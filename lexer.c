@@ -574,7 +574,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
                 }
             }
         }
-        else if (lexer->current_char == CURLY_OPEN_CHAR)
+        else if (lexer->current_char == CURLY_OPEN_CHAR || lexer->state == YAMLLexerStateCurlyFlow)
         {
             lexer->state = YAMLLexerStateCurlyFlow;
             Log(FATAL, "TODO");
@@ -586,10 +586,12 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
         else if (lexer->current_char == BRACKET_OPEN_CHAR)
         {
             lexer->state = YAMLLexerStateBracketFlow;
+            token = YAMLTokenInit(YAMLTokenFlowSequenceStart, curr_pos, lexer->position + 1, lexer->line, NULL);
             Log(FATAL, "TODO");
         }
         else if (lexer->current_char == BRACKET_CLOSE_CHAR)
         {
+            token = YAMLTokenInit(YAMLTokenFlowSequenceEnd, curr_pos, lexer->position + 1, lexer->line, NULL);
             Log(FATAL, "TODO");
         }
         else if (lexer->current_char == '|')

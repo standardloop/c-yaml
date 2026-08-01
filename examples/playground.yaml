@@ -1,34 +1,5 @@
 ---
-a: hi
-
-b:
-  that: yes
-
-c:
-- foo
-- bar
-
-d: |
-  yup
-
-e: |-
-  yup
-
-f: |+
-  yup
-
-g: |+2
-  yup
-
-h: >
-  yup
-
-i: >-
-  yup
-
-j: >+
-  yup
-
-k: >+2
-  yup
+test-together:
+  - foo: bar
+    example: this
 ...
