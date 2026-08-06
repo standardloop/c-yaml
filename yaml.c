@@ -18,6 +18,20 @@ extern YAML *StringToYAML(char *yaml_string)
     {
         return NULL;
     }
+
+    YAMLLexer *lexer = YAMLLexerInit();
+
+    if (lexer == NULL)
+    {
+        return NULL;
+    }
+    YAMLParser *parser = YAMLParserInit(lexer);
+    if (parser == NULL)
+    {
+        YAMLLexerFree(lexer);
+        return NULL;
+    }
+    
     return NULL;
 }
 

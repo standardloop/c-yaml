@@ -585,7 +585,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
         }
         else if (lexer->current_char == BRACKET_OPEN_CHAR)
         {
-            lexer->state = YAMLLexerStateBracketFlow;
+            lexer->state = YAMLLexerStateSequenceFlow;
             token = YAMLTokenInit(YAMLTokenFlowSequenceStart, curr_pos, lexer->position + 1, lexer->line, NULL);
             Log(FATAL, "TODO");
         }

@@ -100,7 +100,7 @@ enum YAMLLexerState
     YAMLLexerStateFoundEOFNeedToPopRemainingDedent,
     YAMLLexerStateWaitingForChompingNumber,
     YAMLLexerStateCurlyFlow,
-    YAMLLexerStateBracketFlow
+    YAMLLexerStateSequenceFlow
 };
 
 typedef struct
@@ -118,7 +118,7 @@ typedef struct
     bool is_last_chunk;
 
     // Hungry means the lexer needs more input before it can finish a token
-    bool hungry;
+    bool hungry; // can this be a state?
     char *temp_input;
     size_t temp_input_len;
 
@@ -126,7 +126,6 @@ typedef struct
     int sequential_dots;   // tracking document end
     int space_count;
 
-    // maybe
     enum YAMLLexerState state;
 } YAMLLexer;
 
@@ -137,6 +136,18 @@ extern void YAMLLexerFree(YAMLLexer *);
 extern bool IsLexerHungry(YAMLLexer *);
 
 // ————————— LEXER END —————————
+
+// ————————— PARSER START —————————
+
+typedef struct
+{
+    YAMLLexer *lexer;
+} YAMLParser;
+
+extern YAMLParser *YAMLParserInit(YAMLLexer *);
+extern void YAMLParserFree(YAMLParser *);
+
+// ————————— PARSER END —————————
 
 typedef struct
 {
