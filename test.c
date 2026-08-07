@@ -6,6 +6,24 @@
 #include <standardloop/util.h>
 #include "./yaml.h"
 
+static bool isBufferSizeOkay(size_t);
+
+static bool isBufferSizeOkay(size_t buffer_size)
+{
+    if (buffer_size < LEXER_MIN_BUFFER_SIZE)
+    {
+        Log(ERROR, "buffer_size needs to be greater than or equal to %d", (int)LEXER_MIN_BUFFER_SIZE);
+        return false;
+    }
+    else if (buffer_size >= LEXER_MAX_BUFFER_SIZE)
+    {
+        Log(ERROR, "buffer_size needs to be less than %d", (int)LEXER_MAX_BUFFER_SIZE);
+        return false;
+    }
+
+    return true;
+}
+
 int main(int argc, char **argv)
 {
     InitLogger(TRACE, STANDARD_FMT, false, true, true, true);
@@ -21,27 +39,39 @@ int main(int argc, char **argv)
         char *filename = argv[1];
         if (argc >= 3)
         {
-            buffer_size = (size_t)atoi(argv[2]); // TODO, maybe use strtoull instead?
-            if (buffer_size < LEXER_MIN_BUFFER_SIZE)
+            size_t buffer_size_from_argv = (size_t)atoi(argv[2]); // TODO, maybe use strtoull instead?
+            if (isBufferSizeOkay(buffer_size_from_argv))
             {
-                Log(FATAL, "buffer_size needs to be greater than or equal to %d", (int)LEXER_MIN_BUFFER_SIZE);
+                buffer_size = buffer_size_from_argv;
             }
-            else if (buffer_size >= LEXER_MAX_BUFFER_SIZE)
+            else
             {
-                Log(FATAL, "buffer_size needs to be less than %d", (int)LEXER_MAX_BUFFER_SIZE);
+                Log(ERROR, "invalid buffer size, will use default");
             }
         }
         Log(DEBUG, "filename: %s", filename);
-        Log(DEBUG, "buffer_size: %d", (int)buffer_size);
-
         file_ptr = fopen(filename, "rb");
     }
     else
     {
+        if (argc >= 2)
+        {
+            size_t buffer_size_from_argv = (size_t)atoi(argv[1]); // TODO, maybe use strtoull instead?
+            if (isBufferSizeOkay(buffer_size_from_argv))
+            {
+                buffer_size = buffer_size_from_argv;
+            }
+            else
+            {
+                Log(ERROR, "invalid buffer size, will use default");
+            }
+        }
         // Log(FATAL, "foo");
         file_ptr = stdin;
-        Log(DEBUG, "expecting piped data from stdin");
+        Log(DEBUG, "taking input from stdin");
     }
+
+    Log(DEBUG, "buffer_size: %d", (int)buffer_size);
     YAML *yaml = YAMLFromFile(file_ptr, buffer_size);
     // Log(FATAL, "foo");
 
