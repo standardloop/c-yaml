@@ -31,7 +31,7 @@ extern YAML *StringToYAML(char *yaml_string)
         YAMLLexerFree(lexer);
         return NULL;
     }
-    
+
     return NULL;
 }
 
@@ -89,7 +89,7 @@ extern YAML *YAMLFromFile(char *filename, size_t buffer_size)
 
         // Log(ERROR, "%s", current_buffer);
         // Log(ERROR, "%d", (int)next_bytes);
-        LexerReload(lexer, current_buffer, current_bytes, next_bytes == 0);
+        YAMLLexerReload(lexer, current_buffer, current_bytes, next_bytes == 0);
         while (!IsLexerHungry(lexer))
         {
             YAMLToken *token = YAMLLex(lexer);

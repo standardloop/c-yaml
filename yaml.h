@@ -122,8 +122,8 @@ typedef struct
     char *temp_input;
     size_t temp_input_len;
 
-    int sequential_dashes; // tracking document start
-    int sequential_dots;   // tracking document end
+    u_int8_t sequential_dashes; // tracking document start
+    u_int8_t sequential_dots;   // tracking document end
     int space_count;
 
     enum YAMLLexerState state;
@@ -131,9 +131,11 @@ typedef struct
 
 extern YAMLToken *YAMLLex(YAMLLexer *);
 extern YAMLLexer *YAMLLexerInit();
-extern void LexerReload(YAMLLexer *, char *, size_t, bool);
+extern void YAMLLexerReload(YAMLLexer *, char *, size_t, bool);
 extern void YAMLLexerFree(YAMLLexer *);
 extern bool IsLexerHungry(YAMLLexer *);
+
+extern void YAMLLexerDebugTest(char *);
 
 // ————————— LEXER END —————————
 

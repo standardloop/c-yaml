@@ -19,6 +19,8 @@ static void resetLexerState(YAMLLexer *);
 static void handleComment(YAMLLexer *);
 static bool checkIfGettingHungry(YAMLLexer *);
 static bool isAllowedChompingNumber(char);
+static void resetLexerDashes(YAMLLexer *);
+static void resetLexerDots(YAMLLexer *);
 
 static bool isAllowedChompingNumber(char to_check)
 {
@@ -35,6 +37,16 @@ static void resetLexerState(YAMLLexer *lexer)
 {
     assert(lexer != NULL);
     lexer->state = YAMLLexerStateNormal;
+}
+
+static void resetLexerDashes(YAMLLexer *lexer)
+{
+    lexer->sequential_dashes = 0;
+}
+
+static void resetLexerDots(YAMLLexer *lexer)
+{
+    lexer->sequential_dots = 0;
 }
 
 extern bool IsLexerHungry(YAMLLexer *lexer)
@@ -70,7 +82,7 @@ static bool isAtEndOfLexerInput(YAMLLexer *lexer)
 }
 
 extern void
-LexerReload(YAMLLexer *lexer, char *buffer, size_t size, bool is_last_chunk)
+YAMLLexerReload(YAMLLexer *lexer, char *buffer, size_t size, bool is_last_chunk)
 {
     if (lexer->temp_input != NULL && lexer->temp_input_len > 0)
     {
@@ -122,7 +134,7 @@ LexerReload(YAMLLexer *lexer, char *buffer, size_t size, bool is_last_chunk)
     lexer->hungry = false;
     lexer->position = -1;
     lexer->read_position = 0;
-    lexer->sequential_dashes = 0;
+    // resetLexerDashes(lexer);
     lexer->is_last_chunk = is_last_chunk;
 }
 
@@ -158,6 +170,8 @@ extern YAMLLexer *YAMLLexerInit()
     lexer->space_count = 0;
 
     // lexer->state = YAMLLexerStateJustGotNewline;
+    resetLexerDashes(lexer);
+    resetLexerDots(lexer);
     resetLexerState(lexer);
 
     return lexer;
@@ -425,7 +439,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
         }
         else
         {
-            lexer->sequential_dashes = 0;
+            resetLexerDashes(lexer);
         }
 
         if (lexer->current_char == DOT_CHAR)
@@ -434,7 +448,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
         }
         else
         {
-            lexer->sequential_dots = 0;
+            resetLexerDots(lexer);
         }
 
         // Log(DEBUG, "%d", lexer->current_char);
@@ -514,13 +528,14 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
         }
         else if (lexer->current_char == DASH_MINUS_CHAR)
         {
+            // Log(DEBUG, "%d", lexer->sequential_dashes);
             assert(lexer->sequential_dashes >= 1);
 
             if (lexer->sequential_dashes == 3)
             {
                 resetLexerState(lexer);
                 token = YAMLTokenInit(YAMLTokenStartOfDocument, curr_pos, lexer->position + 1, lexer->line, NULL);
-                lexer->sequential_dashes = 0;
+                resetLexerDashes(lexer);
             }
             else if (lexer->sequential_dashes == 2)
             {
@@ -533,12 +548,12 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
                 else if (lexer->current_char == DASH_MINUS_CHAR)
                 {
                     token = YAMLTokenInit(YAMLTokenStartOfDocument, curr_pos, lexer->position + 1, lexer->line, NULL);
-                    lexer->sequential_dashes = 0;
+                    resetLexerDashes(lexer);
                 }
                 else
                 {
                     token = YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->position + 1, lexer->line, NULL);
-                    lexer->sequential_dashes = 0;
+                    resetLexerDashes(lexer);
                     backtrackChar(lexer);
                 }
             }
@@ -559,7 +574,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
                 else if (lexer->current_char == SPACE_CHAR)
                 {
                     token = YAMLTokenInit(YAMLTokenListDash, curr_pos, lexer->position + 1, lexer->line, NULL);
-                    lexer->sequential_dashes = 0;
+                    resetLexerDashes(lexer);
                     backtrackChar(lexer);
                 }
                 else if (lexer->current_char == DASH_MINUS_CHAR)
@@ -569,7 +584,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
                 else
                 {
                     token = YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->position + 1, lexer->line, NULL);
-                    lexer->sequential_dashes = 0;
+                    resetLexerDashes(lexer);
                     backtrackChar(lexer);
                 }
             }
@@ -635,12 +650,12 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
                 else if (lexer->current_char == DOT_CHAR)
                 {
                     token = YAMLTokenInit(YAMLTokenEndOfDocument, curr_pos, lexer->position + 1, lexer->line, NULL);
-                    lexer->sequential_dashes = 0;
+                    resetLexerDashes(lexer);
                 }
                 else
                 {
                     token = YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->position + 1, lexer->line, NULL);
-                    lexer->sequential_dashes = 0;
+                    resetLexerDashes(lexer);
                     backtrackChar(lexer);
                 }
             }
@@ -660,7 +675,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
                 else
                 {
                     token = YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->position + 1, lexer->line, NULL);
-                    lexer->sequential_dashes = 0;
+                    resetLexerDashes(lexer);
                     backtrackChar(lexer);
                 }
             }
@@ -927,4 +942,31 @@ extern char *YAMLTokenTypeToString(enum YAMLTokenType type)
         return "YAMLTokenNewline";
     }
     return "ERROR";
+}
+
+extern void YAMLLexerDebugTest(char *input_str)
+{
+    YAMLLexer *lexer = YAMLLexerInit();
+    char *string_copy = QuickAllocatedString(input_str);
+
+    // pass full string
+    lexer->input = string_copy;
+    lexer->input_len = strlen(string_copy);
+    lexer->is_last_chunk = true;
+
+    while (ALWAYS)
+    {
+        YAMLToken *token = YAMLLex(lexer);
+        if (token != NULL)
+        {
+            YAMLTokenPrint(token);
+            if (token->type == YAMLTokenEOF)
+            {
+                YAMLTokenFree(token);
+                break;
+            }
+            YAMLTokenFree(token);
+        }
+    }
+    YAMLLexerFree(lexer);
 }

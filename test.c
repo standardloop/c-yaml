@@ -2,11 +2,16 @@
 #include <stdlib.h>
 
 #include <standardloop/logger.h>
+#include <standardloop/util.h>
 #include "./yaml.h"
 
 int main(int argc, char **argv)
 {
     InitLogger(TRACE, STANDARD_FMT, false, true, true, true);
+
+    // YAMLLexerDebugTest(QuickAllocatedString("---\nfoo: bar\n...\n"));
+    // exit(0);
+
     if (argc == 1)
     {
         Log(FATAL, "need an arg for filename");
