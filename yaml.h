@@ -164,7 +164,8 @@ typedef struct
 
 extern YAML *YAMLInit();
 extern YAML *StringToYAML(char *);
-extern YAML *YAMLFromFile(char *, size_t);
+extern YAML *YAMLFromFile(FILE *, size_t);
+extern YAML *YAMLFromSTDIN(size_t);
 extern char *YAMLToString(YAML *);
 
 extern void YAMLFree(YAML *);

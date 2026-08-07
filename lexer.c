@@ -947,11 +947,10 @@ extern char *YAMLTokenTypeToString(enum YAMLTokenType type)
 extern void YAMLLexerDebugTest(char *input_str)
 {
     YAMLLexer *lexer = YAMLLexerInit();
-    char *string_copy = QuickAllocatedString(input_str);
 
     // pass full string
-    lexer->input = string_copy;
-    lexer->input_len = strlen(string_copy);
+    lexer->input = input_str;
+    lexer->input_len = strlen(input_str);
     lexer->is_last_chunk = true;
 
     while (ALWAYS)

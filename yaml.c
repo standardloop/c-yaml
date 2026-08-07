@@ -35,12 +35,11 @@ extern YAML *StringToYAML(char *yaml_string)
     return NULL;
 }
 
-extern YAML *YAMLFromFile(char *filename, size_t buffer_size)
+extern YAML *YAMLFromFile(FILE *file_ptr, size_t buffer_size)
 {
-    FILE *file_ptr = fopen(filename, "rb");
     if (file_ptr == NULL)
     {
-        Log(FATAL, "Unable to open file %s", filename);
+        Log(FATAL, "file is NULL");
         return NULL;
     }
 
