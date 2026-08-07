@@ -47,6 +47,10 @@ int main(int argc, char **argv)
 
     YAMLPrint(yaml);
     YAMLFree(yaml);
+    if (file_ptr != stdin)
+    {
+        fclose(file_ptr);
+    }
 
     // YAMLLexerDebugTest(QuickAllocatedString("---\nfoo: bar\n...\n"));
     // exit(0);

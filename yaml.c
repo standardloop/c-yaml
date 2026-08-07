@@ -39,22 +39,22 @@ extern YAML *YAMLFromFile(FILE *file_ptr, size_t buffer_size)
 {
     if (file_ptr == NULL)
     {
-        Log(FATAL, "file is NULL");
+        Log(ERROR, "file is NULL");
         return NULL;
     }
 
     char *raw_yaml_buffer_a = calloc(buffer_size + 1, sizeof(char));
     if (raw_yaml_buffer_a == NULL)
     {
-        fclose(file_ptr);
-        Log(FATAL, "no mem for raw_yaml_buffer_a");
+        // fclose(file_ptr);
+        Log(ERROR, "no mem for raw_yaml_buffer_a");
         return NULL;
     }
     char *raw_yaml_buffer_b = calloc(buffer_size + 1, sizeof(char));
     if (raw_yaml_buffer_b == NULL)
     {
-        fclose(file_ptr);
-        Log(FATAL, "no mem for raw_yaml_buffer_b");
+        // fclose(file_ptr);
+        Log(ERROR, "no mem for raw_yaml_buffer_b");
         return NULL;
     }
 
@@ -67,8 +67,8 @@ extern YAML *YAMLFromFile(FILE *file_ptr, size_t buffer_size)
     if (current_bytes == 0)
     {
 
-        Log(DEBUG, "the file is empty");
-        fclose(file_ptr);
+        Log(ERROR, "the file is empty");
+        // fclose(file_ptr);
         return NULL; // fixme, maybe we can still return an initialized yaml struct
     }
 
@@ -121,14 +121,14 @@ extern YAML *YAMLFromFile(FILE *file_ptr, size_t buffer_size)
         current_bytes = next_bytes;
     }
 
-    if (ferror(file_ptr))
-    {
-        perror("Error reading file");
-    }
-    else if (feof(file_ptr))
-    {
-        fclose(file_ptr);
-    }
+    // if (ferror(file_ptr))
+    // {
+    //     perror("Error reading file");
+    // }
+    // else if (feof(file_ptr))
+    // {
+    //     fclose(file_ptr);
+    // }
 
     return NULL;
 }
