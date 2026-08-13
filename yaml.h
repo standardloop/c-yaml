@@ -130,6 +130,8 @@ typedef struct
 } YAMLLexer;
 
 extern YAMLToken *YAMLLex(YAMLLexer *);
+extern void YAMLTokenFree(YAMLToken *);
+extern YAMLToken *YAMLTokenInit(enum YAMLTokenType, u_int32_t, u_int32_t, u_int32_t, char *);
 extern YAMLLexer *YAMLLexerInit();
 extern void YAMLLexerReload(YAMLLexer *, char *, size_t, bool);
 extern void YAMLLexerFree(YAMLLexer *);
@@ -144,6 +146,9 @@ extern void YAMLLexerDebugTest(char *);
 typedef struct
 {
     YAMLLexer *lexer;
+    YAMLToken *current_token;
+    YAMLToken *peek_token;
+    char *error_message;
 } YAMLParser;
 
 extern YAMLParser *YAMLParserInit(YAMLLexer *);
