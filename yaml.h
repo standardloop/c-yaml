@@ -150,16 +150,32 @@ extern void YAMLLexerDebugTest(char *);
 
 // ————————— PARSER START —————————
 
+enum YAMLParserInputMode
+{
+    YAMLParserInputFile,
+    // YAMLParserInputString
+};
+
 typedef struct
 {
+    enum YAMLParserInputMode input_mode;
+    union
+    {
+        FILE *file_ptr;
+        // char *string_ptr;
+    };
+    size_t buffer_size;
     YAMLLexer *lexer;
     YAMLToken *current_token;
     YAMLToken *peek_token;
     char *error_message;
 } YAMLParser;
 
-extern YAMLParser *YAMLParserInit(YAMLLexer *);
-extern void YAMLParserFree(YAMLParser *);
+extern YAMLParser *YAMLParserInit(YAMLLexer *lexer,
+                                  enum YAMLParserInputMode input_mode,
+                                  void *input_ptr, size_t buffer_size);
+
+extern void YAMLParserFree(YAMLParser *parser);
 
 // ————————— PARSER END —————————
 
@@ -220,7 +236,7 @@ extern void YAMLPrint(YAML *);
 extern void TestYaml(void);
 /// @endcond
 
-extern YAML *YAMLParse(YAMLParser *parser);
+extern YAML *YAMLParserParse(YAMLParser *parser);
 extern YAML *YAMLParseFile(YAMLParser *parser, FILE *file_ptr,
                            size_t buffer_size);
 #endif

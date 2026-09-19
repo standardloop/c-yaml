@@ -113,6 +113,18 @@ enum YAMLLexerState
 
 ---
 
+### YAMLParserInputMode
+
+```cpp
+enum YAMLParserInputMode
+```
+
+| Value                 | Description |
+| --------------------- | ----------- |
+| `YAMLParserInputFile` |             |
+
+---
+
 ### YAMLValueType
 
 ```cpp
@@ -216,7 +228,7 @@ void YAMLLexerDebugTest(char *)
 ### YAMLParserInit
 
 ```cpp
-YAMLParser * YAMLParserInit(YAMLLexer *)
+YAMLParser * YAMLParserInit(YAMLLexer * lexer, enum YAMLParserInputMode input_mode, void * input_ptr, size_t buffer_size)
 ```
 
 ---
@@ -224,7 +236,7 @@ YAMLParser * YAMLParserInit(YAMLLexer *)
 ### YAMLParserFree
 
 ```cpp
-void YAMLParserFree(YAMLParser *)
+void YAMLParserFree(YAMLParser * parser)
 ```
 
 ---
@@ -285,10 +297,10 @@ void YAMLPrint(YAML *)
 
 ---
 
-### YAMLParse
+### YAMLParserParse
 
 ```cpp
-YAML * YAMLParse(YAMLParser * parser)
+YAML * YAMLParserParse(YAMLParser * parser)
 ```
 
 ---
@@ -541,7 +553,7 @@ struct YAMLValue
 | Return                                                               | Name                                                                                                     | Description |
 | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------- |
 | `enum YAMLValueType`                                                 | [`value_type`](#value_type)                                                                              |             |
-| `union YAMLValue::@164241133151322264244351313220306251143335010005` | [`@306142324131216233076101367267331363154064025165`](#306142324131216233076101367267331363154064025165) |             |
+| `union YAMLValue::@027336223146000335222027022202053122010174050143` | [`@056073055070301067077232157254230012151024272147`](#056073055070301067077232157254230012151024272147) |             |
 
 ---
 
@@ -553,10 +565,10 @@ enum YAMLValueType value_type
 
 ---
 
-#### @306142324131216233076101367267331363154064025165
+#### @056073055070301067077232157254230012151024272147
 
 ```cpp
-union YAMLValue::@164241133151322264244351313220306251143335010005 @306142324131216233076101367267331363154064025165
+union YAMLValue::@027336223146000335222027022202053122010174050143 @056073055070301067077232157254230012151024272147
 ```
 
 ## [union].**unnamed0**
@@ -632,12 +644,39 @@ struct YAMLParser
 
 ### Public Attributes
 
-| Return        | Name                              | Description |
-| ------------- | --------------------------------- | ----------- |
-| `YAMLLexer *` | [`lexer`](#lexer)                 |             |
-| `YAMLToken *` | [`current_token`](#current_token) |             |
-| `YAMLToken *` | [`peek_token`](#peek_token)       |             |
-| `char *`      | [`error_message`](#error_message) |             |
+| Return                                                                | Name                                                                                                     | Description |
+| --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------- |
+| `enum YAMLParserInputMode`                                            | [`input_mode`](#input_mode)                                                                              |             |
+| `union YAMLParser::@164241133151322264244351313220306251143335010005` | [`@306142324131216233076101367267331363154064025165`](#306142324131216233076101367267331363154064025165) |             |
+| `size_t`                                                              | [`buffer_size`](#buffer_size)                                                                            |             |
+| `YAMLLexer *`                                                         | [`lexer`](#lexer)                                                                                        |             |
+| `YAMLToken *`                                                         | [`current_token`](#current_token)                                                                        |             |
+| `YAMLToken *`                                                         | [`peek_token`](#peek_token)                                                                              |             |
+| `char *`                                                              | [`error_message`](#error_message)                                                                        |             |
+
+---
+
+#### input_mode
+
+```cpp
+enum YAMLParserInputMode input_mode
+```
+
+---
+
+#### @306142324131216233076101367267331363154064025165
+
+```cpp
+union YAMLParser::@164241133151322264244351313220306251143335010005 @306142324131216233076101367267331363154064025165
+```
+
+---
+
+#### buffer_size
+
+```cpp
+size_t buffer_size
+```
 
 ---
 
@@ -669,6 +708,26 @@ YAMLToken * peek_token
 
 ```cpp
 char * error_message
+```
+
+## [union].**unnamed0**
+
+```cpp
+union [union].__unnamed0__
+```
+
+### Public Attributes
+
+| Return   | Name                    | Description |
+| -------- | ----------------------- | ----------- |
+| `FILE *` | [`file_ptr`](#file_ptr) |             |
+
+---
+
+#### file_ptr
+
+```cpp
+FILE * file_ptr
 ```
 
 ## YAMLDocument
@@ -754,4 +813,24 @@ char * str
 
 ```cpp
 bool * boolean
+```
+
+## [union].**unnamed0**
+
+```cpp
+union [union].__unnamed0__
+```
+
+### Public Attributes
+
+| Return   | Name                    | Description |
+| -------- | ----------------------- | ----------- |
+| `FILE *` | [`file_ptr`](#file_ptr) |             |
+
+---
+
+#### file_ptr
+
+```cpp
+FILE * file_ptr
 ```

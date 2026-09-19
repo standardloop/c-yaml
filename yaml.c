@@ -32,110 +32,42 @@ extern YAML *StringToYAML(char *yaml_string)
         return NULL;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit();
+    // YAMLLexer *lexer = YAMLLexerInit();
 
-    if (lexer == NULL)
-    {
-        return NULL;
-    }
-    YAMLParser *parser = YAMLParserInit(lexer);
-    if (parser == NULL)
-    {
-        YAMLLexerFree(lexer);
-        return NULL;
-    }
+    // if (lexer == NULL)
+    // {
+    //     return NULL;
+    // }
+    // YAMLParser *parser = YAMLParserInit(lexer, YAMLParserInputFile, );
+    // if (parser == NULL)
+    // {
+    //     YAMLLexerFree(lexer);
+    //     return NULL;
+    // }
 
     return NULL;
 }
 
 extern YAML *YAMLFromFile(FILE *file_ptr, size_t buffer_size)
 {
+    Log(TRACE, "entering YAMLFromFile");
     if (file_ptr == NULL)
     {
         Log(ERROR, "file is NULL");
         return NULL;
     }
-
-    char *raw_yaml_buffer_a = calloc(buffer_size + 1, sizeof(char));
-    if (raw_yaml_buffer_a == NULL)
-    {
-        // fclose(file_ptr);
-        Log(ERROR, "no mem for raw_yaml_buffer_a");
-        return NULL;
-    }
-    char *raw_yaml_buffer_b = calloc(buffer_size + 1, sizeof(char));
-    if (raw_yaml_buffer_b == NULL)
-    {
-        // fclose(file_ptr);
-        Log(ERROR, "no mem for raw_yaml_buffer_b");
-        return NULL;
-    }
-
-    char *current_buffer = raw_yaml_buffer_a;
-    char *next_buffer = raw_yaml_buffer_b;
-
-    size_t current_bytes =
-        fread(current_buffer, sizeof(char), buffer_size, file_ptr);
-    current_buffer[buffer_size] = NULL_CHAR;
-
-    if (current_bytes == 0)
-    {
-
-        Log(ERROR, "the file is empty");
-        // fclose(file_ptr);
-        return NULL; // fixme, maybe we can still return an initialized yaml
-                     // struct
-    }
+    Log(TRACE, "file_ptr is not NULL");
 
     YAMLLexer *lexer = YAMLLexerInit();
-
     if (lexer == NULL)
     {
         return NULL;
     }
 
-    bool done = false;
-    while (ALWAYS)
-    {
-        size_t next_bytes =
-            fread(next_buffer, sizeof(char), buffer_size, file_ptr);
-        current_buffer[buffer_size] = NULL_CHAR;
-        next_buffer[buffer_size] = NULL_CHAR;
+    YAMLParser *parser =
+        YAMLParserInit(lexer, YAMLParserInputFile, file_ptr, buffer_size);
 
-        // Log(ERROR, "%s", current_buffer);
-        // Log(ERROR, "%d", (int)next_bytes);
-        YAMLLexerReload(lexer, current_buffer, current_bytes, next_bytes == 0);
-        while (!IsLexerHungry(lexer))
-        {
-            YAMLToken *token = YAMLLex(lexer);
-            if (token != NULL)
-            {
-                YAMLTokenPrint(token);
-                if (token->type == YAMLTokenEOF)
-                {
-                    done = true;
-                    break;
-                }
-            }
-            // sleep(1);
-        }
-        // if (next_bytes == 0)
-        // {
-        //     break;
-        // }
-
-        if (done)
-        {
-            break;
-        }
-
-        // loop
-        char *temp = current_buffer;
-        current_buffer = next_buffer;
-        next_buffer = temp;
-
-        current_bytes = next_bytes;
-    }
+    YAML *yaml = YAMLParserParse(parser);
 
     // if (ferror(file_ptr))
     // {
@@ -146,7 +78,7 @@ extern YAML *YAMLFromFile(FILE *file_ptr, size_t buffer_size)
     //     fclose(file_ptr);
     // }
 
-    return NULL;
+    return yaml;
 }
 
 extern char *YAMLToString(YAML *yaml)

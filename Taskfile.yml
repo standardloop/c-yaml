@@ -1,13 +1,14 @@
 ---
 version: "3"
 
-silent: true
+# silent: true
 
 includes:
   # c: https://raw.githubusercontent.com/standardloop/taskfiles/refs/heads/main/c.yml # can pin in future
   c: ../taskfiles/c.yml
 
 vars:
+  CC: /opt/homebrew/opt/llvm/bin/clang -I/usr/local/include
   DYN_LIBS_USED: "-lstandardloop-logger -lstandardloop-collections -lstandardloop-util"
   TEST_EXECUTABLE_NAME: test
   SOURCE_FILES:

@@ -142,6 +142,7 @@ extern void YAMLLexerReload(YAMLLexer *lexer, char *buffer, size_t size,
 
 extern YAMLLexer *YAMLLexerInit()
 {
+    Log(TRACE, "entering YAMLLexerInit");
     YAMLLexer *lexer = malloc(sizeof(YAMLLexer));
     if (lexer == NULL)
     {
