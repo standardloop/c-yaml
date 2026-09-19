@@ -61,3 +61,4 @@ lab
 test
 test-sanitize
 *.txt
+doxygen/
