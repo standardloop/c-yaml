@@ -3,10 +3,7 @@ test-normal:
   - foo
   - bar
 
-test-bracket: [
-  [1,2,3],
-  [4,5,6],
-]
+test-bracket: [[1, 2, 3], [4, 5, 6]]
 
-test-bracket: [foo,bar]
+test-bracket-2: ["foo", "bar"]
 ...

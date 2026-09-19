@@ -3,9 +3,9 @@
   <compounddef id="struct_y_a_m_l" kind="struct" language="C++" prot="public">
     <compoundname>YAML</compoundname>
     <sectiondef kind="public-attrib">
-      <memberdef kind="variable" id="struct_y_a_m_l_1a7d5502696a80c1891a9e05ee0d072217" prot="public" static="no" mutable="no">
-        <type>YAMLDocument **</type>
-        <definition>YAMLDocument** YAML::documents</definition>
+      <memberdef kind="variable" id="struct_y_a_m_l_1a30f3457c88a5fa3ed745a47d99283bd2" prot="public" static="no" mutable="no">
+        <type>List *</type>
+        <definition>List* YAML::documents</definition>
         <argsstring></argsstring>
         <name>documents</name>
         <qualifiedname>YAML::documents</qualifiedname>
@@ -15,16 +15,16 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="yaml.h" line="170" column="18" bodyfile="yaml.h" bodystart="170" bodyend="-1"/>
+        <location file="yaml.h" line="207" column="10" bodyfile="yaml.h" bodystart="207" bodyend="-1"/>
       </memberdef>
     </sectiondef>
     <briefdescription>
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="yaml.h" line="168" column="1" bodyfile="yaml.h" bodystart="169" bodyend="171"/>
+    <location file="yaml.h" line="205" column="1" bodyfile="yaml.h" bodystart="206" bodyend="208"/>
     <listofallmembers>
-      <member refid="struct_y_a_m_l_1a7d5502696a80c1891a9e05ee0d072217" prot="public" virt="non-virtual"><scope>YAML</scope><name>documents</name></member>
+      <member refid="struct_y_a_m_l_1a30f3457c88a5fa3ed745a47d99283bd2" prot="public" virt="non-virtual"><scope>YAML</scope><name>documents</name></member>
     </listofallmembers>
   </compounddef>
 </doxygen>

@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['yaml_0',['c-yaml',['../md__r_e_a_d_m_e.html',1,'']]],
-  ['yaml_2eh_1',['yaml.h',['../yaml_8h.html',1,'']]]
+  ['variables_0',['Variables',['../md__s_t_y_l_e.html#autotoc_md9',1,'']]]
 ];

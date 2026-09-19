@@ -10,6 +10,7 @@ var NAVTREEINDEX0 =
 "md__r_e_a_d_m_e.html#autotoc_md5":[0,4],
 "md__r_e_a_d_m_e.html#autotoc_md6":[0,5],
 "md__s_t_y_l_e.html":[1],
+"md__s_t_y_l_e.html#autotoc_md10":[1,2],
 "md__s_t_y_l_e.html#autotoc_md8":[1,0],
 "md__s_t_y_l_e.html#autotoc_md9":[1,1],
 "pages.html":[],

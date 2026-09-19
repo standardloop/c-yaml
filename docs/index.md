@@ -7,6 +7,7 @@
 | [`YAML`](#yaml)                 |             |
 | [`YAMLLexer`](#yamllexer)       |             |
 | [`YAMLToken`](#yamltoken)       |             |
+| [`YAMLValue`](#yamlvalue)       |             |
 | [`YAMLParser`](#yamlparser)     |             |
 | [`YAMLDocument`](#yamldocument) |             |
 
@@ -109,6 +110,24 @@ enum YAMLLexerState
 | `YAMLLexerStateWaitingForChompingNumber`         |             |
 | `YAMLLexerStateCurlyFlow`                        |             |
 | `YAMLLexerStateSequenceFlow`                     |             |
+
+---
+
+### YAMLValueType
+
+```cpp
+enum YAMLValueType
+```
+
+| Value                 | Description |
+| --------------------- | ----------- |
+| `YAMLOBJ_t`           |             |
+| `YAMLNUMBER_INT_t`    |             |
+| `YAMLNUMBER_DOUBLE_t` |             |
+| `YAMLSTRING_t`        |             |
+| `YAMLBOOL_t`          |             |
+| `YAMLNULL_t`          |             |
+| `YAMLLIST_t`          |             |
 
 ## Functions
 
@@ -264,6 +283,22 @@ void YAMLFree(YAML *)
 void YAMLPrint(YAML *)
 ```
 
+---
+
+### YAMLParse
+
+```cpp
+YAML * YAMLParse(YAMLParser * parser)
+```
+
+---
+
+### YAMLParseFile
+
+```cpp
+YAML * YAMLParseFile(YAMLParser * parser, FILE * file_ptr, size_t buffer_size)
+```
+
 ## YAML
 
 ```cpp
@@ -272,16 +307,16 @@ struct YAML
 
 ### Public Attributes
 
-| Return            | Name                      | Description |
-| ----------------- | ------------------------- | ----------- |
-| `YAMLDocument **` | [`documents`](#documents) |             |
+| Return   | Name                      | Description |
+| -------- | ------------------------- | ----------- |
+| `List *` | [`documents`](#documents) |             |
 
 ---
 
 #### documents
 
 ```cpp
-YAMLDocument ** documents
+List * documents
 ```
 
 ## YAMLLexer
@@ -495,6 +530,100 @@ u_int32_t line
 char * literal
 ```
 
+## YAMLValue
+
+```cpp
+struct YAMLValue
+```
+
+### Public Attributes
+
+| Return                                                               | Name                                                                                                     | Description |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------- |
+| `enum YAMLValueType`                                                 | [`value_type`](#value_type)                                                                              |             |
+| `union YAMLValue::@164241133151322264244351313220306251143335010005` | [`@306142324131216233076101367267331363154064025165`](#306142324131216233076101367267331363154064025165) |             |
+
+---
+
+#### value_type
+
+```cpp
+enum YAMLValueType value_type
+```
+
+---
+
+#### @306142324131216233076101367267331363154064025165
+
+```cpp
+union YAMLValue::@164241133151322264244351313220306251143335010005 @306142324131216233076101367267331363154064025165
+```
+
+## [union].**unnamed0**
+
+```cpp
+union [union].__unnamed0__
+```
+
+### Public Attributes
+
+| Return      | Name                        | Description |
+| ----------- | --------------------------- | ----------- |
+| `List *`    | [`list`](#list)             |             |
+| `HashMap *` | [`map`](#map)               |             |
+| `int64_t *` | [`num_int`](#num_int)       |             |
+| `double *`  | [`num_double`](#num_double) |             |
+| `char *`    | [`str`](#str)               |             |
+| `bool *`    | [`boolean`](#boolean)       |             |
+
+---
+
+#### list
+
+```cpp
+List * list
+```
+
+---
+
+#### map
+
+```cpp
+HashMap * map
+```
+
+---
+
+#### num_int
+
+```cpp
+int64_t * num_int
+```
+
+---
+
+#### num_double
+
+```cpp
+double * num_double
+```
+
+---
+
+#### str
+
+```cpp
+char * str
+```
+
+---
+
+#### boolean
+
+```cpp
+bool * boolean
+```
+
 ## YAMLParser
 
 ```cpp
@@ -550,23 +679,79 @@ struct YAMLDocument
 
 ### Public Attributes
 
-| Return      | Name                  | Description |
-| ----------- | --------------------- | ----------- |
-| `float`     | [`version`](#version) |             |
-| `HashMap *` | [`values`](#values)   |             |
+| Return   | Name            | Description |
+| -------- | --------------- | ----------- |
+| `Item *` | [`root`](#root) |             |
 
 ---
 
-#### version
+#### root
 
 ```cpp
-float version
+Item * root
+```
+
+## [union].**unnamed0**
+
+```cpp
+union [union].__unnamed0__
+```
+
+### Public Attributes
+
+| Return      | Name                        | Description |
+| ----------- | --------------------------- | ----------- |
+| `List *`    | [`list`](#list)             |             |
+| `HashMap *` | [`map`](#map)               |             |
+| `int64_t *` | [`num_int`](#num_int)       |             |
+| `double *`  | [`num_double`](#num_double) |             |
+| `char *`    | [`str`](#str)               |             |
+| `bool *`    | [`boolean`](#boolean)       |             |
+
+---
+
+#### list
+
+```cpp
+List * list
 ```
 
 ---
 
-#### values
+#### map
 
 ```cpp
-HashMap * values
+HashMap * map
+```
+
+---
+
+#### num_int
+
+```cpp
+int64_t * num_int
+```
+
+---
+
+#### num_double
+
+```cpp
+double * num_double
+```
+
+---
+
+#### str
+
+```cpp
+char * str
+```
+
+---
+
+#### boolean
+
+```cpp
+bool * boolean
 ```

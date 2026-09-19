@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['precommit_0',['Precommit',['../md__r_e_a_d_m_e.html#autotoc_md6',1,'']]]
+  ['overall_20format_0',['Overall Format',['../md__s_t_y_l_e.html#autotoc_md10',1,'']]]
 ];

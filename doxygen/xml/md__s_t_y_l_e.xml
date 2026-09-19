@@ -8,11 +8,14 @@
     <detaileddescription>
 <para><anchor id="md__s_t_y_l_e_1autotoc_md7"/></para>
 <sect1 id="md__s_t_y_l_e_1autotoc_md8">
-<title>Functions</title><para>All static functions to be <computeroutput>camelCase</computeroutput></para>
-<para>All extern functions to be <computeroutput>CapitalCase</computeroutput></para>
+<title>Functions</title><para>All static functions to be camelCase</para>
+<para>All extern functions to be CapitalCase</para>
 </sect1>
 <sect1 id="md__s_t_y_l_e_1autotoc_md9">
-<title>Variables</title><para>All variable names to be <computeroutput>underscore_case</computeroutput> </para>
+<title>Variables</title><para>All variable names to be underscore_case</para>
+</sect1>
+<sect1 id="md__s_t_y_l_e_1autotoc_md10">
+<title>Overall Format</title><para>Please see the <computeroutput>.clang-format</computeroutput> file </para>
 </sect1>
     </detaileddescription>
     <location file="STYLE.md"/>

@@ -17,6 +17,7 @@
     <innerclass refid="struct_y_a_m_l_token" prot="public">YAMLToken</innerclass>
     <innerclass refid="struct_y_a_m_l_lexer" prot="public">YAMLLexer</innerclass>
     <innerclass refid="struct_y_a_m_l_parser" prot="public">YAMLParser</innerclass>
+    <innerclass refid="struct_y_a_m_l_value" prot="public">YAMLValue</innerclass>
     <innerclass refid="struct_y_a_m_l_document" prot="public">YAMLDocument</innerclass>
     <innerclass refid="struct_y_a_m_l" prot="public">YAML</innerclass>
     <sectiondef kind="define">
@@ -427,6 +428,66 @@
         </inbodydescription>
         <location file="yaml.h" line="90" column="1" bodyfile="yaml.h" bodystart="91" bodyend="106"/>
       </memberdef>
+      <memberdef kind="enum" id="yaml_8h_1ab9d8f53e633c3e79b0ca1d82aa287759" prot="public" static="no" strong="no">
+        <type></type>
+        <name>YAMLValueType</name>
+        <enumvalue id="yaml_8h_1ab9d8f53e633c3e79b0ca1d82aa287759aebecfbe07fd0b8f4bf7cab310ab24a9b" prot="public">
+          <name>YAMLOBJ_t</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="yaml_8h_1ab9d8f53e633c3e79b0ca1d82aa287759a914ec772939db61f3f63e5add0ca0435" prot="public">
+          <name>YAMLNUMBER_INT_t</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="yaml_8h_1ab9d8f53e633c3e79b0ca1d82aa287759aad57e9ce152dc486ffab4b591754fa07" prot="public">
+          <name>YAMLNUMBER_DOUBLE_t</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="yaml_8h_1ab9d8f53e633c3e79b0ca1d82aa287759a29b76bbdb6262919109942968fe91009" prot="public">
+          <name>YAMLSTRING_t</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="yaml_8h_1ab9d8f53e633c3e79b0ca1d82aa287759a2c57f41f6f84152e783b382752d53cdf" prot="public">
+          <name>YAMLBOOL_t</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="yaml_8h_1ab9d8f53e633c3e79b0ca1d82aa287759a0fceba353cbc9d7a4de38df81bd37444" prot="public">
+          <name>YAMLNULL_t</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="yaml_8h_1ab9d8f53e633c3e79b0ca1d82aa287759a0d89fca43458aa155138f9f841d3c521" prot="public">
+          <name>YAMLLIST_t</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="yaml.h" line="166" column="1" bodyfile="yaml.h" bodystart="167" bodyend="182"/>
+      </memberdef>
     </sectiondef>
     <sectiondef kind="func">
       <memberdef kind="function" id="yaml_8h_1a869a9504820af807c1160efef1818a27" prot="public" static="no" extern="yes" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -505,7 +566,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="yaml.h" line="134" column="18" declfile="yaml.h" declline="134" declcolumn="18"/>
+        <location file="yaml.h" line="138" column="18" declfile="yaml.h" declline="138" declcolumn="18"/>
       </memberdef>
       <memberdef kind="function" id="yaml_8h_1a9225a337db6dc5e1653b00577b7cd57d" prot="public" static="no" extern="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -521,7 +582,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="yaml.h" line="135" column="13" declfile="yaml.h" declline="135" declcolumn="13"/>
+        <location file="yaml.h" line="139" column="13" declfile="yaml.h" declline="139" declcolumn="13"/>
       </memberdef>
       <memberdef kind="function" id="yaml_8h_1aac49442ed50be9168289f2024e0d7d3b" prot="public" static="no" extern="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>YAMLLexer *</type>
@@ -534,7 +595,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="yaml.h" line="138" column="18" declfile="yaml.h" declline="138" declcolumn="18"/>
+        <location file="yaml.h" line="142" column="18" declfile="yaml.h" declline="142" declcolumn="18"/>
       </memberdef>
       <memberdef kind="function" id="yaml_8h_1a531291e308825396c2f9209864ca225d" prot="public" static="no" extern="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -559,7 +620,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="yaml.h" line="139" column="13" declfile="yaml.h" declline="139" declcolumn="13"/>
+        <location file="yaml.h" line="143" column="13" declfile="yaml.h" declline="143" declcolumn="13"/>
       </memberdef>
       <memberdef kind="function" id="yaml_8h_1ac6edb00f475ee7483af0632d1a1223c2" prot="public" static="no" extern="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -575,7 +636,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="yaml.h" line="140" column="13" declfile="yaml.h" declline="140" declcolumn="13"/>
+        <location file="yaml.h" line="144" column="13" declfile="yaml.h" declline="144" declcolumn="13"/>
       </memberdef>
       <memberdef kind="function" id="yaml_8h_1adb84afc113dff450cc8df3d21543434e" prot="public" static="no" extern="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>bool</type>
@@ -591,7 +652,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="yaml.h" line="141" column="13" declfile="yaml.h" declline="141" declcolumn="13"/>
+        <location file="yaml.h" line="145" column="13" declfile="yaml.h" declline="145" declcolumn="13"/>
       </memberdef>
       <memberdef kind="function" id="yaml_8h_1af3025cb20c35107db52493cfe87a925f" prot="public" static="no" extern="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -607,7 +668,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="yaml.h" line="143" column="13" declfile="yaml.h" declline="143" declcolumn="13"/>
+        <location file="yaml.h" line="147" column="13" declfile="yaml.h" declline="147" declcolumn="13"/>
       </memberdef>
       <memberdef kind="function" id="yaml_8h_1abc328adf4108971ef9c6f25452b75647" prot="public" static="no" extern="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>YAMLParser *</type>
@@ -623,7 +684,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="yaml.h" line="157" column="19" declfile="yaml.h" declline="157" declcolumn="19"/>
+        <location file="yaml.h" line="161" column="19" declfile="yaml.h" declline="161" declcolumn="19"/>
       </memberdef>
       <memberdef kind="function" id="yaml_8h_1a3c5eba4ce0f6cbafe7d3423676555cfe" prot="public" static="no" extern="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -639,7 +700,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="yaml.h" line="158" column="13" declfile="yaml.h" declline="158" declcolumn="13"/>
+        <location file="yaml.h" line="162" column="13" declfile="yaml.h" declline="162" declcolumn="13"/>
       </memberdef>
       <memberdef kind="function" id="yaml_8h_1a87253f2cd9763b6b7a93760e3c18d26d" prot="public" static="no" extern="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>YAML *</type>
@@ -652,7 +713,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="yaml.h" line="173" column="13" declfile="yaml.h" declline="173" declcolumn="13"/>
+        <location file="yaml.h" line="210" column="13" declfile="yaml.h" declline="210" declcolumn="13"/>
       </memberdef>
       <memberdef kind="function" id="yaml_8h_1a1f069d92c289f2c96e24997280c70cb8" prot="public" static="no" extern="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>YAML *</type>
@@ -668,7 +729,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="yaml.h" line="174" column="13" declfile="yaml.h" declline="174" declcolumn="13"/>
+        <location file="yaml.h" line="211" column="13" declfile="yaml.h" declline="211" declcolumn="13"/>
       </memberdef>
       <memberdef kind="function" id="yaml_8h_1ac0b886fadf03b9d0a9f4fe84cdb2eec8" prot="public" static="no" extern="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>YAML *</type>
@@ -687,7 +748,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="yaml.h" line="175" column="13" declfile="yaml.h" declline="175" declcolumn="13"/>
+        <location file="yaml.h" line="212" column="13" declfile="yaml.h" declline="212" declcolumn="13"/>
       </memberdef>
       <memberdef kind="function" id="yaml_8h_1aa4b2c2da5de2dd66c383fc8879af8952" prot="public" static="no" extern="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>YAML *</type>
@@ -703,7 +764,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="yaml.h" line="176" column="13" declfile="yaml.h" declline="176" declcolumn="13"/>
+        <location file="yaml.h" line="213" column="13" declfile="yaml.h" declline="213" declcolumn="13"/>
       </memberdef>
       <memberdef kind="function" id="yaml_8h_1a42e2fd819ec016d9ce556885fa64e83c" prot="public" static="no" extern="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>char *</type>
@@ -719,7 +780,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="yaml.h" line="177" column="13" declfile="yaml.h" declline="177" declcolumn="13"/>
+        <location file="yaml.h" line="214" column="13" declfile="yaml.h" declline="214" declcolumn="13"/>
       </memberdef>
       <memberdef kind="function" id="yaml_8h_1aff17f539d288c65f3b7843e4f4bdc61d" prot="public" static="no" extern="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -735,7 +796,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="yaml.h" line="179" column="13" declfile="yaml.h" declline="179" declcolumn="13"/>
+        <location file="yaml.h" line="216" column="13" declfile="yaml.h" declline="216" declcolumn="13"/>
       </memberdef>
       <memberdef kind="function" id="yaml_8h_1a9e0d30989b94a5daa58679306dcf125b" prot="public" static="no" extern="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -751,7 +812,49 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="yaml.h" line="180" column="13" declfile="yaml.h" declline="180" declcolumn="13"/>
+        <location file="yaml.h" line="217" column="13" declfile="yaml.h" declline="217" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="yaml_8h_1a8535c928c867f52fa77466545c7f42b0" prot="public" static="no" extern="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>YAML *</type>
+        <definition>YAML * YAMLParse</definition>
+        <argsstring>(YAMLParser *parser)</argsstring>
+        <name>YAMLParse</name>
+        <param>
+          <type>YAMLParser *</type>
+          <declname>parser</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="yaml.h" line="223" column="13" declfile="yaml.h" declline="223" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="yaml_8h_1a408a06292be9798aac9887ca614db67d" prot="public" static="no" extern="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>YAML *</type>
+        <definition>YAML * YAMLParseFile</definition>
+        <argsstring>(YAMLParser *parser, FILE *file_ptr, size_t buffer_size)</argsstring>
+        <name>YAMLParseFile</name>
+        <param>
+          <type>YAMLParser *</type>
+          <declname>parser</declname>
+        </param>
+        <param>
+          <type>FILE *</type>
+          <declname>file_ptr</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>buffer_size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="yaml.h" line="224" column="13" declfile="yaml.h" declline="224" declcolumn="13"/>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -889,57 +992,88 @@
 <codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>YAMLLexerState<sp/>state;</highlight></codeline>
 <codeline lineno="132"><highlight class="normal">}<sp/>YAMLLexer;</highlight></codeline>
 <codeline lineno="133"><highlight class="normal"></highlight></codeline>
-<codeline lineno="134"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>YAMLToken<sp/>*YAMLLex(YAMLLexer<sp/>*);</highlight></codeline>
-<codeline lineno="135"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>YAMLTokenFree(YAMLToken<sp/>*);</highlight></codeline>
-<codeline lineno="136"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>YAMLToken<sp/>*YAMLTokenInit(</highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>YAMLTokenType,<sp/>u_int32_t,<sp/>u_int32_t,</highlight></codeline>
-<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>u_int32_t,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*);</highlight></codeline>
-<codeline lineno="138"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>YAMLLexer<sp/>*YAMLLexerInit();</highlight></codeline>
-<codeline lineno="139"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>YAMLLexerReload(YAMLLexer<sp/>*,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">);</highlight></codeline>
-<codeline lineno="140"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>YAMLLexerFree(YAMLLexer<sp/>*);</highlight></codeline>
-<codeline lineno="141"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>IsLexerHungry(YAMLLexer<sp/>*);</highlight></codeline>
-<codeline lineno="142"><highlight class="normal"></highlight></codeline>
-<codeline lineno="143"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>YAMLLexerDebugTest(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*);</highlight></codeline>
-<codeline lineno="144"><highlight class="normal"></highlight></codeline>
-<codeline lineno="145"><highlight class="normal"></highlight><highlight class="comment">//<sp/>—————————<sp/>LEXER<sp/>END<sp/>—————————</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>TestLexer(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>YAMLToken<sp/>*YAMLLex(YAMLLexer<sp/>*);</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>YAMLTokenFree(YAMLToken<sp/>*);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>YAMLToken<sp/>*YAMLTokenInit(</highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>YAMLTokenType,<sp/>u_int32_t,<sp/>u_int32_t,</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>u_int32_t,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>YAMLLexer<sp/>*YAMLLexerInit();</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>YAMLLexerReload(YAMLLexer<sp/>*,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>YAMLLexerFree(YAMLLexer<sp/>*);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>IsLexerHungry(YAMLLexer<sp/>*);</highlight></codeline>
 <codeline lineno="146"><highlight class="normal"></highlight></codeline>
-<codeline lineno="147"><highlight class="normal"></highlight><highlight class="comment">//<sp/>—————————<sp/>PARSER<sp/>START<sp/>—————————</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>YAMLLexerDebugTest(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*);</highlight></codeline>
 <codeline lineno="148"><highlight class="normal"></highlight></codeline>
-<codeline lineno="149"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="150"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/>YAMLLexer<sp/>*lexer;</highlight></codeline>
-<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/>YAMLToken<sp/>*current_token;</highlight></codeline>
-<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/>YAMLToken<sp/>*peek_token;</highlight></codeline>
-<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*error_message;</highlight></codeline>
-<codeline lineno="155"><highlight class="normal">}<sp/>YAMLParser;</highlight></codeline>
-<codeline lineno="156"><highlight class="normal"></highlight></codeline>
-<codeline lineno="157"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>YAMLParser<sp/>*YAMLParserInit(YAMLLexer<sp/>*);</highlight></codeline>
-<codeline lineno="158"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>YAMLParserFree(YAMLParser<sp/>*);</highlight></codeline>
-<codeline lineno="159"><highlight class="normal"></highlight></codeline>
-<codeline lineno="160"><highlight class="normal"></highlight><highlight class="comment">//<sp/>—————————<sp/>PARSER<sp/>END<sp/>—————————</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="161"><highlight class="normal"></highlight></codeline>
-<codeline lineno="162"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="163"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>version;</highlight></codeline>
-<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/>HashMap<sp/>*values;</highlight></codeline>
-<codeline lineno="166"><highlight class="normal">}<sp/>YAMLDocument;</highlight></codeline>
-<codeline lineno="167"><highlight class="normal"></highlight></codeline>
-<codeline lineno="168"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="169"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/>YAMLDocument<sp/>**documents;</highlight></codeline>
-<codeline lineno="171"><highlight class="normal">}<sp/>YAML;</highlight></codeline>
-<codeline lineno="172"><highlight class="normal"></highlight></codeline>
-<codeline lineno="173"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>YAML<sp/>*YAMLInit();</highlight></codeline>
-<codeline lineno="174"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>YAML<sp/>*StringToYAML(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*);</highlight></codeline>
-<codeline lineno="175"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>YAML<sp/>*YAMLFromFile(FILE<sp/>*,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">);</highlight></codeline>
-<codeline lineno="176"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>YAML<sp/>*YAMLFromSTDIN(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">);</highlight></codeline>
-<codeline lineno="177"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*YAMLToString(YAML<sp/>*);</highlight></codeline>
-<codeline lineno="178"><highlight class="normal"></highlight></codeline>
-<codeline lineno="179"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>YAMLFree(YAML<sp/>*);</highlight></codeline>
-<codeline lineno="180"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>YAMLPrint(YAML<sp/>*);</highlight></codeline>
-<codeline lineno="181"><highlight class="normal"></highlight></codeline>
-<codeline lineno="183"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>TestYaml(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
-<codeline lineno="185"><highlight class="normal"></highlight></codeline>
-<codeline lineno="186"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight><highlight class="comment">//<sp/>—————————<sp/>LEXER<sp/>END<sp/>—————————</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight><highlight class="comment">//<sp/>—————————<sp/>PARSER<sp/>START<sp/>—————————</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/>YAMLLexer<sp/>*lexer;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/>YAMLToken<sp/>*current_token;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/>YAMLToken<sp/>*peek_token;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*error_message;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal">}<sp/>YAMLParser;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>YAMLParser<sp/>*YAMLParserInit(YAMLLexer<sp/>*);</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>YAMLParserFree(YAMLParser<sp/>*);</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight><highlight class="comment">//<sp/>—————————<sp/>PARSER<sp/>END<sp/>—————————</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>YAMLValueType</highlight></codeline>
+<codeline lineno="167"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/>YAMLOBJ_t,</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/>YAMLNUMBER_INT_t,</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/>YAMLNUMBER_DOUBLE_t,</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/>YAMLSTRING_t,</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/>YAMLBOOL_t,</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/>YAMLNULL_t,</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/>YAMLLIST_t,</highlight></codeline>
+<codeline lineno="182"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>YAMLValueType<sp/>value_type;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">union</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>List<sp/>*list;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>HashMap<sp/>*map;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>*num_int;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>*num_double;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>void<sp/>*null_yaml;<sp/>//<sp/>if<sp/>null,<sp/>then<sp/>do<sp/>need<sp/>to<sp/>hold<sp/>it</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str;</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>*boolean;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="197"><highlight class="normal">}<sp/>YAMLValue;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="200"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>do<sp/>we<sp/>want<sp/>a<sp/>header<sp/>for<sp/>version?</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/>Item<sp/>*root;<sp/></highlight><highlight class="comment">//<sp/>root-&gt;value<sp/>will<sp/>be<sp/>of<sp/>type<sp/>YAMLValue</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal">}<sp/>YAMLDocument;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/>List<sp/>*documents;<sp/></highlight><highlight class="comment">//<sp/>list<sp/>of<sp/>YAMLDocument</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal">}<sp/>YAML;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>YAML<sp/>*YAMLInit();</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>YAML<sp/>*StringToYAML(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*);</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>YAML<sp/>*YAMLFromFile(FILE<sp/>*,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>YAML<sp/>*YAMLFromSTDIN(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*YAMLToString(YAML<sp/>*);</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>YAMLFree(YAML<sp/>*);</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>YAMLPrint(YAML<sp/>*);</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>TestYaml(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>YAML<sp/>*YAMLParse(YAMLParser<sp/>*parser);</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>YAML<sp/>*YAMLParseFile(YAMLParser<sp/>*parser,<sp/>FILE<sp/>*file_ptr,</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>buffer_size);</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
     </programlisting>
     <location file="yaml.h"/>
   </compounddef>

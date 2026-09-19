@@ -197,6 +197,17 @@ Enumerations</h2></td></tr>
 &#160;&#160;<b>YAMLLexerStateSequenceFlow</b>
 <br />
  }</td></tr>
+<tr class="memitem:ab9d8f53e633c3e79b0ca1d82aa287759" id="r_ab9d8f53e633c3e79b0ca1d82aa287759"><td class="memItemLeft"><a id="ab9d8f53e633c3e79b0ca1d82aa287759" name="ab9d8f53e633c3e79b0ca1d82aa287759"></a>enum &#160;</td><td class="memItemRight"><b>YAMLValueType</b> { <br />
+&#160;&#160;<b>YAMLOBJ_t</b>
+, <b>YAMLNUMBER_INT_t</b>
+, <b>YAMLNUMBER_DOUBLE_t</b>
+, <b>YAMLSTRING_t</b>
+, <br />
+&#160;&#160;<b>YAMLBOOL_t</b>
+, <b>YAMLNULL_t</b>
+, <b>YAMLLIST_t</b>
+<br />
+ }</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -238,6 +249,10 @@ char *&#160;</td><td class="memItemRight"><b>YAMLToString</b> (YAML *)</td></tr>
 void&#160;</td><td class="memItemRight"><b>YAMLFree</b> (YAML *)</td></tr>
 <tr class="memitem:a9e0d30989b94a5daa58679306dcf125b" id="r_a9e0d30989b94a5daa58679306dcf125b"><td class="memItemLeft"><a id="a9e0d30989b94a5daa58679306dcf125b" name="a9e0d30989b94a5daa58679306dcf125b"></a>
 void&#160;</td><td class="memItemRight"><b>YAMLPrint</b> (YAML *)</td></tr>
+<tr class="memitem:a8535c928c867f52fa77466545c7f42b0" id="r_a8535c928c867f52fa77466545c7f42b0"><td class="memItemLeft"><a id="a8535c928c867f52fa77466545c7f42b0" name="a8535c928c867f52fa77466545c7f42b0"></a>
+YAML *&#160;</td><td class="memItemRight"><b>YAMLParse</b> (YAMLParser *parser)</td></tr>
+<tr class="memitem:a408a06292be9798aac9887ca614db67d" id="r_a408a06292be9798aac9887ca614db67d"><td class="memItemLeft"><a id="a408a06292be9798aac9887ca614db67d" name="a408a06292be9798aac9887ca614db67d"></a>
+YAML *&#160;</td><td class="memItemRight"><b>YAMLParseFile</b> (YAMLParser *parser, FILE *file_ptr, size_t buffer_size)</td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A C library from YAML. </p>

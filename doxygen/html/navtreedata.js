@@ -35,7 +35,8 @@ var NAVTREE =
     ] ],
     [ "Style Guide", "md__s_t_y_l_e.html", [
       [ "Functions", "md__s_t_y_l_e.html#autotoc_md8", null ],
-      [ "Variables", "md__s_t_y_l_e.html#autotoc_md9", null ]
+      [ "Variables", "md__s_t_y_l_e.html#autotoc_md9", null ],
+      [ "Overall Format", "md__s_t_y_l_e.html#autotoc_md10", null ]
     ] ],
     [ "Files", "files.html", [
       [ "File List", "files.html", "files_dup" ]

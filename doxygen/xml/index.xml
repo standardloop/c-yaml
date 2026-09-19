@@ -1,11 +1,18 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <doxygenindex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="index.xsd" version="1.18.0" xml:lang="en-US">
+  <compound refid="union_y_a_m_l_value_1_1_0funion_0e_8____unnamed0____" kind="union"><name>YAMLValue::[union].__unnamed0__</name>
+    <member refid="union_y_a_m_l_value_1_1_0funion_0e_8____unnamed0_____1afadda2da4d27966903f546f20fdc2e27" kind="variable"><name>list</name></member>
+    <member refid="union_y_a_m_l_value_1_1_0funion_0e_8____unnamed0_____1afb3893a2ebc902da1f1bb0d26d26251c" kind="variable"><name>map</name></member>
+    <member refid="union_y_a_m_l_value_1_1_0funion_0e_8____unnamed0_____1accf39d085a90ebcd3025d62a93fdf5c8" kind="variable"><name>num_int</name></member>
+    <member refid="union_y_a_m_l_value_1_1_0funion_0e_8____unnamed0_____1aa553d0d8f9152c7775dedcbde7fbc552" kind="variable"><name>num_double</name></member>
+    <member refid="union_y_a_m_l_value_1_1_0funion_0e_8____unnamed0_____1a3d0246ddf793c34151eb2a1fa2519326" kind="variable"><name>str</name></member>
+    <member refid="union_y_a_m_l_value_1_1_0funion_0e_8____unnamed0_____1a60d23abcd33501cb504ce5e045de57d8" kind="variable"><name>boolean</name></member>
+  </compound>
   <compound refid="struct_y_a_m_l" kind="struct"><name>YAML</name>
-    <member refid="struct_y_a_m_l_1a7d5502696a80c1891a9e05ee0d072217" kind="variable"><name>documents</name></member>
+    <member refid="struct_y_a_m_l_1a30f3457c88a5fa3ed745a47d99283bd2" kind="variable"><name>documents</name></member>
   </compound>
   <compound refid="struct_y_a_m_l_document" kind="struct"><name>YAMLDocument</name>
-    <member refid="struct_y_a_m_l_document_1a70d32a1b40652b7d9f6f32ffb21609cf" kind="variable"><name>version</name></member>
-    <member refid="struct_y_a_m_l_document_1aa509133f3b596d7a59df60e10f0c1966" kind="variable"><name>values</name></member>
+    <member refid="struct_y_a_m_l_document_1a13b9c959bf6468dbdd0a4222fb5b71c4" kind="variable"><name>root</name></member>
   </compound>
   <compound refid="struct_y_a_m_l_lexer" kind="struct"><name>YAMLLexer</name>
     <member refid="struct_y_a_m_l_lexer_1a2cab85b18348e0d8c677cf6b6ec47f4f" kind="variable"><name>input</name></member>
@@ -37,6 +44,10 @@
     <member refid="struct_y_a_m_l_token_1a72c8a2a21fd2f900edeb2b713f0d54d7" kind="variable"><name>end</name></member>
     <member refid="struct_y_a_m_l_token_1a7f2c8149e653c865943f4312847d12ed" kind="variable"><name>line</name></member>
     <member refid="struct_y_a_m_l_token_1af4dd03d09175dd6f2fa593abe46a589b" kind="variable"><name>literal</name></member>
+  </compound>
+  <compound refid="struct_y_a_m_l_value" kind="struct"><name>YAMLValue</name>
+    <member refid="struct_y_a_m_l_value_1a65f5875d3981ca9440e0adf3682ef0f3" kind="variable"><name>value_type</name></member>
+    <member refid="struct_y_a_m_l_value_1a90318f8bd4c6622c36cab5e4c05ad776" kind="variable"><name>@306142324131216233076101367267331363154064025165</name></member>
   </compound>
   <compound refid="_r_e_a_d_m_e_8md" kind="file"><name>README.md</name>
   </compound>
@@ -98,6 +109,14 @@
     <member refid="yaml_8h_1af13b3c77aee96661c3888e1f0af9df09af9dba8e39882bfeb2d54c0a87a1b1d39" kind="enumvalue"><name>YAMLLexerStateWaitingForChompingNumber</name></member>
     <member refid="yaml_8h_1af13b3c77aee96661c3888e1f0af9df09ab6f8267ca6664d1beb8f01f8d109c80e" kind="enumvalue"><name>YAMLLexerStateCurlyFlow</name></member>
     <member refid="yaml_8h_1af13b3c77aee96661c3888e1f0af9df09a08faaf723b38694bb44a320d97a9dddf" kind="enumvalue"><name>YAMLLexerStateSequenceFlow</name></member>
+    <member refid="yaml_8h_1ab9d8f53e633c3e79b0ca1d82aa287759" kind="enum"><name>YAMLValueType</name></member>
+    <member refid="yaml_8h_1ab9d8f53e633c3e79b0ca1d82aa287759aebecfbe07fd0b8f4bf7cab310ab24a9b" kind="enumvalue"><name>YAMLOBJ_t</name></member>
+    <member refid="yaml_8h_1ab9d8f53e633c3e79b0ca1d82aa287759a914ec772939db61f3f63e5add0ca0435" kind="enumvalue"><name>YAMLNUMBER_INT_t</name></member>
+    <member refid="yaml_8h_1ab9d8f53e633c3e79b0ca1d82aa287759aad57e9ce152dc486ffab4b591754fa07" kind="enumvalue"><name>YAMLNUMBER_DOUBLE_t</name></member>
+    <member refid="yaml_8h_1ab9d8f53e633c3e79b0ca1d82aa287759a29b76bbdb6262919109942968fe91009" kind="enumvalue"><name>YAMLSTRING_t</name></member>
+    <member refid="yaml_8h_1ab9d8f53e633c3e79b0ca1d82aa287759a2c57f41f6f84152e783b382752d53cdf" kind="enumvalue"><name>YAMLBOOL_t</name></member>
+    <member refid="yaml_8h_1ab9d8f53e633c3e79b0ca1d82aa287759a0fceba353cbc9d7a4de38df81bd37444" kind="enumvalue"><name>YAMLNULL_t</name></member>
+    <member refid="yaml_8h_1ab9d8f53e633c3e79b0ca1d82aa287759a0d89fca43458aa155138f9f841d3c521" kind="enumvalue"><name>YAMLLIST_t</name></member>
     <member refid="yaml_8h_1a869a9504820af807c1160efef1818a27" kind="function"><name>YAMLTokenInit</name></member>
     <member refid="yaml_8h_1ac5f8343ef920791980d412d062c9557b" kind="function"><name>YAMLTokenTypeToString</name></member>
     <member refid="yaml_8h_1a772d2ede443736c1616b8a603d129924" kind="function"><name>YAMLTokenPrint</name></member>
@@ -117,6 +136,8 @@
     <member refid="yaml_8h_1a42e2fd819ec016d9ce556885fa64e83c" kind="function"><name>YAMLToString</name></member>
     <member refid="yaml_8h_1aff17f539d288c65f3b7843e4f4bdc61d" kind="function"><name>YAMLFree</name></member>
     <member refid="yaml_8h_1a9e0d30989b94a5daa58679306dcf125b" kind="function"><name>YAMLPrint</name></member>
+    <member refid="yaml_8h_1a8535c928c867f52fa77466545c7f42b0" kind="function"><name>YAMLParse</name></member>
+    <member refid="yaml_8h_1a408a06292be9798aac9887ca614db67d" kind="function"><name>YAMLParseFile</name></member>
   </compound>
   <compound refid="md__r_e_a_d_m_e" kind="page"><name>md__r_e_a_d_m_e</name>
   </compound>

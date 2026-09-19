@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['variables_0',['Variables',['../md__s_t_y_l_e.html#autotoc_md9',1,'']]]
+  ['tasks_0',['Available Tasks',['../md__r_e_a_d_m_e.html#autotoc_md3',1,'']]]
 ];

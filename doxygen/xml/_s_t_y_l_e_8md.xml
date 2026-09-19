@@ -11,13 +11,17 @@
 <codeline></codeline>
 <codeline><highlight class="normal">##<sp/>Functions</highlight></codeline>
 <codeline></codeline>
-<codeline><highlight class="normal">All<sp/>static<sp/>functions<sp/>to<sp/>be<sp/>`camelCase`</highlight></codeline>
+<codeline><highlight class="normal">All<sp/>static<sp/>functions<sp/>to<sp/>be<sp/>camelCase</highlight></codeline>
 <codeline></codeline>
-<codeline><highlight class="normal">All<sp/>extern<sp/>functions<sp/>to<sp/>be<sp/>`CapitalCase`</highlight></codeline>
+<codeline><highlight class="normal">All<sp/>extern<sp/>functions<sp/>to<sp/>be<sp/>CapitalCase</highlight></codeline>
 <codeline></codeline>
 <codeline><highlight class="normal">##<sp/>Variables</highlight></codeline>
 <codeline></codeline>
-<codeline><highlight class="normal">All<sp/>variable<sp/>names<sp/>to<sp/>be<sp/>`underscore_case`</highlight></codeline>
+<codeline><highlight class="normal">All<sp/>variable<sp/>names<sp/>to<sp/>be<sp/>underscore_case</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">##<sp/>Overall<sp/>Format</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">Please<sp/>see<sp/>the<sp/>`.clang-format`<sp/>file</highlight></codeline>
     </programlisting>
     <location file="STYLE.md"/>
   </compounddef>

@@ -5,8 +5,15 @@
 
 int main(void)
 {
-    TestingInit();
-    TestYaml();
-    TestingTearDown();
+    FILE *file_ptr = NULL;
+    file_ptr = fopen("./examples/playground.yaml", "rb");
+    YAML *yaml = YAMLFromFile(file_ptr, LEXER_DEFAULT_BUFFER_SIZE);
+
+    YAMLFree(yaml);
+    // TestingInit();
+    // TestLexer();
+    // TestYaml();
+    // TestingTearDown();
+
     return EXIT_SUCCESS;
 }

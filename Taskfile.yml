@@ -14,8 +14,8 @@ vars:
     - yaml.c
     - parser.c
     - lexer.c
-  TEST_SOURCE_FILES: []
-    # - todo.test.c
+  TEST_SOURCE_FILES:
+    - lexer.test.c
   # for releasing
   DYLIB_NAME: libstandardloop-yaml.dylib
   DYLIB_HEADER: yaml.h

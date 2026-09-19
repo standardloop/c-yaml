@@ -1,6 +1,8 @@
 #include <errno.h>
+#include <standardloop/collections.h>
 #include <standardloop/logger.h>
 #include <standardloop/util.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -9,7 +11,18 @@
 
 extern YAML *YAMLInit()
 {
-    return NULL;
+    YAML *yaml = malloc(sizeof(YAML));
+    if (yaml == NULL)
+    {
+        return NULL;
+    }
+    yaml->documents = ListInit(1, 2);
+    if (yaml->documents == NULL)
+    {
+        YAMLFree(yaml);
+        return NULL;
+    }
+    return yaml;
 }
 
 extern YAML *StringToYAML(char *yaml_string)
@@ -147,17 +160,21 @@ extern char *YAMLToString(YAML *yaml)
 
 extern void YAMLFree(YAML *yaml)
 {
-    if (yaml == NULL)
+    if (yaml != NULL)
     {
-        return;
+        if (yaml->documents != NULL)
+        {
+            ListFree(yaml->documents);
+        }
+        free(yaml);
     }
 }
 
 extern void YAMLPrint(YAML *yaml)
 {
-    if (yaml == NULL)
+    if (yaml != NULL)
     {
-        return;
+        ListPrint(yaml->documents);
     }
 }
 

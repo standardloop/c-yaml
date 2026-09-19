@@ -15,7 +15,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="yaml.h" line="151" column="15" bodyfile="yaml.h" bodystart="151" bodyend="-1"/>
+        <location file="yaml.h" line="155" column="15" bodyfile="yaml.h" bodystart="155" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="struct_y_a_m_l_parser_1ad9e5b506faa5ccb07d6bd63fd91a82c0" prot="public" static="no" mutable="no">
         <type>YAMLToken *</type>
@@ -29,7 +29,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="yaml.h" line="152" column="15" bodyfile="yaml.h" bodystart="152" bodyend="-1"/>
+        <location file="yaml.h" line="156" column="15" bodyfile="yaml.h" bodystart="156" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="struct_y_a_m_l_parser_1af1297f0b75c9eb47e844f8dbe73b619c" prot="public" static="no" mutable="no">
         <type>YAMLToken *</type>
@@ -43,7 +43,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="yaml.h" line="153" column="15" bodyfile="yaml.h" bodystart="153" bodyend="-1"/>
+        <location file="yaml.h" line="157" column="15" bodyfile="yaml.h" bodystart="157" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="struct_y_a_m_l_parser_1abd0b2c6e11f0d5ceafe2f69f630fc0de" prot="public" static="no" mutable="no">
         <type>char *</type>
@@ -57,14 +57,14 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="yaml.h" line="154" column="10" bodyfile="yaml.h" bodystart="154" bodyend="-1"/>
+        <location file="yaml.h" line="158" column="10" bodyfile="yaml.h" bodystart="158" bodyend="-1"/>
       </memberdef>
     </sectiondef>
     <briefdescription>
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="yaml.h" line="149" column="1" bodyfile="yaml.h" bodystart="150" bodyend="155"/>
+    <location file="yaml.h" line="153" column="1" bodyfile="yaml.h" bodystart="154" bodyend="159"/>
     <listofallmembers>
       <member refid="struct_y_a_m_l_parser_1ad9e5b506faa5ccb07d6bd63fd91a82c0" prot="public" virt="non-virtual"><scope>YAMLParser</scope><name>current_token</name></member>
       <member refid="struct_y_a_m_l_parser_1abd0b2c6e11f0d5ceafe2f69f630fc0de" prot="public" virt="non-virtual"><scope>YAMLParser</scope><name>error_message</name></member>

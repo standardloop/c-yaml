@@ -1,3 +1,6 @@
+#include <standardloop/collections.h>
+#include <standardloop/logger.h>
+#include <standardloop/util.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -63,7 +66,7 @@ extern YAML *YAMLParse(YAMLParser *parser)
     {
         YAMLParserFree(parser);
     }
-    // yaml = parse();
+
     YAMLParserFree(parser);
     return yaml;
 }

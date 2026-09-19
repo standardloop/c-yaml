@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['tasks_0',['Available Tasks',['../md__r_e_a_d_m_e.html#autotoc_md3',1,'']]]
+  ['style_20guide_0',['Style Guide',['../md__s_t_y_l_e.html',1,'']]]
 ];

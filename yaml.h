@@ -131,6 +131,10 @@ typedef struct
     enum YAMLLexerState state;
 } YAMLLexer;
 
+/// @cond INTERNAL
+extern void TestLexer(void);
+/// @endcond
+
 extern YAMLToken *YAMLLex(YAMLLexer *);
 extern void YAMLTokenFree(YAMLToken *);
 extern YAMLToken *YAMLTokenInit(enum YAMLTokenType, u_int32_t, u_int32_t,
@@ -159,15 +163,48 @@ extern void YAMLParserFree(YAMLParser *);
 
 // ————————— PARSER END —————————
 
+enum YAMLValueType
+{
+    /**  */
+    YAMLOBJ_t,
+    /**  */
+    YAMLNUMBER_INT_t,
+    /**  */
+    YAMLNUMBER_DOUBLE_t,
+    /**  */
+    YAMLSTRING_t,
+    /**  */
+    YAMLBOOL_t,
+    /**  */
+    YAMLNULL_t,
+    /**  */
+    YAMLLIST_t,
+};
+
 typedef struct
 {
-    float version;
-    HashMap *values;
+    enum YAMLValueType value_type;
+    union
+    {
+        List *list;
+        HashMap *map;
+        int64_t *num_int;
+        double *num_double;
+        // void *null_yaml; // if null, then do need to hold it
+        char *str;
+        bool *boolean;
+    };
+} YAMLValue;
+
+typedef struct
+{
+    // do we want a header for version?
+    Item *root; // root->value will be of type YAMLValue
 } YAMLDocument;
 
 typedef struct
 {
-    YAMLDocument **documents;
+    List *documents; // list of YAMLDocument
 } YAML;
 
 extern YAML *YAMLInit();
@@ -183,4 +220,7 @@ extern void YAMLPrint(YAML *);
 extern void TestYaml(void);
 /// @endcond
 
+extern YAML *YAMLParse(YAMLParser *parser);
+extern YAML *YAMLParseFile(YAMLParser *parser, FILE *file_ptr,
+                           size_t buffer_size);
 #endif
