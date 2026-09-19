@@ -57,7 +57,7 @@ extern void YAMLParserFree(YAMLParser *parser)
         {
             YAMLLexerFree(parser->lexer);
         }
-        YAMLParserFree(parser);
+        free(parser);
     }
 }
 

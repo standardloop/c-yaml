@@ -101,9 +101,18 @@ tasks:
     desc: "Run macOS leaks on the test program."
     deps:
       - test:build
+    vars:
+      DYLIBS:
+        [
+          "libstandardloop-logger.dylib",
+          "libstandardloop-util.dylib",
+          "libstandardloop-collections.dylib",
+          "libstandardloop-testing.dylib",
+        ]
     cmds:
-      - cp /usr/local/lib/standardloop/libstandardloop-util.dylib ./
-      - cp /usr/local/lib/standardloop/libstandardloop-collections.dylib ./
-      - leaks --atExit -- ./{{.TEST_EXECUTABLE_NAME}}
-      - rm libstandardloop-util.dylib
-      - rm libstandardloop-collections.dylib
+      - |
+        {{range .DYLIBS}}
+        cp {{$.DYLIB_PATH}}{{.}} . {{end}}
+        leaks --atExit -- ./{{.TEST_EXECUTABLE_NAME}}
+        {{range .DYLIBS}}
+        rm {{.}} {{end}}

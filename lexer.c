@@ -184,11 +184,11 @@ extern void YAMLLexerFree(YAMLLexer *lexer)
 {
     if (lexer != NULL)
     {
-        if (lexer->error != NULL)
-        {
-            // can we keep this on the stack?
-            free(lexer->error);
-        }
+        // if (lexer->error != NULL)
+        // {
+        //     // can we keep this on the stack?
+        //     free(lexer->error);
+        // }
         free(lexer);
     }
 }
