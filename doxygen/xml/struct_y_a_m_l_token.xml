@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.18.0" xml:lang="en-US">
+  <compounddef id="struct_y_a_m_l_token" kind="struct" language="C++" prot="public">
+    <compoundname>YAMLToken</compoundname>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_y_a_m_l_token_1ad4f4363390c6ca0f542f564090c2bc3f" prot="public" static="no" mutable="no">
+        <type>enum YAMLTokenType</type>
+        <definition>enum YAMLTokenType YAMLToken::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <qualifiedname>YAMLToken::type</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="yaml.h" line="77" column="23" bodyfile="yaml.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_y_a_m_l_token_1afc2ba1d2c65e833174454e455a69d371" prot="public" static="no" mutable="no">
+        <type>u_int32_t</type>
+        <definition>u_int32_t YAMLToken::start</definition>
+        <argsstring></argsstring>
+        <name>start</name>
+        <qualifiedname>YAMLToken::start</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="yaml.h" line="78" column="15" bodyfile="yaml.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_y_a_m_l_token_1a72c8a2a21fd2f900edeb2b713f0d54d7" prot="public" static="no" mutable="no">
+        <type>u_int32_t</type>
+        <definition>u_int32_t YAMLToken::end</definition>
+        <argsstring></argsstring>
+        <name>end</name>
+        <qualifiedname>YAMLToken::end</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="yaml.h" line="79" column="15" bodyfile="yaml.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_y_a_m_l_token_1a7f2c8149e653c865943f4312847d12ed" prot="public" static="no" mutable="no">
+        <type>u_int32_t</type>
+        <definition>u_int32_t YAMLToken::line</definition>
+        <argsstring></argsstring>
+        <name>line</name>
+        <qualifiedname>YAMLToken::line</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="yaml.h" line="80" column="15" bodyfile="yaml.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_y_a_m_l_token_1af4dd03d09175dd6f2fa593abe46a589b" prot="public" static="no" mutable="no">
+        <type>char *</type>
+        <definition>char* YAMLToken::literal</definition>
+        <argsstring></argsstring>
+        <name>literal</name>
+        <qualifiedname>YAMLToken::literal</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="yaml.h" line="81" column="10" bodyfile="yaml.h" bodystart="81" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="yaml.h" line="75" column="1" bodyfile="yaml.h" bodystart="76" bodyend="82"/>
+    <listofallmembers>
+      <member refid="struct_y_a_m_l_token_1a72c8a2a21fd2f900edeb2b713f0d54d7" prot="public" virt="non-virtual"><scope>YAMLToken</scope><name>end</name></member>
+      <member refid="struct_y_a_m_l_token_1a7f2c8149e653c865943f4312847d12ed" prot="public" virt="non-virtual"><scope>YAMLToken</scope><name>line</name></member>
+      <member refid="struct_y_a_m_l_token_1af4dd03d09175dd6f2fa593abe46a589b" prot="public" virt="non-virtual"><scope>YAMLToken</scope><name>literal</name></member>
+      <member refid="struct_y_a_m_l_token_1afc2ba1d2c65e833174454e455a69d371" prot="public" virt="non-virtual"><scope>YAMLToken</scope><name>start</name></member>
+      <member refid="struct_y_a_m_l_token_1ad4f4363390c6ca0f542f564090c2bc3f" prot="public" virt="non-virtual"><scope>YAMLToken</scope><name>type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

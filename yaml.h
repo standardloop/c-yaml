@@ -1,10 +1,11 @@
+/**
+ * @file yaml.h
+ * @headerfile yaml.h <standardloop/yaml.h>
+ * @brief A C library from YAML.
+ */
+
 #ifndef STANDARDLOOP_YAML_H
 #define STANDARDLOOP_YAML_H
-
-#define STANDARDLOOP_YAML_H_MAJOR_VERSION 0
-#define STANDARDLOOP_YAML_H_MINOR_VERSION 0
-#define STANDARDLOOP_YAML_H_PATCH_VERSION 0
-#define STANDARDLOOP_YAML_H_VERSION "0.0.0"
 
 #include <standardloop/collections.h>
 
@@ -80,7 +81,8 @@ typedef struct
     char *literal;
 } YAMLToken;
 
-extern YAMLToken *YAMLTokenInit(enum YAMLTokenType, u_int32_t, u_int32_t, u_int32_t, char *);
+extern YAMLToken *YAMLTokenInit(enum YAMLTokenType, u_int32_t, u_int32_t,
+                                u_int32_t, char *);
 
 extern char *YAMLTokenTypeToString(enum YAMLTokenType);
 extern void YAMLTokenPrint(YAMLToken *);
@@ -131,7 +133,8 @@ typedef struct
 
 extern YAMLToken *YAMLLex(YAMLLexer *);
 extern void YAMLTokenFree(YAMLToken *);
-extern YAMLToken *YAMLTokenInit(enum YAMLTokenType, u_int32_t, u_int32_t, u_int32_t, char *);
+extern YAMLToken *YAMLTokenInit(enum YAMLTokenType, u_int32_t, u_int32_t,
+                                u_int32_t, char *);
 extern YAMLLexer *YAMLLexerInit();
 extern void YAMLLexerReload(YAMLLexer *, char *, size_t, bool);
 extern void YAMLLexerFree(YAMLLexer *);
@@ -175,5 +178,9 @@ extern char *YAMLToString(YAML *);
 
 extern void YAMLFree(YAML *);
 extern void YAMLPrint(YAML *);
+
+/// @cond INTERNAL
+extern void TestYaml(void);
+/// @endcond
 
 #endif

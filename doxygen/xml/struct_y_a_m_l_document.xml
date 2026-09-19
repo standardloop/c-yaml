@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.18.0" xml:lang="en-US">
+  <compounddef id="struct_y_a_m_l_document" kind="struct" language="C++" prot="public">
+    <compoundname>YAMLDocument</compoundname>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_y_a_m_l_document_1a70d32a1b40652b7d9f6f32ffb21609cf" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float YAMLDocument::version</definition>
+        <argsstring></argsstring>
+        <name>version</name>
+        <qualifiedname>YAMLDocument::version</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="yaml.h" line="164" column="11" bodyfile="yaml.h" bodystart="164" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_y_a_m_l_document_1aa509133f3b596d7a59df60e10f0c1966" prot="public" static="no" mutable="no">
+        <type>HashMap *</type>
+        <definition>HashMap* YAMLDocument::values</definition>
+        <argsstring></argsstring>
+        <name>values</name>
+        <qualifiedname>YAMLDocument::values</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="yaml.h" line="165" column="13" bodyfile="yaml.h" bodystart="165" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="yaml.h" line="162" column="1" bodyfile="yaml.h" bodystart="163" bodyend="166"/>
+    <listofallmembers>
+      <member refid="struct_y_a_m_l_document_1aa509133f3b596d7a59df60e10f0c1966" prot="public" virt="non-virtual"><scope>YAMLDocument</scope><name>values</name></member>
+      <member refid="struct_y_a_m_l_document_1a70d32a1b40652b7d9f6f32ffb21609cf" prot="public" virt="non-virtual"><scope>YAMLDocument</scope><name>version</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

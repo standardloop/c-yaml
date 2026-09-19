@@ -1,0 +1,9 @@
+fail_fast = false
+
+[[repos]]
+repo = "local"
+hooks = [
+  # Example 1: Run a local script on specific files
+  { id = "task-fmt", name = "Format", entry = "task fmt", language = "system", pass_filenames = false },
+  { id = "task-docs", name = "Docs", entry = "task docs", language = "system", pass_filenames = false },
+]

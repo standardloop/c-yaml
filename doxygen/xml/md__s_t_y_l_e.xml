@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.18.0" xml:lang="en-US">
+  <compounddef id="md__s_t_y_l_e" kind="page">
+    <compoundname>md__s_t_y_l_e</compoundname>
+    <title>Style Guide</title>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para><anchor id="md__s_t_y_l_e_1autotoc_md7"/></para>
+<sect1 id="md__s_t_y_l_e_1autotoc_md8">
+<title>Functions</title><para>All static functions to be <computeroutput>camelCase</computeroutput></para>
+<para>All extern functions to be <computeroutput>CapitalCase</computeroutput></para>
+</sect1>
+<sect1 id="md__s_t_y_l_e_1autotoc_md9">
+<title>Variables</title><para>All variable names to be <computeroutput>underscore_case</computeroutput> </para>
+</sect1>
+    </detaileddescription>
+    <location file="STYLE.md"/>
+  </compounddef>
+</doxygen>

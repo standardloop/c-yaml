@@ -1,217 +1,108 @@
 ---
-version: '3'
+version: "3"
+
+silent: true
+
+includes:
+  # c: https://raw.githubusercontent.com/standardloop/taskfiles/refs/heads/main/c.yml # can pin in future
+  c: ../taskfiles/c.yml
 
 vars:
-  CC: /opt/homebrew/opt/llvm/bin/clang -I/usr/local/include
-  CC_FLAGS: "-Werror -Wextra -Wall -Wfree-nonheap-object -std=c17"
+  DYN_LIBS_USED: "-lstandardloop-logger -lstandardloop-collections -lstandardloop-util"
   TEST_EXECUTABLE_NAME: test
   SOURCE_FILES:
-    - lexer.c
-    - parser.c
     - yaml.c
-  DYN_LIBS_USED_PATH: -L/usr/local/lib/standardloop
-  DYN_LIBS_USED: "-lstandardloop-util -lstandardloop-collections -lstandardloop-logger"
+    - parser.c
+    - lexer.c
+  TEST_SOURCE_FILES: []
+    # - todo.test.c
+  # for releasing
   DYLIB_NAME: libstandardloop-yaml.dylib
-  DYLIB_PATH: /usr/local/lib/standardloop/
-  DYLIB_INCLUDE_PATH: /usr/local/include/standardloop/
-  RELEASE_VERSION: 0.0.0
-
-# Inputs
-# - REPO_NAME
-# - DYLIB_VERSION
-# - DYLIB_NAME
-download-dependency: &download-dependency |
-  mkdir -p dependencies/tmp-{{.DYLIB_NAME}}
-  cd dependencies/tmp-{{.DYLIB_NAME}}
-  curl -O -J -L https://github.com/standardloop/{{.REPO_NAME}}/releases/download/v{{.DYLIB_VERSION}}/libstandardloop-{{.DYLIB_NAME}}.zip
-  unzip libstandardloop-{{.DYLIB_NAME}}.zip
-  sudo mkdir -p /usr/local/lib/standardloop/
-  sudo mkdir -p /usr/local/include/standardloop/
-  sudo mv libstandardloop-{{.DYLIB_NAME}}.dylib /usr/local/lib/standardloop/
-  sudo mv {{.DYLIB_NAME}}.h /usr/local/include/standardloop/ && rm libstandardloop-{{.DYLIB_NAME}}.zip
+  DYLIB_HEADER: yaml.h
 
 tasks:
+  list:
+    desc: "Lists all the tasks available to run."
+    cmds:
+      - yq '.tasks | to_entries | .[] | "* " + .key + ":\t" + (.value.desc // "")' Taskfile.yml | column -t -s $'\t'
+
   default:
-    deps:
-      - test
-
-  generate-random-string:
-    silent: true
+    desc: "Builds and runs the test program."
     cmds:
-      - python3 -c "import random, string; print(''.join(random.choices(string.ascii_letters, k=4096)))" | pbcopy
-
-  clean:
-    cmds:
-      - rm -f test
-      - rm -f test-sanitize
-
-  check-version:
-    silent: true
-    cmds:
-      - cat yaml.h | grep -q {{.RELEASE_VERSION}}
-      - cat yaml.h | grep -q "MAJOR_VERSION 0"
-      - cat yaml.h | grep -q "MINOR_VERSION 0"
-      - cat yaml.h | grep -q "PATCH_VERSION 6"
+      - task: test
 
   dependencies:
-    deps:
-      - dependencies:util
-      - dependencies:collections
-      - dependencies:logger
-
-  dependencies:util:
-    vars:
-      REPO_NAME: c-util
-      DYLIB_VERSION: 0.0.8
-      DYLIB_NAME: util
+    desc: "Downloads C program dependencies."
     cmds:
-      - sudo -v
-      - *download-dependency
-    status:
-      - otool -L /usr/local/lib/standardloop/libstandardloop-{{.DYLIB_NAME}}.dylib | head -n 2 | tail -n 1 | grep "current version {{.DYLIB_VERSION}}"
-      - cat /usr/local/include/standardloop/{{.DYLIB_NAME}}.h | grep "STANDARDLOOP_{{.DYLIB_NAME | upper}}_H_VERSION \"{{.DYLIB_VERSION}}\""
-
-  dependencies:collections:
-    vars:
-      REPO_NAME: c-collections
-      DYLIB_VERSION: 0.0.1
-      DYLIB_NAME: collections
-    cmds:
-      - sudo -v
-      - *download-dependency
-    status:
-      - otool -L /usr/local/lib/standardloop/libstandardloop-{{.DYLIB_NAME}}.dylib | head -n 2 | tail -n 1 | grep "current version {{.DYLIB_VERSION}}"
-      - cat /usr/local/include/standardloop/{{.DYLIB_NAME}}.h | grep "STANDARDLOOP_{{.DYLIB_NAME | upper}}_H_VERSION \"{{.DYLIB_VERSION}}\""
-
-  dependencies:logger:
-    vars:
-      REPO_NAME: c-logger
-      DYLIB_VERSION: 0.0.17
-      DYLIB_NAME: logger
-    cmds:
-      - sudo -v
-      - *download-dependency
-    status:
-      - otool -L /usr/local/lib/standardloop/libstandardloop-{{.DYLIB_NAME}}.dylib | head -n 2 | tail -n 1 | grep "current version {{.DYLIB_VERSION}}"
-      - cat /usr/local/include/standardloop/{{.DYLIB_NAME}}.h | grep "STANDARDLOOP_{{.DYLIB_NAME | upper}}_H_VERSION \"{{.DYLIB_VERSION}}\""
+      - task: c:dependencies:logger
+      - task: c:dependencies:util
+      - task: c:dependencies:collections
 
   release:
+    desc: "Release the dylib, used by GitHub actions."
     deps:
-      - check-version
-      - release:build
-      - release:move-files
-
-  release:build:
-    run: once
-    deps:
-      - check-version
       - dependencies
     cmds:
-      - |
-        {{.CC}} {{.CC_FLAGS}} \
-        {{range .SOURCE_FILES}} {{.}} {{end}} \
-        {{.DYN_LIBS_USED_PATH}} \
-        {{.DYN_LIBS_USED}} \
-        -O3 \
-        -dynamiclib \
-        -current_version {{.RELEASE_VERSION}} \
-        -compatibility_version {{.RELEASE_VERSION}} \
-        -o {{.DYLIB_NAME}}
-    sources:
-      - "*.c"
-      - "*.h"
-    generates:
-      - "{{.DYLIB_NAME}}"
-  
-  release:move-files:
-    deps:
-      - release:build
-    cmds:
-      - sudo -v
-      - sudo cp {{.DYLIB_NAME}} {{.DYLIB_PATH}}
-      - sudo cp yaml.h {{.DYLIB_INCLUDE_PATH}}
-
-  release:clean:
-    allow_failure: true
-    cmds:
-      - sudo -v
-      - sudo rm -f {{.DYLIB_PATH}}/{{.DYLIB_NAME}}
-      - sudo rm -f {{.DYLIB_INCLUDE_PATH}}/yaml.h
-    
-  # local test
-  remote:download:
-    run: once
-    cmds:
-      - |
-        mkdir -p tmp
-        cd tmp
-        curl -O -J -L https://github.com/standardloop/c-yaml/releases/download/v{{.RELEASE_VERSION}}/libstandardloop-yaml.zip
-        unzip libstandardloop-yaml.zip
-        rm libstandardloop-yaml.zip
-
-  remote:move:
-    deps:
-      - remote:download
-    cmds:
-      - |
-        cd tmp/
-        sudo -v
-        sudo mv {{.DYLIB_NAME}} {{.DYLIB_PATH}}
-        sudo mv yaml.h {{.DYLIB_INCLUDE_PATH}}
-
-  test:
-    cmds:
-      - task: test:build
-      - task: test:build-sanitize
-  
+      - task: c:release
 
   test:build:
-    run: once
-    cmds:
-      - |
-        {{.CC}} {{.CC_FLAGS}} \
-        test.c \
-        {{range .SOURCE_FILES}} {{.}} {{end}} \
-        {{.DYN_LIBS_USED_PATH}} \
-        {{.DYN_LIBS_USED}} \
-        -O0 \
-        # -lstandardloop-yaml \
-        -o {{.TEST_EXECUTABLE_NAME}}
-    sources:
-      - "*.c"
-      - "*.h"
-    generates:
-      - "{{.TEST_EXECUTABLE_NAME}}"
-  
-  test:sanitize:
+    desc: "Builds the test program."
     deps:
-      - test:build-sanitize
-
-  test:build-sanitize:
-    run: once
+      - dependencies
+      - c:dependencies:testing
     cmds:
-      - |
-        {{.CC}} {{.CC_FLAGS}} \
-        test.c \
-        {{range .SOURCE_FILES}} {{.}} {{end}} \
-        {{.DYN_LIBS_USED_PATH}} \
-        {{.DYN_LIBS_USED}} \
-        -O0 \
-        # -lstandardloop-yaml \
-        -fno-omit-frame-pointer \
-        -fsanitize=address \
-        -o {{.TEST_EXECUTABLE_NAME}}-sanitize
-    sources:
-      - "*.c"
-      - "*.h"
-    generates:
-      - "{{.TEST_EXECUTABLE_NAME}}-sanitize"
+      - task: c:test:build
 
-  test:leaks:
+  test:run:
+    desc: "Runs the test program."
+    aliases:
+      - test
     deps:
       - test:build
     cmds:
-      - cp /usr/local/lib/standardloop/libstandardloop-yaml.dylib ./ # to get around sips we need to move dylibs to local dir :(
+      - ./{{.TEST_EXECUTABLE_NAME}}
+
+  test:build-sanitize:
+    desc: "Builds the test program with address sanitizers."
+    deps:
+      - dependencies
+      - c:dependencies:testing
+    cmds:
+      - task: c:test:build-sanitize
+
+  test:run-sanitize:
+    desc: "Runs the test program with address sanitizers."
+    aliases:
+      - sanitize
+    deps:
+      - test:build-sanitize
+    cmds:
+      - ./{{.TEST_EXECUTABLE_NAME}}-sanitize
+
+  clean:
+    desc: "Cleans binary files."
+    deps:
+      - c:test:clean
+
+  fmt:
+    desc: "Formats the C code with the `.clang-format` file."
+    deps:
+      - c:fmt
+
+  docs:
+    desc: "Generate docs/index.md and the task list in README.md"
+    deps:
+      - c:docs
+
+  test:leaks:
+    aliases:
+      - leaks
+    desc: "Run macOS leaks on the test program."
+    deps:
+      - test:build
+    cmds:
+      - cp /usr/local/lib/standardloop/libstandardloop-util.dylib ./
+      - cp /usr/local/lib/standardloop/libstandardloop-collections.dylib ./
       - leaks --atExit -- ./{{.TEST_EXECUTABLE_NAME}}
       - rm libstandardloop-util.dylib
-      - rm libstandardloop-yaml.dylib
+      - rm libstandardloop-collections.dylib

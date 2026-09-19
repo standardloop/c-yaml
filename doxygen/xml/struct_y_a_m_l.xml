@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.18.0" xml:lang="en-US">
+  <compounddef id="struct_y_a_m_l" kind="struct" language="C++" prot="public">
+    <compoundname>YAML</compoundname>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_y_a_m_l_1a7d5502696a80c1891a9e05ee0d072217" prot="public" static="no" mutable="no">
+        <type>YAMLDocument **</type>
+        <definition>YAMLDocument** YAML::documents</definition>
+        <argsstring></argsstring>
+        <name>documents</name>
+        <qualifiedname>YAML::documents</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="yaml.h" line="170" column="18" bodyfile="yaml.h" bodystart="170" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="yaml.h" line="168" column="1" bodyfile="yaml.h" bodystart="169" bodyend="171"/>
+    <listofallmembers>
+      <member refid="struct_y_a_m_l_1a7d5502696a80c1891a9e05ee0d072217" prot="public" virt="non-virtual"><scope>YAML</scope><name>documents</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

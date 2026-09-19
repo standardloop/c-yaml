@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.18.0" xml:lang="en-US">
+  <compounddef id="_r_e_a_d_m_e_8md" kind="file" language="Markdown">
+    <compoundname>README.md</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">#<sp/>c-yaml</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">-<sp/>https://github.com/standardloop/c-yaml</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">[![GitHub<sp/>Release](https://img.shields.io/github/v/release/standardloop/c-yaml?sort=semver)](https://github.com/standardloop/c-yaml/releases)<sp/>![Platform:<sp/>macOS](https://img.shields.io/badge/platform-macOS-000000?style=flat&amp;logo=apple&amp;logoColor=white)<sp/>![C<sp/>Version](https://img.shields.io/badge/C_Standard-C17-00599C?logo=c&amp;logoColor=white)</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">##<sp/>Implementation<sp/>Goals</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">-<sp/>streaming<sp/>lexer<sp/>instead<sp/>of<sp/>reading<sp/>of<sp/>of<sp/>a<sp/>files<sp/>contents<sp/>into<sp/>memory</highlight></codeline>
+<codeline><highlight class="normal">-<sp/>don&apos;t<sp/>fail<sp/>on<sp/>first<sp/>syntax<sp/>error,<sp/>recover<sp/>so<sp/>can<sp/>print<sp/>multiple<sp/>errors</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">##<sp/>Examples</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">-<sp/>TODO</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">##<sp/>Available<sp/>Tasks</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">&lt;!--<sp/>TASKS_START<sp/>--&gt;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">```sh</highlight></codeline>
+<codeline><highlight class="normal">task:<sp/>Available<sp/>tasks<sp/>for<sp/>this<sp/>project:</highlight></codeline>
+<codeline><highlight class="normal">*<sp/>list<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Lists<sp/>all<sp/>the<sp/>tasks<sp/>available<sp/>to<sp/>run.</highlight></codeline>
+<codeline><highlight class="normal">*<sp/>default<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Builds<sp/>and<sp/>runs<sp/>the<sp/>test<sp/>program.</highlight></codeline>
+<codeline><highlight class="normal">*<sp/>dependencies<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Downloads<sp/>C<sp/>program<sp/>dependencies.</highlight></codeline>
+<codeline><highlight class="normal">*<sp/>release<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Release<sp/>the<sp/>dylib,<sp/>used<sp/>by<sp/>GitHub<sp/>actions.</highlight></codeline>
+<codeline><highlight class="normal">*<sp/>test:build<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Builds<sp/>the<sp/>test<sp/>program.</highlight></codeline>
+<codeline><highlight class="normal">*<sp/>test:run<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Runs<sp/>the<sp/>test<sp/>program.</highlight></codeline>
+<codeline><highlight class="normal">*<sp/>test:build-sanitize<sp/><sp/><sp/>Builds<sp/>the<sp/>test<sp/>program<sp/>with<sp/>address<sp/>sanitizers.</highlight></codeline>
+<codeline><highlight class="normal">*<sp/>test:run-sanitize<sp/><sp/><sp/><sp/><sp/>Runs<sp/>the<sp/>test<sp/>program<sp/>with<sp/>address<sp/>sanitizers.</highlight></codeline>
+<codeline><highlight class="normal">*<sp/>clean<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Cleans<sp/>binary<sp/>files.</highlight></codeline>
+<codeline><highlight class="normal">*<sp/>fmt<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Formats<sp/>the<sp/>C<sp/>code<sp/>with<sp/>the<sp/>`.clang-format`<sp/>file.</highlight></codeline>
+<codeline><highlight class="normal">*<sp/>docs<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Generate<sp/>docs/index.md<sp/>and<sp/>the<sp/>task<sp/>list<sp/>in<sp/>README.md</highlight></codeline>
+<codeline><highlight class="normal">*<sp/>test:leaks<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Run<sp/>macOS<sp/>leaks<sp/>on<sp/>the<sp/>test<sp/>program.</highlight></codeline>
+<codeline><highlight class="normal">```</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">&lt;!--<sp/>TASKS_END<sp/>--&gt;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">##<sp/>Releasing</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">Releases<sp/>are<sp/>handled<sp/>via<sp/>GitHub<sp/>Actions.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">##<sp/>Docs</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">Docs<sp/>are<sp/>generated<sp/>a<sp/>first<sp/>generated<sp/>with<sp/>`doxygen`<sp/>as<sp/>`xml`<sp/>and<sp/>then<sp/>`moxygen`<sp/>reads<sp/>the<sp/>xml<sp/>to<sp/>output<sp/>markdown<sp/>in<sp/>the<sp/>`docs/`<sp/>folder.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">This<sp/>repo<sp/>uses<sp/>reusable<sp/>tasks<sp/>from<sp/>https://github.com/standardloop/taskfiles/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">##<sp/>Precommit</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">This<sp/>repo<sp/>uses<sp/>[prek](https://github.com/j178/prek).</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">Please<sp/>run<sp/>`prek<sp/>install`.</highlight></codeline>
+    </programlisting>
+    <location file="README.md"/>
+  </compounddef>
+</doxygen>

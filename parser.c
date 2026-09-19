@@ -3,6 +3,8 @@
 
 #include "./yaml.h"
 
+static void nextYAMLToken(YAMLParser *parser);
+
 extern YAMLParser *YAMLParserInit(YAMLLexer *lexer)
 {
     if (lexer == NULL)
