@@ -8,15 +8,10 @@
 
 static void nextYAMLToken(YAMLParser *parser);
 
-extern YAMLParser *YAMLParserInit(YAMLLexer *lexer,
-                                  enum YAMLParserInputMode input_mode,
+extern YAMLParser *YAMLParserInit(enum YAMLParserInputMode input_mode,
                                   void *input_ptr, size_t buffer_size)
 {
     Log(TRACE, "enterin YAMLParserInit");
-    if (lexer == NULL)
-    {
-        return NULL;
-    }
 
     YAMLParser *parser = malloc(sizeof(YAMLParser));
     if (parser == NULL)
@@ -39,58 +34,8 @@ extern YAMLParser *YAMLParserInit(YAMLLexer *lexer,
     // {
     //     parser->file_ptr = (FILE *)input_ptr;
     // }
-    parser->lexer = lexer;
     parser->current_token = NULL;
     parser->peek_token = NULL;
-    if (false)
-    {
-        nextYAMLToken(parser); // todo
-    }
-    return parser;
-}
-
-extern void YAMLParserFree(YAMLParser *parser)
-{
-    if (parser != NULL)
-    {
-        if (parser->lexer != NULL)
-        {
-            YAMLLexerFree(parser->lexer);
-        }
-        free(parser);
-    }
-}
-
-static void nextYAMLToken(YAMLParser *parser)
-{
-    if (parser == NULL)
-    {
-        return;
-    }
-    YAMLTokenFree(parser->current_token);
-    parser->current_token = parser->peek_token;
-    YAMLToken *peek_token = NULL;
-    while (peek_token == NULL) // also check lexer error here maybe errno
-    {
-        peek_token = YAMLLex(parser->lexer);
-    }
-    parser->peek_token = peek_token;
-}
-
-extern YAML *YAMLParserParse(YAMLParser *parser)
-{
-    Log(TRACE, "entering YAMLParserParse");
-    if (parser == NULL)
-    {
-        return NULL;
-    }
-    Log(TRACE, "parser is not NULL");
-    YAML *yaml = YAMLInit();
-    if (yaml == NULL)
-    {
-        YAMLParserFree(parser);
-    }
-
     Log(TRACE, "setting up initial buffers");
     char *raw_yaml_buffer_a = calloc(parser->buffer_size + 1, sizeof(char));
     if (raw_yaml_buffer_a == NULL)
@@ -119,53 +64,94 @@ extern YAML *YAMLParserParse(YAMLParser *parser)
 
         Log(ERROR, "the file is empty");
         // fclose(file_ptr);
-        return NULL; // fixme, maybe we can still return an initialized yaml
-                     // struct
+        return NULL;
     }
+    parser->current_buffer = current_buffer;
+    parser->next_buffer = next_buffer;
+    parser->current_bytes = current_bytes;
 
-    Log(TRACE, "starting the loop");
-    bool done = false;
-    while (ALWAYS)
+    parser->lexer = YAMLLexerInit(parser->current_buffer, current_bytes);
+    if (current_bytes < buffer_size)
     {
-        size_t next_bytes = fread(next_buffer, sizeof(char),
+        parser->lexer->is_last_chunk = true;
+    }
+    // printf("[JOSH]: %s, %d %d\n", parser->current_buffer, (int)current_bytes,
+    //        (int)buffer_size);
+    return parser;
+}
+
+extern void YAMLParserFree(YAMLParser *parser)
+{
+    if (parser != NULL)
+    {
+        if (parser->lexer != NULL)
+        {
+            YAMLLexerFree(parser->lexer);
+        }
+        free(parser);
+    }
+}
+
+static void nextYAMLToken(YAMLParser *parser)
+{
+    Log(TRACE, "nextYAMLToken");
+    if (parser == NULL)
+    {
+        return;
+    }
+    // YAMLTokenFree(parser->current_token);
+    parser->current_token = parser->peek_token;
+    YAMLToken *peek_token = NULL;
+
+    if (!IsLexerHungry(parser->lexer))
+    {
+        Log(TRACE, "lexer is hungry");
+        size_t next_bytes = fread(parser->next_buffer, sizeof(char),
                                   parser->buffer_size, parser->file_ptr);
-        current_buffer[parser->buffer_size] = NULL_CHAR;
-        next_buffer[parser->buffer_size] = NULL_CHAR;
+        parser->current_buffer[parser->buffer_size] = NULL_CHAR;
+        parser->next_buffer[parser->buffer_size] = NULL_CHAR;
 
         // Log(ERROR, "%s", current_buffer);
         // Log(ERROR, "%d", (int)next_bytes);
-        YAMLLexerReload(parser->lexer, current_buffer, current_bytes,
-                        next_bytes == 0);
-        while (!IsLexerHungry(parser->lexer))
-        {
-            YAMLToken *token = YAMLLex(parser->lexer);
-            if (token != NULL)
-            {
-                YAMLTokenPrint(token);
-                if (token->type == YAMLTokenEOF)
-                {
-                    done = true;
-                    break;
-                }
-            }
-            // sleep(1);
-        }
-        // if (next_bytes == 0)
-        // {
-        //     break;
-        // }
+        YAMLLexerReload(parser->lexer, parser->current_buffer,
+                        parser->current_bytes, next_bytes == 0);
 
-        if (done)
+        parser->current_bytes = next_bytes;
+        char *temp = parser->current_buffer;
+        parser->current_buffer = parser->next_buffer;
+        parser->next_buffer = temp;
+    }
+    else
+    {
+        Log(TRACE, "lexer is not hungry");
+    }
+    YAMLToken *token = YAMLLex(parser->lexer);
+    peek_token = token;
+
+    parser->peek_token = peek_token;
+}
+
+extern YAML *YAMLParserParse(YAMLParser *parser)
+{
+    if (parser == NULL)
+    {
+        return NULL;
+    }
+    YAML *yaml = YAMLInit();
+    if (yaml == NULL)
+    {
+        YAMLParserFree(parser);
+    }
+
+    Log(TRACE, "going into loop");
+    while (ALWAYS)
+    {
+        nextYAMLToken(parser);
+        YAMLTokenPrint(parser->current_token);
+        if (parser->current_token->type == YAMLTokenEOF)
         {
             break;
         }
-
-        // loop
-        char *temp = current_buffer;
-        current_buffer = next_buffer;
-        next_buffer = temp;
-
-        current_bytes = next_bytes;
     }
 
     YAMLParserFree(parser);

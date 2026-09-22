@@ -140,17 +140,16 @@ extern void YAMLLexerReload(YAMLLexer *lexer, char *buffer, size_t size,
     lexer->is_last_chunk = is_last_chunk;
 }
 
-extern YAMLLexer *YAMLLexerInit()
+extern YAMLLexer *YAMLLexerInit(char *input, size_t input_len)
 {
-    Log(TRACE, "entering YAMLLexerInit");
     YAMLLexer *lexer = malloc(sizeof(YAMLLexer));
     if (lexer == NULL)
     {
         errno = ENOMEM;
         return NULL;
     }
-    lexer->input = NULL;
-    lexer->input_len = 0;
+    lexer->input = input;
+    lexer->input_len = input_len;
     lexer->current_char = NULL_CHAR;
     lexer->position = -1;
     lexer->read_position = 0;
@@ -176,6 +175,8 @@ extern YAMLLexer *YAMLLexerInit()
     resetLexerDashes(lexer);
     resetLexerDots(lexer);
     resetLexerState(lexer);
+
+    // advanceChar(lexer);
 
     return lexer;
 }
@@ -330,7 +331,6 @@ static char *createStringLiteral(YAMLLexer *lexer, size_t start_position)
 
 extern YAMLToken *YAMLLex(YAMLLexer *lexer)
 {
-
     if (isAtEndOfLexerInput(lexer))
     {
         pass;
@@ -349,6 +349,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     {
         advanceChar(lexer);
     }
+    printf("[JOSH]: %c\n", lexer->current_char);
     u_int32_t curr_pos = lexer->position;
     YAMLToken *token = NULL;
 
@@ -456,6 +457,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
         }
         if (lexer->current_char == DASH_MINUS_CHAR)
         {
+            printf("hi\n");
             lexer->sequential_dashes++;
         }
         else
@@ -1012,11 +1014,9 @@ extern char *YAMLTokenTypeToString(enum YAMLTokenType type)
 
 extern void YAMLLexerDebugTest(char *input_str)
 {
-    YAMLLexer *lexer = YAMLLexerInit();
+    YAMLLexer *lexer = YAMLLexerInit(input_str, strlen(input_str));
 
     // pass full string
-    lexer->input = input_str;
-    lexer->input_len = strlen(input_str);
     lexer->is_last_chunk = true;
 
     while (ALWAYS)

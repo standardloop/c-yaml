@@ -2,14 +2,13 @@
 
 ## Classes
 
-| Name                            | Description |
-| ------------------------------- | ----------- |
-| [`YAML`](#yaml)                 |             |
-| [`YAMLLexer`](#yamllexer)       |             |
-| [`YAMLToken`](#yamltoken)       |             |
-| [`YAMLValue`](#yamlvalue)       |             |
-| [`YAMLParser`](#yamlparser)     |             |
-| [`YAMLDocument`](#yamldocument) |             |
+| Name                        | Description |
+| --------------------------- | ----------- |
+| [`YAML`](#yaml)             |             |
+| [`YAMLLexer`](#yamllexer)   |             |
+| [`YAMLToken`](#yamltoken)   |             |
+| [`YAMLValue`](#yamlvalue)   |             |
+| [`YAMLParser`](#yamlparser) |             |
 
 ## Macros
 
@@ -188,7 +187,7 @@ void YAMLTokenFree(YAMLToken *)
 ### YAMLLexerInit
 
 ```cpp
-YAMLLexer * YAMLLexerInit()
+YAMLLexer * YAMLLexerInit(char * input, size_t input_len)
 ```
 
 ---
@@ -228,7 +227,7 @@ void YAMLLexerDebugTest(char *)
 ### YAMLParserInit
 
 ```cpp
-YAMLParser * YAMLParserInit(YAMLLexer * lexer, enum YAMLParserInputMode input_mode, void * input_ptr, size_t buffer_size)
+YAMLParser * YAMLParserInit(enum YAMLParserInputMode input_mode, void * input_ptr, size_t buffer_size)
 ```
 
 ---
@@ -319,16 +318,16 @@ struct YAML
 
 ### Public Attributes
 
-| Return   | Name                      | Description |
-| -------- | ------------------------- | ----------- |
-| `List *` | [`documents`](#documents) |             |
+| Return        | Name            | Description |
+| ------------- | --------------- | ----------- |
+| `YAMLValue *` | [`root`](#root) |             |
 
 ---
 
-#### documents
+#### root
 
 ```cpp
-List * documents
+YAMLValue * root
 ```
 
 ## YAMLLexer
@@ -579,14 +578,14 @@ union [union].__unnamed0__
 
 ### Public Attributes
 
-| Return      | Name                        | Description |
-| ----------- | --------------------------- | ----------- |
-| `List *`    | [`list`](#list)             |             |
-| `HashMap *` | [`map`](#map)               |             |
-| `int64_t *` | [`num_int`](#num_int)       |             |
-| `double *`  | [`num_double`](#num_double) |             |
-| `char *`    | [`str`](#str)               |             |
-| `bool *`    | [`boolean`](#boolean)       |             |
+| Return             | Name                        | Description |
+| ------------------ | --------------------------- | ----------- |
+| `List *`           | [`list`](#list)             |             |
+| `ComplexHashMap *` | [`map`](#map)               |             |
+| `int64_t *`        | [`num_int`](#num_int)       |             |
+| `double *`         | [`num_double`](#num_double) |             |
+| `char *`           | [`str`](#str)               |             |
+| `bool *`           | [`boolean`](#boolean)       |             |
 
 ---
 
@@ -601,7 +600,7 @@ List * list
 #### map
 
 ```cpp
-HashMap * map
+ComplexHashMap * map
 ```
 
 ---
@@ -653,6 +652,9 @@ struct YAMLParser
 | `YAMLToken *`                                                         | [`current_token`](#current_token)                                                                        |             |
 | `YAMLToken *`                                                         | [`peek_token`](#peek_token)                                                                              |             |
 | `char *`                                                              | [`error_message`](#error_message)                                                                        |             |
+| `char *`                                                              | [`current_buffer`](#current_buffer)                                                                      |             |
+| `char *`                                                              | [`next_buffer`](#next_buffer)                                                                            |             |
+| `size_t`                                                              | [`current_bytes`](#current_bytes)                                                                        |             |
 
 ---
 
@@ -710,6 +712,30 @@ YAMLToken * peek_token
 char * error_message
 ```
 
+---
+
+#### current_buffer
+
+```cpp
+char * current_buffer
+```
+
+---
+
+#### next_buffer
+
+```cpp
+char * next_buffer
+```
+
+---
+
+#### current_bytes
+
+```cpp
+size_t current_bytes
+```
+
 ## [union].**unnamed0**
 
 ```cpp
@@ -730,26 +756,6 @@ union [union].__unnamed0__
 FILE * file_ptr
 ```
 
-## YAMLDocument
-
-```cpp
-struct YAMLDocument
-```
-
-### Public Attributes
-
-| Return   | Name            | Description |
-| -------- | --------------- | ----------- |
-| `Item *` | [`root`](#root) |             |
-
----
-
-#### root
-
-```cpp
-Item * root
-```
-
 ## [union].**unnamed0**
 
 ```cpp
@@ -758,14 +764,14 @@ union [union].__unnamed0__
 
 ### Public Attributes
 
-| Return      | Name                        | Description |
-| ----------- | --------------------------- | ----------- |
-| `List *`    | [`list`](#list)             |             |
-| `HashMap *` | [`map`](#map)               |             |
-| `int64_t *` | [`num_int`](#num_int)       |             |
-| `double *`  | [`num_double`](#num_double) |             |
-| `char *`    | [`str`](#str)               |             |
-| `bool *`    | [`boolean`](#boolean)       |             |
+| Return             | Name                        | Description |
+| ------------------ | --------------------------- | ----------- |
+| `List *`           | [`list`](#list)             |             |
+| `ComplexHashMap *` | [`map`](#map)               |             |
+| `int64_t *`        | [`num_int`](#num_int)       |             |
+| `double *`         | [`num_double`](#num_double) |             |
+| `char *`           | [`str`](#str)               |             |
+| `bool *`           | [`boolean`](#boolean)       |             |
 
 ---
 
@@ -780,7 +786,7 @@ List * list
 #### map
 
 ```cpp
-HashMap * map
+ComplexHashMap * map
 ```
 
 ---

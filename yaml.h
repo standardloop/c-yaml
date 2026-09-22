@@ -139,7 +139,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *);
 extern void YAMLTokenFree(YAMLToken *);
 extern YAMLToken *YAMLTokenInit(enum YAMLTokenType, u_int32_t, u_int32_t,
                                 u_int32_t, char *);
-extern YAMLLexer *YAMLLexerInit();
+extern YAMLLexer *YAMLLexerInit(char *input, size_t input_len);
 extern void YAMLLexerReload(YAMLLexer *, char *, size_t, bool);
 extern void YAMLLexerFree(YAMLLexer *);
 extern bool IsLexerHungry(YAMLLexer *);
@@ -169,10 +169,12 @@ typedef struct
     YAMLToken *current_token;
     YAMLToken *peek_token;
     char *error_message;
+    char *current_buffer;
+    char *next_buffer;
+    size_t current_bytes;
 } YAMLParser;
 
-extern YAMLParser *YAMLParserInit(YAMLLexer *lexer,
-                                  enum YAMLParserInputMode input_mode,
+extern YAMLParser *YAMLParserInit(enum YAMLParserInputMode input_mode,
                                   void *input_ptr, size_t buffer_size);
 
 extern void YAMLParserFree(YAMLParser *parser);
@@ -203,7 +205,7 @@ typedef struct
     union
     {
         List *list;
-        HashMap *map;
+        ComplexHashMap *map;
         int64_t *num_int;
         double *num_double;
         // void *null_yaml; // if null, then do need to hold it
@@ -214,13 +216,7 @@ typedef struct
 
 typedef struct
 {
-    // do we want a header for version?
-    Item *root; // root->value will be of type YAMLValue
-} YAMLDocument;
-
-typedef struct
-{
-    List *documents; // list of YAMLDocument
+    YAMLValue *root;
 } YAML;
 
 extern YAML *YAMLInit();

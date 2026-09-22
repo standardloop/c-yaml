@@ -16,12 +16,7 @@ extern YAML *YAMLInit()
     {
         return NULL;
     }
-    yaml->documents = ListInit(1, 2);
-    if (yaml->documents == NULL)
-    {
-        YAMLFree(yaml);
-        return NULL;
-    }
+    yaml->root = NULL;
     return yaml;
 }
 
@@ -58,14 +53,8 @@ extern YAML *YAMLFromFile(FILE *file_ptr, size_t buffer_size)
     }
     Log(TRACE, "file_ptr is not NULL");
 
-    YAMLLexer *lexer = YAMLLexerInit();
-    if (lexer == NULL)
-    {
-        return NULL;
-    }
-
     YAMLParser *parser =
-        YAMLParserInit(lexer, YAMLParserInputFile, file_ptr, buffer_size);
+        YAMLParserInit(YAMLParserInputFile, file_ptr, buffer_size);
 
     YAML *yaml = YAMLParserParse(parser);
 
@@ -94,9 +83,10 @@ extern void YAMLFree(YAML *yaml)
 {
     if (yaml != NULL)
     {
-        if (yaml->documents != NULL)
+        if (yaml->root != NULL)
         {
-            ListFree(yaml->documents);
+            // FIXME, custom free function needed here
+            free(yaml->root);
         }
         free(yaml);
     }
@@ -106,7 +96,8 @@ extern void YAMLPrint(YAML *yaml)
 {
     if (yaml != NULL)
     {
-        ListPrint(yaml->documents);
+        // FIXME, custom print needed here.
+        return;
     }
 }
 
