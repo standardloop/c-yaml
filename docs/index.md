@@ -36,6 +36,22 @@
 #define LEXER_MAX_BUFFER_SIZE 1048576
 ```
 
+---
+
+### CHUNK_SIZE
+
+```cpp
+#define CHUNK_SIZE 4096
+```
+
+---
+
+### BUFFER_SIZE
+
+```cpp
+#define BUFFER_SIZE (CHUNK_SIZE * 2)
+```
+
 ## Enumerations
 
 ---
@@ -55,7 +71,7 @@ enum YAMLTokenType
 | `YAMLTokenDedent`            |             |
 | `YAMLTokenSpace`             |             |
 | `YAMLTokenNewline`           |             |
-| `YAMLTokenKey`               |             |
+| `YAMLTokenScalar`            |             |
 | `YAMLTokenValueIndicator`    |             |
 | `YAMLTokenFlowMappingStart`  |             |
 | `YAMLTokenFlowMappingEnd`    |             |
@@ -63,11 +79,6 @@ enum YAMLTokenType
 | `YAMLTokenFlowSequenceEnd`   |             |
 | `YAMLTokenListDash`          |             |
 | `YAMLTokenComma`             |             |
-| `YAMLTokenValue`             |             |
-| `YAMLTokenBool`              |             |
-| `YAMLTokenNumber`            |             |
-| `YAMLTokenString`            |             |
-| `YAMLTokenNULL`              |             |
 | `YAMLTokenSingleQuotes`      |             |
 | `YAMLTokenDoubleQuotes`      |             |
 | `YAMLTokenLiteralBlockStart` |             |
@@ -171,7 +182,7 @@ void YAMLTokenPrint(YAMLToken *)
 ### YAMLLex
 
 ```cpp
-YAMLToken * YAMLLex(YAMLLexer *)
+YAMLToken * YAMLLex(YAMLLexer * lexer)
 ```
 
 ---
@@ -179,7 +190,7 @@ YAMLToken * YAMLLex(YAMLLexer *)
 ### YAMLTokenFree
 
 ```cpp
-void YAMLTokenFree(YAMLToken *)
+void YAMLTokenFree(YAMLToken * token)
 ```
 
 ---
@@ -187,7 +198,7 @@ void YAMLTokenFree(YAMLToken *)
 ### YAMLLexerInit
 
 ```cpp
-YAMLLexer * YAMLLexerInit(FILE * file_ptr, size_t buffer_size)
+YAMLLexer * YAMLLexerInit(FILE * file_ptr)
 ```
 
 ---
@@ -195,7 +206,7 @@ YAMLLexer * YAMLLexerInit(FILE * file_ptr, size_t buffer_size)
 ### YAMLLexerFree
 
 ```cpp
-void YAMLLexerFree(YAMLLexer *)
+void YAMLLexerFree(YAMLLexer * lexer)
 ```
 
 ---
@@ -203,7 +214,7 @@ void YAMLLexerFree(YAMLLexer *)
 ### YAMLLexerDebugTest
 
 ```cpp
-void YAMLLexerDebugTest(char *)
+void YAMLLexerDebugTest(char * file_name)
 ```
 
 ---
@@ -322,17 +333,18 @@ struct YAMLLexer
 
 ### Public Attributes
 
-| Return      | Name                              | Description |
-| ----------- | --------------------------------- | ----------- |
-| `FILE *`    | [`file_ptr`](#file_ptr)           |             |
-| `char *`    | [`input`](#input)                 |             |
-| `size_t`    | [`input_len`](#input_len)         |             |
-| `size_t`    | [`max_input_len`](#max_input_len) |             |
-| `bool`      | [`is_last_chunk`](#is_last_chunk) |             |
-| `char`      | [`current_char`](#current_char)   |             |
-| `u_int32_t` | [`position`](#position)           |             |
-| `u_int32_t` | [`read_position`](#read_position) |             |
-| `u_int32_t` | [`line`](#line)                   |             |
+| Return                | Name                                  | Description |
+| --------------------- | ------------------------------------- | ----------- |
+| `FILE *`              | [`file_ptr`](#file_ptr)               |             |
+| `char`                | [`buffer`](#buffer)                   |             |
+| `size_t`              | [`cursor`](#cursor)                   |             |
+| `size_t`              | [`bytes_in_buffer`](#bytes_in_buffer) |             |
+| `u_int32_t`           | [`line`](#line)                       |             |
+| `char`                | [`current_char`](#current_char)       |             |
+| `bool`                | [`eof_reached`](#eof_reached)         |             |
+| `enum YAMLLexerState` | [`state`](#state)                     |             |
+| `List *`              | [`indent_stack`](#indent_stack)       |             |
+| `u_int32_t`           | [`space_count`](#space_count)         |             |
 
 ---
 
@@ -344,34 +356,34 @@ FILE * file_ptr
 
 ---
 
-#### input
+#### buffer
 
 ```cpp
-char * input
+char buffer[BUFFER_SIZE]
 ```
 
 ---
 
-#### input_len
+#### cursor
 
 ```cpp
-size_t input_len
+size_t cursor
 ```
 
 ---
 
-#### max_input_len
+#### bytes_in_buffer
 
 ```cpp
-size_t max_input_len
+size_t bytes_in_buffer
 ```
 
 ---
 
-#### is_last_chunk
+#### line
 
 ```cpp
-bool is_last_chunk
+u_int32_t line
 ```
 
 ---
@@ -384,26 +396,34 @@ char current_char
 
 ---
 
-#### position
+#### eof_reached
 
 ```cpp
-u_int32_t position
+bool eof_reached
 ```
 
 ---
 
-#### read_position
+#### state
 
 ```cpp
-u_int32_t read_position
+enum YAMLLexerState state
 ```
 
 ---
 
-#### line
+#### indent_stack
 
 ```cpp
-u_int32_t line
+List * indent_stack
+```
+
+---
+
+#### space_count
+
+```cpp
+u_int32_t space_count
 ```
 
 ## YAMLToken
@@ -568,7 +588,7 @@ struct YAMLParser
 | --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------- |
 | `enum YAMLParserInputMode`                                            | [`input_mode`](#input_mode)                                                                              |             |
 | `union YAMLParser::@164241133151322264244351313220306251143335010005` | [`@306142324131216233076101367267331363154064025165`](#306142324131216233076101367267331363154064025165) |             |
-| `size_t`                                                              | [`buffer_size`](#buffer_size)                                                                            |             |
+| `size_t`                                                              | [`buffer_size`](#buffer_size-1)                                                                          |             |
 | `YAMLLexer *`                                                         | [`lexer`](#lexer)                                                                                        |             |
 | `YAMLToken *`                                                         | [`current_token`](#current_token)                                                                        |             |
 | `YAMLToken *`                                                         | [`peek_token`](#peek_token)                                                                              |             |

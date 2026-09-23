@@ -8,6 +8,7 @@
 #define STANDARDLOOP_YAML_H
 
 #include <standardloop/collections.h>
+#include <sys/_types/_u_int32_t.h>
 
 #define LEXER_MIN_BUFFER_SIZE 4096
 #define LEXER_DEFAULT_BUFFER_SIZE 4096
@@ -26,11 +27,11 @@ enum YAMLTokenType
     // spacing
     YAMLTokenIndent,
     YAMLTokenDedent,
-    YAMLTokenSpace,   //
+    YAMLTokenSpace,   // do we need this?
     YAMLTokenNewline, // do we need this?
 
     // general
-    YAMLTokenKey,               // part before the colon
+    YAMLTokenScalar,            // anything
     YAMLTokenValueIndicator,    // :
     YAMLTokenFlowMappingStart,  // {
     YAMLTokenFlowMappingEnd,    // }
@@ -38,12 +39,6 @@ enum YAMLTokenType
     YAMLTokenFlowSequenceEnd,   // ]
     YAMLTokenListDash,          // -
     YAMLTokenComma,             // ,
-
-    YAMLTokenValue,  // do we want general value? or the below
-    YAMLTokenBool,   // TRUE, true, FALSE, false
-    YAMLTokenNumber, // 1, 3.14, -10
-    YAMLTokenString, // hello
-    YAMLTokenNULL,   // null
 
     YAMLTokenSingleQuotes, // "
     YAMLTokenDoubleQuotes, // "
@@ -106,32 +101,36 @@ enum YAMLLexerState
 };
 
 // new lets go
+//
+#define CHUNK_SIZE 4096
+#define BUFFER_SIZE (CHUNK_SIZE * 2)
+
 typedef struct
 {
     FILE *file_ptr;
-    char *input;
-    size_t input_len;
-    size_t max_input_len;
-    bool is_last_chunk;
-
-    char current_char;
-    u_int32_t position;
-    u_int32_t read_position;
+    char buffer[BUFFER_SIZE];
+    size_t cursor;
+    size_t bytes_in_buffer;
     u_int32_t line;
+    char current_char;
+    bool eof_reached;
+    enum YAMLLexerState state;
+    List *indent_stack;
+    u_int32_t space_count;
 } YAMLLexer;
 
 /// @cond INTERNAL
 extern void TestLexer(void);
 /// @endcond
 
-extern YAMLToken *YAMLLex(YAMLLexer *);
-extern void YAMLTokenFree(YAMLToken *);
-extern YAMLToken *YAMLTokenInit(enum YAMLTokenType, u_int32_t, u_int32_t,
-                                u_int32_t, char *);
-extern YAMLLexer *YAMLLexerInit(FILE *file_ptr, size_t buffer_size);
-extern void YAMLLexerFree(YAMLLexer *);
+extern YAMLToken *YAMLLex(YAMLLexer *lexer);
+extern void YAMLTokenFree(YAMLToken *token);
+extern YAMLToken *YAMLTokenInit(enum YAMLTokenType type, u_int32_t start,
+                                u_int32_t end, u_int32_t line, char *literal);
+extern YAMLLexer *YAMLLexerInit(FILE *file_ptr);
+extern void YAMLLexerFree(YAMLLexer *lexer);
 
-extern void YAMLLexerDebugTest(char *);
+extern void YAMLLexerDebugTest(char *file_name);
 
 // ————————— LEXER END —————————
 
