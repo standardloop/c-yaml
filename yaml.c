@@ -53,8 +53,11 @@ extern YAML *YAMLFromFile(FILE *file_ptr, size_t buffer_size)
     }
     Log(TRACE, "file_ptr is not NULL");
 
-    YAMLParser *parser =
-        YAMLParserInit(YAMLParserInputFile, file_ptr, buffer_size);
+    YAMLParser *parser = YAMLParserInit();
+    if (parser == NULL || buffer_size)
+    {
+        return NULL;
+    }
 
     YAML *yaml = YAMLParserParse(parser);
 

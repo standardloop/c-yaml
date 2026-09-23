@@ -1,5 +1,0 @@
----
-test-together:
-  - foo: bar
-    example: this
-...

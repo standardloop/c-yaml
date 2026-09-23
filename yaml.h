@@ -105,30 +105,19 @@ enum YAMLLexerState
     YAMLLexerStateSequenceFlow
 };
 
+// new lets go
 typedef struct
 {
+    FILE *file_ptr;
     char *input;
     size_t input_len;
+    size_t max_input_len;
+    bool is_last_chunk;
+
     char current_char;
     u_int32_t position;
     u_int32_t read_position;
     u_int32_t line;
-    char *error;
-
-    List *indent_stack;
-
-    bool is_last_chunk;
-
-    // Hungry means the lexer needs more input before it can finish a token
-    bool hungry; // can this be a state?
-    char *temp_input;
-    size_t temp_input_len;
-
-    u_int8_t sequential_dashes; // tracking document start
-    u_int8_t sequential_dots;   // tracking document end
-    int space_count;
-
-    enum YAMLLexerState state;
 } YAMLLexer;
 
 /// @cond INTERNAL
@@ -139,10 +128,8 @@ extern YAMLToken *YAMLLex(YAMLLexer *);
 extern void YAMLTokenFree(YAMLToken *);
 extern YAMLToken *YAMLTokenInit(enum YAMLTokenType, u_int32_t, u_int32_t,
                                 u_int32_t, char *);
-extern YAMLLexer *YAMLLexerInit(char *input, size_t input_len);
-extern void YAMLLexerReload(YAMLLexer *, char *, size_t, bool);
+extern YAMLLexer *YAMLLexerInit(FILE *file_ptr, size_t buffer_size);
 extern void YAMLLexerFree(YAMLLexer *);
-extern bool IsLexerHungry(YAMLLexer *);
 
 extern void YAMLLexerDebugTest(char *);
 
@@ -174,8 +161,7 @@ typedef struct
     size_t current_bytes;
 } YAMLParser;
 
-extern YAMLParser *YAMLParserInit(enum YAMLParserInputMode input_mode,
-                                  void *input_ptr, size_t buffer_size);
+extern YAMLParser *YAMLParserInit();
 
 extern void YAMLParserFree(YAMLParser *parser);
 
@@ -235,4 +221,5 @@ extern void TestYaml(void);
 extern YAML *YAMLParserParse(YAMLParser *parser);
 extern YAML *YAMLParseFile(YAMLParser *parser, FILE *file_ptr,
                            size_t buffer_size);
+
 #endif

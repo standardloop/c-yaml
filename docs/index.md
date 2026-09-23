@@ -187,15 +187,7 @@ void YAMLTokenFree(YAMLToken *)
 ### YAMLLexerInit
 
 ```cpp
-YAMLLexer * YAMLLexerInit(char * input, size_t input_len)
-```
-
----
-
-### YAMLLexerReload
-
-```cpp
-void YAMLLexerReload(YAMLLexer *, char *, size_t, bool)
+YAMLLexer * YAMLLexerInit(FILE * file_ptr, size_t buffer_size)
 ```
 
 ---
@@ -204,14 +196,6 @@ void YAMLLexerReload(YAMLLexer *, char *, size_t, bool)
 
 ```cpp
 void YAMLLexerFree(YAMLLexer *)
-```
-
----
-
-### IsLexerHungry
-
-```cpp
-bool IsLexerHungry(YAMLLexer *)
 ```
 
 ---
@@ -227,7 +211,7 @@ void YAMLLexerDebugTest(char *)
 ### YAMLParserInit
 
 ```cpp
-YAMLParser * YAMLParserInit(enum YAMLParserInputMode input_mode, void * input_ptr, size_t buffer_size)
+YAMLParser * YAMLParserInit()
 ```
 
 ---
@@ -338,24 +322,25 @@ struct YAMLLexer
 
 ### Public Attributes
 
-| Return                | Name                                      | Description |
-| --------------------- | ----------------------------------------- | ----------- |
-| `char *`              | [`input`](#input)                         |             |
-| `size_t`              | [`input_len`](#input_len)                 |             |
-| `char`                | [`current_char`](#current_char)           |             |
-| `u_int32_t`           | [`position`](#position)                   |             |
-| `u_int32_t`           | [`read_position`](#read_position)         |             |
-| `u_int32_t`           | [`line`](#line)                           |             |
-| `char *`              | [`error`](#error)                         |             |
-| `List *`              | [`indent_stack`](#indent_stack)           |             |
-| `bool`                | [`is_last_chunk`](#is_last_chunk)         |             |
-| `bool`                | [`hungry`](#hungry)                       |             |
-| `char *`              | [`temp_input`](#temp_input)               |             |
-| `size_t`              | [`temp_input_len`](#temp_input_len)       |             |
-| `u_int8_t`            | [`sequential_dashes`](#sequential_dashes) |             |
-| `u_int8_t`            | [`sequential_dots`](#sequential_dots)     |             |
-| `int`                 | [`space_count`](#space_count)             |             |
-| `enum YAMLLexerState` | [`state`](#state)                         |             |
+| Return      | Name                              | Description |
+| ----------- | --------------------------------- | ----------- |
+| `FILE *`    | [`file_ptr`](#file_ptr)           |             |
+| `char *`    | [`input`](#input)                 |             |
+| `size_t`    | [`input_len`](#input_len)         |             |
+| `size_t`    | [`max_input_len`](#max_input_len) |             |
+| `bool`      | [`is_last_chunk`](#is_last_chunk) |             |
+| `char`      | [`current_char`](#current_char)   |             |
+| `u_int32_t` | [`position`](#position)           |             |
+| `u_int32_t` | [`read_position`](#read_position) |             |
+| `u_int32_t` | [`line`](#line)                   |             |
+
+---
+
+#### file_ptr
+
+```cpp
+FILE * file_ptr
+```
 
 ---
 
@@ -371,6 +356,22 @@ char * input
 
 ```cpp
 size_t input_len
+```
+
+---
+
+#### max_input_len
+
+```cpp
+size_t max_input_len
+```
+
+---
+
+#### is_last_chunk
+
+```cpp
+bool is_last_chunk
 ```
 
 ---
@@ -403,86 +404,6 @@ u_int32_t read_position
 
 ```cpp
 u_int32_t line
-```
-
----
-
-#### error
-
-```cpp
-char * error
-```
-
----
-
-#### indent_stack
-
-```cpp
-List * indent_stack
-```
-
----
-
-#### is_last_chunk
-
-```cpp
-bool is_last_chunk
-```
-
----
-
-#### hungry
-
-```cpp
-bool hungry
-```
-
----
-
-#### temp_input
-
-```cpp
-char * temp_input
-```
-
----
-
-#### temp_input_len
-
-```cpp
-size_t temp_input_len
-```
-
----
-
-#### sequential_dashes
-
-```cpp
-u_int8_t sequential_dashes
-```
-
----
-
-#### sequential_dots
-
-```cpp
-u_int8_t sequential_dots
-```
-
----
-
-#### space_count
-
-```cpp
-int space_count
-```
-
----
-
-#### state
-
-```cpp
-enum YAMLLexerState state
 ```
 
 ## YAMLToken
@@ -744,9 +665,9 @@ union [union].__unnamed0__
 
 ### Public Attributes
 
-| Return   | Name                    | Description |
-| -------- | ----------------------- | ----------- |
-| `FILE *` | [`file_ptr`](#file_ptr) |             |
+| Return   | Name                      | Description |
+| -------- | ------------------------- | ----------- |
+| `FILE *` | [`file_ptr`](#file_ptr-1) |             |
 
 ---
 
@@ -829,9 +750,9 @@ union [union].__unnamed0__
 
 ### Public Attributes
 
-| Return   | Name                    | Description |
-| -------- | ----------------------- | ----------- |
-| `FILE *` | [`file_ptr`](#file_ptr) |             |
+| Return   | Name                      | Description |
+| -------- | ------------------------- | ----------- |
+| `FILE *` | [`file_ptr`](#file_ptr-1) |             |
 
 ---
 

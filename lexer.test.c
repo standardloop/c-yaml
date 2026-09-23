@@ -6,12 +6,5 @@
 
 extern void TestLexer()
 {
-    YAMLLexer *lexer = YAMLLexerInit(strdup("---"), 3);
-    lexer->is_last_chunk = true;
-    TestCaseVerify(true, "", lexer != NULL);
-    YAMLToken *token = NULL;
-    token = YAMLLex(lexer);
-    token = YAMLLex(lexer);
-    TestCaseVerify(true, "", token->type == YAMLTokenStartOfDocument);
-    YAMLLexerFree(lexer);
+    YAMLLexerDebugTest("./testfiles/playground.yaml");
 }
