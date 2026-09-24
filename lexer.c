@@ -238,11 +238,12 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
         }
         else
         {
-            // Log(DEBUG, "here");
+            // Log(DEBUG, "%d", __LINE__);
             int top_of_stack_value =
                 *(int *)ListGetFirst(lexer->indent_stack)->value;
             if (lexer->space_count > top_of_stack_value)
             {
+                // Log(DEBUG, "%d", __LINE__);
                 int *new_top = malloc(sizeof(int));
                 *new_top = lexer->space_count;
                 Item *new_top_item = ItemInit(new_top, &ItemValueIntOperations);
@@ -257,11 +258,12 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
             }
             else if (lexer->space_count < top_of_stack_value)
             {
+                // Log(DEBUG, "%d", __LINE__);
                 lexer->state = YAMLLexerStatePopDedent;
             }
             else
             {
-                Log(DEBUG, "%d", __LINE__);
+                // Log(DEBUG, "%d", __LINE__);
                 resetLexerState(lexer);
             }
         }
@@ -275,14 +277,15 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
 
             Item *dedent_item = ListPopFirst(lexer->indent_stack);
             int dedent_item_value = *(int *)dedent_item->value;
-            if (dedent_item_value > lexer->space_count)
+            if (dedent_item_value >= lexer->space_count)
             {
                 return YAMLTokenInit(YAMLTokenDedent, curr_pos,
                                      lexer->cursor + 1, lexer->line, NULL);
             }
             else
             {
-                Log(DEBUG, "idk fam");
+                // maybe illegal here?
+                Log(DEBUG, "%d %d", dedent_item_value, lexer->space_count);
             }
             ItemFree(dedent_item);
         }
@@ -310,9 +313,9 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
         {
             // move past
             advanceChar(lexer);
+            lexer->state = YAMLLexerStateJustGotNewline;
             return YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->cursor + 1,
                                  lexer->line, NULL);
-            lexer->state = YAMLLexerStateJustGotNewline;
         }
         else if (isDocStart(lexer))
         {
