@@ -94,20 +94,12 @@ extern void YAMLTokenPrint(YAMLToken *);
 
 enum YAMLLexerState
 {
-    YAMLLexerStateNormal,
-    YAMLLexerStateIncomplete,
-
-    YAMLLexerStateEatingComment,
-    YAMLLexerStateInSingleQuotes,
-    YAMLLexerStateInDoubleQuotes,
-    YAMLLexerStateWaitingForChompingDashOrPlus,
-    YAMLLexerStateWaitSpaceAfterDash,
-    YAMLLexerStateJustGotNewline,
-    YAMLLexerStatePopDedent,
-    YAMLLexerStateFoundEOFNeedToPopRemainingDedent,
-    YAMLLexerStateWaitingForChompingNumber,
-    YAMLLexerStateCurlyFlow,
-    YAMLLexerStateSequenceFlow
+    YAMLLexerStateNormal = 0,
+    YAMLLexerStateJustGotNewline = 1,
+    YAMLLexerStatePopDedent = 2,
+    YAMLLexerStateFoundEOFNeedToPopRemainingDedent = 3,
+    YAMLLexerStateCurlyFlow = 4,
+    YAMLLexerStateSequenceFlow = 5,
 };
 
 // new lets go

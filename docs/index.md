@@ -85,16 +85,9 @@ enum YAMLLexerState
 | Value                                            | Description |
 | ------------------------------------------------ | ----------- |
 | `YAMLLexerStateNormal`                           |             |
-| `YAMLLexerStateIncomplete`                       |             |
-| `YAMLLexerStateEatingComment`                    |             |
-| `YAMLLexerStateInSingleQuotes`                   |             |
-| `YAMLLexerStateInDoubleQuotes`                   |             |
-| `YAMLLexerStateWaitingForChompingDashOrPlus`     |             |
-| `YAMLLexerStateWaitSpaceAfterDash`               |             |
 | `YAMLLexerStateJustGotNewline`                   |             |
 | `YAMLLexerStatePopDedent`                        |             |
 | `YAMLLexerStateFoundEOFNeedToPopRemainingDedent` |             |
-| `YAMLLexerStateWaitingForChompingNumber`         |             |
 | `YAMLLexerStateCurlyFlow`                        |             |
 | `YAMLLexerStateSequenceFlow`                     |             |
 

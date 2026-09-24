@@ -143,11 +143,16 @@ static char *eatScalar(YAMLLexer *lexer)
     size_t chars_found = 0;
     while (ALWAYS)
     {
+        // printf("lol\n");
         if (!in_quotes)
         {
             if (lexer->current_char == COLON_CHAR &&
                 (peek(lexer, 1) == SPACE_CHAR ||
                  peek(lexer, 1) == NEWLINE_CHAR))
+            {
+                break;
+            }
+            else if (lexer->current_char == NEWLINE_CHAR)
             {
                 break;
             }
@@ -194,6 +199,7 @@ static bool isEndOfDocStart(YAMLLexer *lexer)
 
 extern YAMLToken *YAMLLex(YAMLLexer *lexer)
 {
+    // Log(ERROR, "lexer->state = %d\n", lexer->state);
     if (lexer == NULL)
     {
         return NULL;
@@ -211,6 +217,8 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     {
         if (lexer->current_char == SPACE_CHAR)
         {
+            // Log(DEBUG, "here");
+            advanceChar(lexer);
             lexer->space_count++;
         }
         else if (lexer->current_char == TAB_CHAR)
@@ -230,6 +238,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
         }
         else
         {
+            // Log(DEBUG, "here");
             int top_of_stack_value =
                 *(int *)ListGetFirst(lexer->indent_stack)->value;
             if (lexer->space_count > top_of_stack_value)
@@ -242,6 +251,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
                 lexer->space_count = 0;
 
                 resetLexerState(lexer);
+                // advanceChar(lexer);
                 return YAMLTokenInit(YAMLTokenIndent, curr_pos,
                                      lexer->cursor + 1, lexer->line, NULL);
             }
@@ -251,6 +261,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
             }
             else
             {
+                Log(DEBUG, "%d", __LINE__);
                 resetLexerState(lexer);
             }
         }
@@ -331,15 +342,19 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
                 if (peek(lexer, 1) == NEWLINE_CHAR)
                 {
                     lexer->state = YAMLLexerStateJustGotNewline;
+                    advanceChar(lexer); // go past colon
                 }
-                advanceChar(lexer); // go passed colon
-                // advanceChar(lexer);
+                else
+                {
+                    advanceChar(lexer); // go past colon
+                    advanceChar(lexer); // go past space
+                }
+
                 return YAMLTokenInit(YAMLTokenValueIndicator, curr_pos,
                                      lexer->cursor, lexer->line, NULL);
             }
             else
             {
-                Log(DEBUG, "todo");
                 advanceChar(lexer);
                 return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor,
                                      lexer->line, NULL);
@@ -405,10 +420,10 @@ extern void YAMLTokenPrint(YAMLToken *token)
 {
     if (token != NULL)
     {
-        printf("%s ", YAMLTokenTypeToString(token->type));
+        printf("%s", YAMLTokenTypeToString(token->type));
         if (token->literal)
         {
-            printf(": %s\n", token->literal);
+            printf(":%s\n", token->literal);
         }
         else
         {
