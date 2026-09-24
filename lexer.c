@@ -204,16 +204,33 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     {
         return NULL;
     }
-    YAMLToken *token = NULL;
+    // YAMLToken *token = NULL;
     u_int32_t curr_pos = lexer->cursor;
     if (lexer->current_char == NULL_CHAR)
     {
+        // Log(DEBUG, "%d", __LINE__);
         lexer->state = YAMLLexerStateFoundEOFNeedToPopRemainingDedent;
-        // token = YAMLTokenInit(YAMLTokenEOF, curr_pos, lexer->cursor + 1,
-        //                       lexer->line, NULL);
     }
 
-    if (lexer->state == YAMLLexerStateJustGotNewline)
+    if (lexer->state == YAMLLexerStateFoundEOFNeedToPopRemainingDedent)
+    {
+        if (lexer->indent_stack->size == 1)
+        {
+            return YAMLTokenInit(YAMLTokenEOF, curr_pos, lexer->cursor + 1,
+                                 lexer->line, NULL);
+        }
+        else
+        {
+            Item *dedent_item = ListPopFirst(lexer->indent_stack);
+            ItemFree(dedent_item);
+            // if (dedent_item_value > lexer->space_count)
+            // {
+            return YAMLTokenInit(YAMLTokenDedent, curr_pos, lexer->cursor + 1,
+                                 lexer->line, NULL);
+            // }
+        }
+    }
+    else if (lexer->state == YAMLLexerStateJustGotNewline)
     {
         if (lexer->current_char == SPACE_CHAR)
         {
@@ -241,13 +258,20 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
             // Log(DEBUG, "%d", __LINE__);
             int top_of_stack_value =
                 *(int *)ListGetFirst(lexer->indent_stack)->value;
-            if (lexer->space_count > top_of_stack_value)
+            if (lexer->space_count == top_of_stack_value)
+            {
+                // Log(DEBUG, "same indent %d", __LINE__);
+                lexer->space_count = 0;
+                resetLexerState(lexer);
+            }
+            else if (lexer->space_count > top_of_stack_value)
             {
                 // Log(DEBUG, "%d", __LINE__);
                 int *new_top = malloc(sizeof(int));
                 *new_top = lexer->space_count;
                 Item *new_top_item = ItemInit(new_top, &ItemValueIntOperations);
                 ListAddFirst(lexer->indent_stack, new_top_item);
+                // ListPrint(lexer->indent_stack);
 
                 lexer->space_count = 0;
 
@@ -263,49 +287,30 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
             }
             else
             {
-                // Log(DEBUG, "%d", __LINE__);
-                resetLexerState(lexer);
+                Log(FATAL, "IMPOSSIBLE %d", __LINE__);
             }
         }
     }
-    else if (lexer->state == YAMLLexerStatePopDedent ||
-             lexer->state == YAMLLexerStateFoundEOFNeedToPopRemainingDedent)
+    else if (lexer->state == YAMLLexerStatePopDedent)
     {
-        if (lexer->indent_stack->size > 1)
-        {
-            assert(lexer->indent_stack->items[0] != NULL);
+        assert(lexer->indent_stack->size > 1);
 
-            Item *dedent_item = ListPopFirst(lexer->indent_stack);
-            int dedent_item_value = *(int *)dedent_item->value;
-            if (dedent_item_value >= lexer->space_count)
-            {
-                return YAMLTokenInit(YAMLTokenDedent, curr_pos,
-                                     lexer->cursor + 1, lexer->line, NULL);
-            }
-            else
-            {
-                // maybe illegal here?
-                Log(DEBUG, "%d %d", dedent_item_value, lexer->space_count);
-            }
-            ItemFree(dedent_item);
-        }
-        else if (lexer->state == YAMLLexerStateFoundEOFNeedToPopRemainingDedent)
+        assert(lexer->indent_stack->items[0] != NULL);
+
+        Item *dedent_item = ListPopFirst(lexer->indent_stack);
+        int dedent_item_value = *(int *)dedent_item->value;
+        if (dedent_item_value > lexer->space_count)
         {
-            resetLexerState(lexer);
-            return YAMLTokenInit(YAMLTokenEOF, curr_pos, lexer->cursor + 1,
+            return YAMLTokenInit(YAMLTokenDedent, curr_pos, lexer->cursor + 1,
                                  lexer->line, NULL);
         }
         else
         {
-            int minumum_indent =
-                *(int *)ListGetFirst(lexer->indent_stack)->value;
-            if (minumum_indent != lexer->space_count)
-            {
-                Log(FATAL, "HUH");
-            }
-            lexer->space_count = 0;
             resetLexerState(lexer);
+            // maybe illegal here?
+            // Log(DEBUG, "%d %d", dedent_item_value, lexer->space_count);
         }
+        ItemFree(dedent_item);
     }
     else if (lexer->state == YAMLLexerStateNormal)
     {
@@ -371,7 +376,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
         }
     }
 
-    return token;
+    return NULL;
 }
 
 extern void YAMLLexerDebugTest(char *file_name)
