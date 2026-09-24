@@ -13,6 +13,25 @@
 #include "./yaml.h"
 
 static void advanceChar(YAMLLexer *lexer);
+static void resetLexerState(YAMLLexer *lexer);
+
+static void handleComment(YAMLLexer *lexer)
+{
+    // bool did_break = false;
+    do
+    {
+        advanceChar(lexer);
+    } while (lexer->current_char != NULL_CHAR &&
+             lexer->current_char != NEWLINE_CHAR);
+
+    // resetLexerState(lexer);
+}
+
+static void resetLexerState(YAMLLexer *lexer)
+{
+    assert(lexer != NULL);
+    lexer->state = YAMLLexerStateNormal;
+}
 
 void reload(YAMLLexer *lexer)
 {
@@ -68,32 +87,6 @@ static void advanceChar(YAMLLexer *lexer)
     }
 }
 
-[[maybe_unused]] static void printchar(unsigned char c)
-{
-    switch (c)
-    {
-    case '\n':
-        printf("\\n\n");
-        break;
-    case '\r':
-        printf("\\r");
-        break;
-    case '\t':
-        printf("\\t");
-        break;
-    default:
-        if ((c < 0x20) || (c > 0x7f))
-        {
-            printf("\\%03o", (unsigned char)c);
-        }
-        else
-        {
-            printf("%c", c);
-        }
-        break;
-    }
-}
-
 extern YAMLLexer *YAMLLexerInit(FILE *file_ptr)
 {
     YAMLLexer *lexer = malloc(sizeof(YAMLLexer));
@@ -118,7 +111,7 @@ extern YAMLLexer *YAMLLexerInit(FILE *file_ptr)
     }
     else
     {
-        lexer->current_char = '\0';
+        lexer->current_char = NULL_CHAR;
     }
 
     lexer->indent_stack = ListInitDefault();
@@ -128,20 +121,258 @@ extern YAMLLexer *YAMLLexerInit(FILE *file_ptr)
     ListAddFirst(lexer->indent_stack, indent_zero_start);
 
     lexer->space_count = 0;
+    lexer->state = YAMLLexerStateJustGotNewline;
     return lexer;
 }
 
-extern void YAMLLexerFree(YAMLLexer *lexer)
+static char *eatScalar(YAMLLexer *lexer)
 {
-    if (lexer != NULL)
+    if (lexer == NULL)
     {
-        // if (lexer->error != NULL)
-        // {
-        //     // can we keep this on the stack?
-        //     free(lexer->error);
-        // }
-        free(lexer);
+        return NULL;
     }
+    DynString *str = DynStringDefaultInit();
+    char quote_char = NULL_CHAR;
+
+    if (lexer->current_char == '\"' || lexer->current_char == '\'')
+    {
+        quote_char = lexer->current_char;
+    }
+    bool in_quotes = quote_char != NULL_CHAR;
+
+    size_t chars_found = 0;
+    while (ALWAYS)
+    {
+        if (!in_quotes)
+        {
+            if (lexer->current_char == COLON_CHAR &&
+                (peek(lexer, 1) == SPACE_CHAR ||
+                 peek(lexer, 1) == NEWLINE_CHAR))
+            {
+                break;
+            }
+        }
+        else if (lexer->current_char == quote_char)
+        {
+            break;
+        }
+        else if (lexer->current_char == NULL_CHAR)
+        {
+            break;
+        }
+
+        DynStringAddCharAt(str, chars_found, lexer->current_char);
+        chars_found++;
+        advanceChar(lexer);
+    }
+
+    char *ret_val = str->value;
+    free(str); // only free the pointer to the DynString, not the
+               // DynString->value
+    return ret_val;
+}
+
+static inline bool isWhiteSpaceOrBreak(char c)
+{
+    return c == SPACE_CHAR || c == TAB_CHAR || c == NEWLINE_CHAR ||
+           c == CARRIAGE_CHAR || c == NULL_CHAR;
+}
+
+static bool isDocStart(YAMLLexer *lexer)
+{
+    return lexer->current_char == DASH_MINUS_CHAR &&
+           peek(lexer, 0) == DASH_MINUS_CHAR &&
+           peek(lexer, 1) == DASH_MINUS_CHAR &&
+           isWhiteSpaceOrBreak(peek(lexer, 3));
+}
+
+static bool isEndOfDocStart(YAMLLexer *lexer)
+{
+    return lexer->current_char == DOT_CHAR && peek(lexer, 0) == DOT_CHAR &&
+           peek(lexer, 1) == DOT_CHAR && isWhiteSpaceOrBreak(peek(lexer, 3));
+}
+
+extern YAMLToken *YAMLLex(YAMLLexer *lexer)
+{
+    if (lexer == NULL)
+    {
+        return NULL;
+    }
+    YAMLToken *token = NULL;
+    u_int32_t curr_pos = lexer->cursor;
+    if (lexer->current_char == NULL_CHAR)
+    {
+        lexer->state = YAMLLexerStateFoundEOFNeedToPopRemainingDedent;
+        // token = YAMLTokenInit(YAMLTokenEOF, curr_pos, lexer->cursor + 1,
+        //                       lexer->line, NULL);
+    }
+
+    if (lexer->state == YAMLLexerStateJustGotNewline)
+    {
+        if (lexer->current_char == SPACE_CHAR)
+        {
+            lexer->space_count++;
+        }
+        else if (lexer->current_char == TAB_CHAR)
+        {
+            Log(FATAL, "tab is not supported WIP");
+        }
+        else if (lexer->current_char == '#')
+        {
+            handleComment(lexer);
+        }
+        else if (lexer->current_char == NEWLINE_CHAR)
+        {
+            lexer->state = YAMLLexerStateJustGotNewline;
+            advanceChar(lexer);
+            return YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->cursor + 1,
+                                 lexer->line, NULL);
+        }
+        else
+        {
+            int top_of_stack_value =
+                *(int *)ListGetFirst(lexer->indent_stack)->value;
+            if (lexer->space_count > top_of_stack_value)
+            {
+                int *new_top = malloc(sizeof(int));
+                *new_top = lexer->space_count;
+                Item *new_top_item = ItemInit(new_top, &ItemValueIntOperations);
+                ListAddFirst(lexer->indent_stack, new_top_item);
+
+                lexer->space_count = 0;
+
+                resetLexerState(lexer);
+                return YAMLTokenInit(YAMLTokenIndent, curr_pos,
+                                     lexer->cursor + 1, lexer->line, NULL);
+            }
+            else if (lexer->space_count < top_of_stack_value)
+            {
+                lexer->state = YAMLLexerStatePopDedent;
+            }
+            else
+            {
+                resetLexerState(lexer);
+            }
+        }
+    }
+    else if (lexer->state == YAMLLexerStatePopDedent ||
+             lexer->state == YAMLLexerStateFoundEOFNeedToPopRemainingDedent)
+    {
+        if (lexer->indent_stack->size > 1)
+        {
+            assert(lexer->indent_stack->items[0] != NULL);
+
+            Item *dedent_item = ListPopFirst(lexer->indent_stack);
+            int dedent_item_value = *(int *)dedent_item->value;
+            if (dedent_item_value > lexer->space_count)
+            {
+                return YAMLTokenInit(YAMLTokenDedent, curr_pos,
+                                     lexer->cursor + 1, lexer->line, NULL);
+            }
+            else
+            {
+                Log(DEBUG, "idk fam");
+            }
+            ItemFree(dedent_item);
+        }
+        else if (lexer->state == YAMLLexerStateFoundEOFNeedToPopRemainingDedent)
+        {
+            resetLexerState(lexer);
+            return YAMLTokenInit(YAMLTokenEOF, curr_pos, lexer->cursor + 1,
+                                 lexer->line, NULL);
+        }
+        else
+        {
+            int minumum_indent =
+                *(int *)ListGetFirst(lexer->indent_stack)->value;
+            if (minumum_indent != lexer->space_count)
+            {
+                Log(FATAL, "HUH");
+            }
+            lexer->space_count = 0;
+            resetLexerState(lexer);
+        }
+    }
+    else if (lexer->state == YAMLLexerStateNormal)
+    {
+        if (lexer->current_char == NEWLINE_CHAR)
+        {
+            // move past
+            advanceChar(lexer);
+            return YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->cursor + 1,
+                                 lexer->line, NULL);
+            lexer->state = YAMLLexerStateJustGotNewline;
+        }
+        else if (isDocStart(lexer))
+        {
+            advanceChar(lexer);
+            advanceChar(lexer);
+
+            // move past
+            advanceChar(lexer);
+            return YAMLTokenInit(YAMLTokenStartOfDocument, curr_pos,
+                                 lexer->cursor + 1, lexer->line, NULL);
+        }
+        else if (isEndOfDocStart(lexer))
+        {
+            advanceChar(lexer);
+            advanceChar(lexer);
+
+            // move past
+            advanceChar(lexer);
+            return YAMLTokenInit(YAMLTokenEndOfDocument, curr_pos,
+                                 lexer->cursor + 1, lexer->line, NULL);
+        }
+        else if (lexer->current_char == COLON_CHAR)
+        {
+            // move past last for next run
+            if (isWhiteSpaceOrBreak(peek(lexer, 1)))
+            {
+                if (peek(lexer, 1) == NEWLINE_CHAR)
+                {
+                    lexer->state = YAMLLexerStateJustGotNewline;
+                }
+                advanceChar(lexer); // go passed colon
+                // advanceChar(lexer);
+                return YAMLTokenInit(YAMLTokenValueIndicator, curr_pos,
+                                     lexer->cursor, lexer->line, NULL);
+            }
+            else
+            {
+                Log(DEBUG, "todo");
+                advanceChar(lexer);
+                return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor,
+                                     lexer->line, NULL);
+            }
+        }
+        else
+        {
+            char *scalar = eatScalar(lexer);
+            return YAMLTokenInit(YAMLTokenScalar, curr_pos, lexer->cursor,
+                                 lexer->line, scalar);
+        }
+    }
+
+    return token;
+}
+
+extern void YAMLLexerDebugTest(char *file_name)
+{
+    // char *file_name = "./testfiles/playground.yaml";
+    FILE *file_ptr = fopen(file_name, "rb");
+
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
+
+    while (true)
+    {
+        YAMLToken *token = YAMLLex(lexer);
+        YAMLTokenPrint(token);
+        if (token != NULL && token->type == YAMLTokenEOF)
+        {
+            break;
+        }
+    }
+    YAMLLexerFree(lexer);
 }
 
 extern YAMLToken *YAMLTokenInit(enum YAMLTokenType type, u_int32_t start,
@@ -169,16 +400,6 @@ extern void YAMLTokenFree(YAMLToken *token)
         free(token);
     }
 }
-// static void backtrackChar(YAMLLexer *lexer);
-// [[maybe_unused]] static void backtrackChar(YAMLLexer *lexer)
-// {
-//     if (lexer->position > 0)
-//     {
-//         lexer->position -= 1;
-//         lexer->read_position -= 1;
-//         lexer->current_char = lexer->input[lexer->position];
-//     }
-// }
 
 extern void YAMLTokenPrint(YAMLToken *token)
 {
@@ -329,102 +550,41 @@ extern char *YAMLTokenTypeToString(enum YAMLTokenType type)
     return "ERROR";
 }
 
-[[maybe_unused]] static YAMLToken *eatScalar(YAMLLexer *lexer)
+extern void YAMLLexerFree(YAMLLexer *lexer)
 {
-    if (lexer == NULL)
+    if (lexer != NULL)
     {
-        return NULL;
+        // if (lexer->error != NULL)
+        // {
+        //     // can we keep this on the stack?
+        //     free(lexer->error);
+        // }
+        free(lexer);
     }
-
-    // char quote_char = NULL_CHAR;
-
-    // if (lexer->current_char == '\"' || lexer->current_char == '\'')
-    // {
-    //     quote_char = lexer->current_char;
-    // }
-    // bool in_quotes = quote_char != NULL_CHAR;
-
-    // while (ALWAYS)
-    // {
-    //     if (lexer->current_char == COLON_CHAR ||
-    //         lexer->current_char == NULL_CHAR)
-    //     {
-    //         break;
-    //     }
-    // }
-
-    return NULL;
 }
 
-static inline bool isWhiteSpaceOrBreak(char c)
+[[maybe_unused]] static void printchar(unsigned char c)
 {
-    return c == SPACE_CHAR || c == TAB_CHAR || c == NEWLINE_CHAR ||
-           c == CARRIAGE_CHAR || c == NULL_CHAR;
-}
-
-static bool isDocStart(YAMLLexer *lexer)
-{
-    return lexer->current_char == DASH_MINUS_CHAR &&
-           peek(lexer, 0) == DASH_MINUS_CHAR &&
-           peek(lexer, 1) == DASH_MINUS_CHAR &&
-           isWhiteSpaceOrBreak(peek(lexer, 3));
-}
-
-static bool isEndOfDocStart(YAMLLexer *lexer)
-{
-    return lexer->current_char == DOT_CHAR && peek(lexer, 0) == DOT_CHAR &&
-           peek(lexer, 1) == DOT_CHAR && isWhiteSpaceOrBreak(peek(lexer, 3));
-}
-
-extern YAMLToken *YAMLLex(YAMLLexer *lexer)
-{
-    if (lexer == NULL)
+    switch (c)
     {
-        return NULL;
-    }
-    YAMLToken *token = NULL;
-    u_int32_t curr_pos = lexer->cursor;
-    if (lexer->current_char == NULL_CHAR)
-    {
-        token = YAMLTokenInit(YAMLTokenEOF, curr_pos, lexer->cursor + 1,
-                              lexer->line, NULL);
-    }
-    else if (isDocStart(lexer))
-    {
-        advanceChar(lexer);
-        advanceChar(lexer);
-
-        token = YAMLTokenInit(YAMLTokenStartOfDocument, curr_pos,
-                              lexer->cursor + 1, lexer->line, NULL);
-    }
-    else if (isEndOfDocStart(lexer))
-    {
-        advanceChar(lexer);
-        advanceChar(lexer);
-
-        token = YAMLTokenInit(YAMLTokenEndOfDocument, curr_pos,
-                              lexer->cursor + 1, lexer->line, NULL);
-    }
-    advanceChar(lexer);
-
-    return token;
-}
-
-extern void YAMLLexerDebugTest(char *file_name)
-{
-    // char *file_name = "./testfiles/playground.yaml";
-    FILE *file_ptr = fopen(file_name, "rb");
-
-    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
-
-    while (true)
-    {
-        YAMLToken *token = YAMLLex(lexer);
-        YAMLTokenPrint(token);
-        if (token != NULL && token->type == YAMLTokenEOF)
+    case '\n':
+        printf("\\n\n");
+        break;
+    case '\r':
+        printf("\\r");
+        break;
+    case '\t':
+        printf("\\t");
+        break;
+    default:
+        if ((c < 0x20) || (c > 0x7f))
         {
-            break;
+            printf("\\%03o", (unsigned char)c);
         }
+        else
+        {
+            printf("%c", c);
+        }
+        break;
     }
-    YAMLLexerFree(lexer);
 }

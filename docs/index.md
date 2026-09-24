@@ -5,36 +5,13 @@
 | Name                        | Description |
 | --------------------------- | ----------- |
 | [`YAML`](#yaml)             |             |
+| [`DynString`](#dynstring)   |             |
 | [`YAMLLexer`](#yamllexer)   |             |
 | [`YAMLToken`](#yamltoken)   |             |
 | [`YAMLValue`](#yamlvalue)   |             |
 | [`YAMLParser`](#yamlparser) |             |
 
 ## Macros
-
----
-
-### LEXER_MIN_BUFFER_SIZE
-
-```cpp
-#define LEXER_MIN_BUFFER_SIZE 4096
-```
-
----
-
-### LEXER_DEFAULT_BUFFER_SIZE
-
-```cpp
-#define LEXER_DEFAULT_BUFFER_SIZE 4096
-```
-
----
-
-### LEXER_MAX_BUFFER_SIZE
-
-```cpp
-#define LEXER_MAX_BUFFER_SIZE 1048576
-```
 
 ---
 
@@ -152,6 +129,46 @@ enum YAMLValueType
 | `YAMLLIST_t`          |             |
 
 ## Functions
+
+---
+
+### DynStringToCString
+
+```cpp
+char * DynStringToCString(DynString * str)
+```
+
+---
+
+### DynStringFree
+
+```cpp
+void DynStringFree(DynString * str)
+```
+
+---
+
+### DynStringPrint
+
+```cpp
+void DynStringPrint(DynString * str)
+```
+
+---
+
+### DynStringAddCharAt
+
+```cpp
+void DynStringAddCharAt(DynString * str, size_t idx, char c)
+```
+
+---
+
+### DynStringDefaultInit
+
+```cpp
+DynString * DynStringDefaultInit()
+```
 
 ---
 
@@ -325,6 +342,35 @@ struct YAML
 YAMLValue * root
 ```
 
+## DynString
+
+```cpp
+struct DynString
+```
+
+### Public Attributes
+
+| Return   | Name              | Description |
+| -------- | ----------------- | ----------- |
+| `char *` | [`value`](#value) |             |
+| `size_t` | [`size`](#size)   |             |
+
+---
+
+#### value
+
+```cpp
+char * value
+```
+
+---
+
+#### size
+
+```cpp
+size_t size
+```
+
 ## YAMLLexer
 
 ```cpp
@@ -333,18 +379,19 @@ struct YAMLLexer
 
 ### Public Attributes
 
-| Return                | Name                                  | Description |
-| --------------------- | ------------------------------------- | ----------- |
-| `FILE *`              | [`file_ptr`](#file_ptr)               |             |
-| `char`                | [`buffer`](#buffer)                   |             |
-| `size_t`              | [`cursor`](#cursor)                   |             |
-| `size_t`              | [`bytes_in_buffer`](#bytes_in_buffer) |             |
-| `u_int32_t`           | [`line`](#line)                       |             |
-| `char`                | [`current_char`](#current_char)       |             |
-| `bool`                | [`eof_reached`](#eof_reached)         |             |
-| `enum YAMLLexerState` | [`state`](#state)                     |             |
-| `List *`              | [`indent_stack`](#indent_stack)       |             |
-| `u_int32_t`           | [`space_count`](#space_count)         |             |
+| Return                | Name                                    | Description |
+| --------------------- | --------------------------------------- | ----------- |
+| `FILE *`              | [`file_ptr`](#file_ptr)                 |             |
+| `char`                | [`buffer`](#buffer)                     |             |
+| `size_t`              | [`cursor`](#cursor)                     |             |
+| `size_t`              | [`bytes_in_buffer`](#bytes_in_buffer)   |             |
+| `u_int32_t`           | [`line`](#line)                         |             |
+| `char`                | [`current_char`](#current_char)         |             |
+| `bool`                | [`eof_reached`](#eof_reached)           |             |
+| `enum YAMLLexerState` | [`state`](#state)                       |             |
+| `List *`              | [`indent_stack`](#indent_stack)         |             |
+| `int`                 | [`space_count`](#space_count)           |             |
+| `bool`                | [`just_got_newline`](#just_got_newline) |             |
 
 ---
 
@@ -423,7 +470,15 @@ List * indent_stack
 #### space_count
 
 ```cpp
-u_int32_t space_count
+int space_count
+```
+
+---
+
+#### just_got_newline
+
+```cpp
+bool just_got_newline
 ```
 
 ## YAMLToken

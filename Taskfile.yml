@@ -15,6 +15,7 @@ vars:
     - yaml.c
     - parser.c
     - lexer.c
+    - dynstring.c
   TEST_SOURCE_FILES:
     - lexer.test.c
   # for releasing

@@ -10,9 +10,19 @@
 #include <standardloop/collections.h>
 #include <sys/_types/_u_int32_t.h>
 
-#define LEXER_MIN_BUFFER_SIZE 4096
-#define LEXER_DEFAULT_BUFFER_SIZE 4096
-#define LEXER_MAX_BUFFER_SIZE 1048576 // TODO
+typedef struct
+{
+    char *value;
+    size_t size;
+    // size_t chars;
+    // size_t cur_idx;
+} DynString;
+
+extern char *DynStringToCString(DynString *str);
+extern void DynStringFree(DynString *str);
+extern void DynStringPrint(DynString *str);
+extern void DynStringAddCharAt(DynString *str, size_t idx, char c);
+extern DynString *DynStringDefaultInit();
 
 // ————————— LEXER START —————————
 enum YAMLTokenType
@@ -116,7 +126,8 @@ typedef struct
     bool eof_reached;
     enum YAMLLexerState state;
     List *indent_stack;
-    u_int32_t space_count;
+    int space_count;
+    bool just_got_newline;
 } YAMLLexer;
 
 /// @cond INTERNAL
