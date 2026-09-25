@@ -35,10 +35,9 @@ static void resetLexerState(YAMLLexer *lexer)
 
 void reload(YAMLLexer *lexer)
 {
-
     if (lexer->cursor >= CHUNK_SIZE)
     {
-        printf("reloading!");
+        // printf("reloading!");
         size_t shift = CHUNK_SIZE;
         size_t keep = (lexer->bytes_in_buffer > shift)
                           ? (lexer->bytes_in_buffer - shift)
@@ -69,12 +68,35 @@ char peek(YAMLLexer *lexer, size_t offset)
 {
     size_t target_pos = lexer->cursor + offset;
 
-    if (target_pos >= lexer->bytes_in_buffer)
+    // If target position extends past loaded bytes, attempt to top-off the
+    // buffer
+    while (target_pos >= lexer->bytes_in_buffer && !lexer->eof_reached)
     {
-        return NULL_CHAR; // End of available buffer or EOF
+        size_t space_left = BUFFER_SIZE - lexer->bytes_in_buffer;
+
+        // Cannot fit more lookahead in the buffer window
+        if (space_left == 0)
+        {
+            break;
+        }
+        // Read into the unused trailing space of the buffer
+        size_t read_bytes = fread(lexer->buffer + lexer->bytes_in_buffer, 1,
+                                  space_left, lexer->file_ptr);
+
+        lexer->bytes_in_buffer += read_bytes;
+
+        if (read_bytes == 0)
+        {
+            lexer->eof_reached = true;
+        }
+    }
+    // Return character if target is within loaded bounds, else EOF
+    if (target_pos < lexer->bytes_in_buffer)
+    {
+        return lexer->buffer[target_pos];
     }
 
-    return lexer->buffer[target_pos];
+    return NULL_CHAR;
 }
 
 static void advanceChar(YAMLLexer *lexer)
@@ -137,13 +159,17 @@ static char *eatScalar(YAMLLexer *lexer)
     if (lexer->current_char == '\"' || lexer->current_char == '\'')
     {
         quote_char = lexer->current_char;
+        advanceChar(lexer);
     }
     bool in_quotes = quote_char != NULL_CHAR;
 
     size_t chars_found = 0;
     while (ALWAYS)
     {
-        // printf("lol\n");
+        if (lexer->current_char == NULL_CHAR)
+        {
+            break;
+        }
         if (!in_quotes)
         {
             if (lexer->current_char == COLON_CHAR &&
@@ -159,10 +185,7 @@ static char *eatScalar(YAMLLexer *lexer)
         }
         else if (lexer->current_char == quote_char)
         {
-            break;
-        }
-        else if (lexer->current_char == NULL_CHAR)
-        {
+            advanceChar(lexer);
             break;
         }
 
@@ -438,6 +461,7 @@ extern void YAMLTokenPrint(YAMLToken *token)
             printf("\n");
         }
     }
+    fflush(stdout);
 }
 
 extern char *YAMLTokenTypeToString(enum YAMLTokenType type)

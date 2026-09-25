@@ -372,19 +372,18 @@ struct YAMLLexer
 
 ### Public Attributes
 
-| Return                | Name                                    | Description |
-| --------------------- | --------------------------------------- | ----------- |
-| `FILE *`              | [`file_ptr`](#file_ptr)                 |             |
-| `char`                | [`buffer`](#buffer)                     |             |
-| `size_t`              | [`cursor`](#cursor)                     |             |
-| `size_t`              | [`bytes_in_buffer`](#bytes_in_buffer)   |             |
-| `u_int32_t`           | [`line`](#line)                         |             |
-| `char`                | [`current_char`](#current_char)         |             |
-| `bool`                | [`eof_reached`](#eof_reached)           |             |
-| `enum YAMLLexerState` | [`state`](#state)                       |             |
-| `List *`              | [`indent_stack`](#indent_stack)         |             |
-| `int`                 | [`space_count`](#space_count)           |             |
-| `bool`                | [`just_got_newline`](#just_got_newline) |             |
+| Return                | Name                                  | Description |
+| --------------------- | ------------------------------------- | ----------- |
+| `FILE *`              | [`file_ptr`](#file_ptr)               |             |
+| `char`                | [`buffer`](#buffer)                   |             |
+| `size_t`              | [`cursor`](#cursor)                   |             |
+| `size_t`              | [`bytes_in_buffer`](#bytes_in_buffer) |             |
+| `u_int32_t`           | [`line`](#line)                       |             |
+| `char`                | [`current_char`](#current_char)       |             |
+| `bool`                | [`eof_reached`](#eof_reached)         |             |
+| `enum YAMLLexerState` | [`state`](#state)                     |             |
+| `List *`              | [`indent_stack`](#indent_stack)       |             |
+| `int`                 | [`space_count`](#space_count)         |             |
 
 ---
 
@@ -464,14 +463,6 @@ List * indent_stack
 
 ```cpp
 int space_count
-```
-
----
-
-#### just_got_newline
-
-```cpp
-bool just_got_newline
 ```
 
 ## YAMLToken

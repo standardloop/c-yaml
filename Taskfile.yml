@@ -31,7 +31,7 @@ tasks:
   default:
     desc: "Builds and runs the test program."
     cmds:
-      - task: test
+      - task: test:build
 
   dependencies:
     desc: "Downloads C program dependencies."

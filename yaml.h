@@ -119,7 +119,6 @@ typedef struct
     enum YAMLLexerState state;
     List *indent_stack;
     int space_count;
-    bool just_got_newline;
 } YAMLLexer;
 
 /// @cond INTERNAL
