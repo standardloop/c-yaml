@@ -25,11 +25,6 @@ static void handleComment(YAMLLexer *lexer)
     {
         advanceChar(lexer);
     }
-    if (lexer->current_char == NEWLINE_CHAR)
-    {
-        advanceChar(lexer);
-    }
-
     // resetLexerState(lexer);
 }
 
@@ -230,13 +225,154 @@ static bool isEndOfDocStart(YAMLLexer *lexer)
            peek(lexer, 1) == DOT_CHAR && isWhiteSpaceOrBreak(peek(lexer, 3));
 }
 
+extern YAMLToken *
+handleYAMLLexerStateFoundEOFNeedToPopRemainingDedent(YAMLLexer *lexer)
+{
+    u_int32_t curr_pos = lexer->cursor;
+    assert(lexer->state == YAMLLexerStateFoundEOFNeedToPopRemainingDedent);
+    if (lexer->indent_stack->size == 1)
+    {
+        return YAMLTokenInit(YAMLTokenEOF, curr_pos, lexer->cursor + 1,
+                             lexer->line, NULL);
+    }
+    else
+    {
+        Item *dedent_item = ListPopFirst(lexer->indent_stack);
+        ItemFree(dedent_item);
+        // if (dedent_item_value > lexer->space_count)
+        // {
+
+        lexer->state =
+            YAMLLexerStateFoundEOFNeedToPopRemainingDedent; // maintain
+                                                            // state
+        return YAMLTokenInit(YAMLTokenDedent, curr_pos, lexer->cursor + 1,
+                             lexer->line, NULL);
+        // }
+    }
+}
+
+static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
+{
+    u_int32_t curr_pos = lexer->cursor;
+
+    assert(lexer->state == YAMLLexerStateNormal);
+    if (lexer->current_char == NEWLINE_CHAR)
+    {
+        // move past
+        advanceChar(lexer);
+        lexer->state = YAMLLexerStateJustGotNewline;
+        return YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->cursor + 1,
+                             lexer->line, NULL);
+    }
+    else if (isDocStart(lexer))
+    {
+        advanceChar(lexer);
+        advanceChar(lexer);
+
+        // move past
+        advanceChar(lexer);
+        return YAMLTokenInit(YAMLTokenStartOfDocument, curr_pos,
+                             lexer->cursor + 1, lexer->line, NULL);
+    }
+    else if (isEndOfDocStart(lexer))
+    {
+        advanceChar(lexer);
+        advanceChar(lexer);
+
+        // move past
+        advanceChar(lexer);
+        return YAMLTokenInit(YAMLTokenEndOfDocument, curr_pos,
+                             lexer->cursor + 1, lexer->line, NULL);
+    }
+    else if (lexer->current_char == COLON_CHAR)
+    {
+        // move past last for next run
+        if (isWhiteSpaceOrBreak(peek(lexer, 1)))
+        {
+            if (peek(lexer, 1) == NEWLINE_CHAR)
+            {
+                lexer->state = YAMLLexerStateJustGotNewline;
+                advanceChar(lexer); // go past colon
+            }
+            else
+            {
+                advanceChar(lexer); // go past colon
+                advanceChar(lexer); // go past space
+            }
+            // if (lexer->current_char == '#')
+            // {
+            //     handleComment(lexer);
+            // }
+
+            return YAMLTokenInit(YAMLTokenValueIndicator, curr_pos,
+                                 lexer->cursor, lexer->line, NULL);
+        }
+        else
+        {
+            advanceChar(lexer);
+            return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor,
+                                 lexer->line, NULL);
+        }
+    }
+    else
+    {
+        char *scalar = eatScalar(lexer);
+        return YAMLTokenInit(YAMLTokenScalar, curr_pos, lexer->cursor,
+                             lexer->line, scalar);
+    }
+}
+
+static YAMLToken *handleYAMLLexerStatePopDedent(YAMLLexer *lexer)
+{
+    u_int32_t curr_pos = lexer->cursor;
+    assert(lexer->state == YAMLLexerStatePopDedent);
+    if (lexer->indent_stack->size == 1)
+    {
+        resetLexerState(lexer);
+        return handleYAMLLexerStateNormal(lexer);
+    }
+    else
+    {
+        Item *dedent_item = ListPopFirst(lexer->indent_stack);
+        int dedent_item_value = *(int *)dedent_item->value;
+        if (dedent_item_value > lexer->space_count)
+        {
+            ItemFree(dedent_item);
+            // resetLexerState(lexer);
+            return YAMLTokenInit(YAMLTokenDedent, curr_pos, lexer->cursor + 1,
+                                 lexer->line, NULL);
+        }
+        else
+        {
+            ItemFree(dedent_item);
+            resetLexerState(lexer); //  TODO
+            return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor + 1,
+                                 lexer->line, NULL);
+        }
+    }
+}
+
 extern YAMLToken *YAMLLex(YAMLLexer *lexer)
 {
     // Log(ERROR, "lexer->state = %d\n", lexer->state);
-    if (lexer == NULL)
+    assert(lexer != NULL);
+    if (lexer->current_char == '#')
     {
-        return NULL;
+        // Log(DEBUG, "found a comment after a newline!");
+        handleComment(lexer);
+        // putchar(lexer->current_char);
+        if (lexer->current_char == NEWLINE_CHAR)
+        {
+            advanceChar(lexer);
+            lexer->state = YAMLLexerStateJustGotNewline;
+        }
+        else if (lexer->current_char == NULL_CHAR)
+        {
+            // written below, but serves as documentation here for now
+            lexer->state = YAMLLexerStateFoundEOFNeedToPopRemainingDedent;
+        }
     }
+
     // YAMLToken *token = NULL;
     u_int32_t curr_pos = lexer->cursor;
     if (lexer->current_char == NULL_CHAR)
@@ -247,27 +383,10 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
 
     if (lexer->state == YAMLLexerStateFoundEOFNeedToPopRemainingDedent)
     {
-        if (lexer->indent_stack->size == 1)
-        {
-            return YAMLTokenInit(YAMLTokenEOF, curr_pos, lexer->cursor + 1,
-                                 lexer->line, NULL);
-        }
-        else
-        {
-            Item *dedent_item = ListPopFirst(lexer->indent_stack);
-            ItemFree(dedent_item);
-            // if (dedent_item_value > lexer->space_count)
-            // {
-
-            lexer->state =
-                YAMLLexerStateFoundEOFNeedToPopRemainingDedent; // maintain
-                                                                // state
-            return YAMLTokenInit(YAMLTokenDedent, curr_pos, lexer->cursor + 1,
-                                 lexer->line, NULL);
-            // }
-        }
+        return handleYAMLLexerStateFoundEOFNeedToPopRemainingDedent(lexer);
     }
-    else if (lexer->state == YAMLLexerStateJustGotNewline)
+
+    if (lexer->state == YAMLLexerStateJustGotNewline)
     {
         // Log(DEBUG, "here");
         if (lexer->current_char == SPACE_CHAR)
@@ -278,6 +397,13 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
                 lexer->space_count++;
                 advanceChar(lexer);
             }
+            if (lexer->current_char == '#')
+            {
+                lexer->space_count = 0;
+                handleComment(lexer);
+
+                // return YAMLLex(lexer); // I don't want to do this
+            }
         }
 
         if (lexer->current_char == TAB_CHAR)
@@ -286,13 +412,6 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
             resetLexerState(lexer);
             return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor + 1,
                                  lexer->line, NULL);
-        }
-        else if (lexer->current_char == '#')
-        {
-            Log(FATAL, "WIP");
-            handleComment(lexer);
-            // lexer->state = YAMLLexerStateJustGotNewline;
-            // resetLexerState(lexer);
         }
         else if (lexer->current_char == NEWLINE_CHAR)
         {
@@ -350,97 +469,12 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     // --------------------------------------------------
     if (lexer->state == YAMLLexerStatePopDedent)
     {
-        if (lexer->indent_stack->size == 1)
-        {
-            resetLexerState(lexer);
-        }
-        else
-        {
-            Item *dedent_item = ListPopFirst(lexer->indent_stack);
-            int dedent_item_value = *(int *)dedent_item->value;
-            if (dedent_item_value > lexer->space_count)
-            {
-                ItemFree(dedent_item);
-                // resetLexerState(lexer);
-                return YAMLTokenInit(YAMLTokenDedent, curr_pos,
-                                     lexer->cursor + 1, lexer->line, NULL);
-            }
-            else
-            {
-                ItemFree(dedent_item);
-                resetLexerState(lexer); //  TODO
-                return YAMLTokenInit(YAMLTokenIllegal, curr_pos,
-                                     lexer->cursor + 1, lexer->line, NULL);
-            }
-        }
+        return handleYAMLLexerStatePopDedent(lexer);
     }
 
     if (lexer->state == YAMLLexerStateNormal)
     {
-        if (lexer->current_char == NEWLINE_CHAR)
-        {
-            // move past
-            advanceChar(lexer);
-            lexer->state = YAMLLexerStateJustGotNewline;
-            return YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->cursor + 1,
-                                 lexer->line, NULL);
-        }
-        else if (isDocStart(lexer))
-        {
-            advanceChar(lexer);
-            advanceChar(lexer);
-
-            // move past
-            advanceChar(lexer);
-            return YAMLTokenInit(YAMLTokenStartOfDocument, curr_pos,
-                                 lexer->cursor + 1, lexer->line, NULL);
-        }
-        else if (isEndOfDocStart(lexer))
-        {
-            advanceChar(lexer);
-            advanceChar(lexer);
-
-            // move past
-            advanceChar(lexer);
-            return YAMLTokenInit(YAMLTokenEndOfDocument, curr_pos,
-                                 lexer->cursor + 1, lexer->line, NULL);
-        }
-        else if (lexer->current_char == COLON_CHAR)
-        {
-            // move past last for next run
-            if (isWhiteSpaceOrBreak(peek(lexer, 1)))
-            {
-                if (peek(lexer, 1) == NEWLINE_CHAR)
-                {
-                    lexer->state = YAMLLexerStateJustGotNewline;
-                    advanceChar(lexer); // go past colon
-                }
-                else
-                {
-                    advanceChar(lexer); // go past colon
-                    advanceChar(lexer); // go past space
-                }
-                // if (lexer->current_char == '#')
-                // {
-                //     handleComment(lexer);
-                // }
-
-                return YAMLTokenInit(YAMLTokenValueIndicator, curr_pos,
-                                     lexer->cursor, lexer->line, NULL);
-            }
-            else
-            {
-                advanceChar(lexer);
-                return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor,
-                                     lexer->line, NULL);
-            }
-        }
-        else
-        {
-            char *scalar = eatScalar(lexer);
-            return YAMLTokenInit(YAMLTokenScalar, curr_pos, lexer->cursor,
-                                 lexer->line, scalar);
-        }
+        return handleYAMLLexerStateNormal(lexer);
     }
 
     return NULL;
