@@ -102,8 +102,6 @@ enum YAMLLexerState
     YAMLLexerStateSequenceFlow = 5,
 };
 
-// new lets go
-//
 #define CHUNK_SIZE 4096
 #define BUFFER_SIZE (CHUNK_SIZE * 2)
 
