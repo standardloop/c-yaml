@@ -1,6 +1,7 @@
 #include <_stdlib.h>
 #include <assert.h>
 #include <errno.h>
+#include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -248,6 +249,10 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
             ItemFree(dedent_item);
             // if (dedent_item_value > lexer->space_count)
             // {
+
+            lexer->state =
+                YAMLLexerStateFoundEOFNeedToPopRemainingDedent; // maintain
+                                                                // state
             return YAMLTokenInit(YAMLTokenDedent, curr_pos, lexer->cursor + 1,
                                  lexer->line, NULL);
             // }
@@ -255,18 +260,24 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     }
     else if (lexer->state == YAMLLexerStateJustGotNewline)
     {
+        // Log(DEBUG, "here");
         if (lexer->current_char == SPACE_CHAR)
         {
             // Log(DEBUG, "here");
-            advanceChar(lexer);
-            lexer->space_count++;
+            while (lexer->current_char == SPACE_CHAR)
+            {
+                lexer->space_count++;
+                advanceChar(lexer);
+            }
         }
-        else if (lexer->current_char == TAB_CHAR)
+
+        if (lexer->current_char == TAB_CHAR)
         {
             Log(FATAL, "tab is not supported WIP");
         }
         else if (lexer->current_char == '#')
         {
+            Log(FATAL, "todo");
             handleComment(lexer);
         }
         else if (lexer->current_char == NEWLINE_CHAR)
@@ -305,8 +316,15 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
             }
             else if (lexer->space_count < top_of_stack_value)
             {
-                // Log(DEBUG, "%d", __LINE__);
-                lexer->state = YAMLLexerStatePopDedent;
+                // Log(DEBUG, "%d", lexer->space_count);
+                if (lexer->indent_stack->size > 1)
+                {
+                    lexer->state = YAMLLexerStatePopDedent;
+                }
+                else
+                {
+                    resetLexerState(lexer);
+                }
             }
             else
             {
@@ -314,28 +332,36 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
             }
         }
     }
-    else if (lexer->state == YAMLLexerStatePopDedent)
+
+    // --------------------------------------------------
+    if (lexer->state == YAMLLexerStatePopDedent)
     {
-        assert(lexer->indent_stack->size > 1);
-
-        assert(lexer->indent_stack->items[0] != NULL);
-
-        Item *dedent_item = ListPopFirst(lexer->indent_stack);
-        int dedent_item_value = *(int *)dedent_item->value;
-        if (dedent_item_value > lexer->space_count)
+        if (lexer->indent_stack->size == 1)
         {
-            return YAMLTokenInit(YAMLTokenDedent, curr_pos, lexer->cursor + 1,
-                                 lexer->line, NULL);
+            resetLexerState(lexer);
         }
         else
         {
-            resetLexerState(lexer);
-            // maybe illegal here?
-            // Log(DEBUG, "%d %d", dedent_item_value, lexer->space_count);
+            Item *dedent_item = ListPopFirst(lexer->indent_stack);
+            int dedent_item_value = *(int *)dedent_item->value;
+            if (dedent_item_value > lexer->space_count)
+            {
+                ItemFree(dedent_item);
+                // resetLexerState(lexer);
+                return YAMLTokenInit(YAMLTokenDedent, curr_pos,
+                                     lexer->cursor + 1, lexer->line, NULL);
+            }
+            else
+            {
+                ItemFree(dedent_item);
+                resetLexerState(lexer); //  TODO
+                return YAMLTokenInit(YAMLTokenIllegal, curr_pos,
+                                     lexer->cursor + 1, lexer->line, NULL);
+            }
         }
-        ItemFree(dedent_item);
     }
-    else if (lexer->state == YAMLLexerStateNormal)
+
+    if (lexer->state == YAMLLexerStateNormal)
     {
         if (lexer->current_char == NEWLINE_CHAR)
         {
@@ -413,6 +439,10 @@ extern void YAMLLexerDebugTest(char *file_name)
     {
         YAMLToken *token = YAMLLex(lexer);
         YAMLTokenPrint(token);
+        if (token == NULL)
+        {
+            Log(FATAL, "null token...");
+        }
         if (token != NULL && token->type == YAMLTokenEOF)
         {
             break;
