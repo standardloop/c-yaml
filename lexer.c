@@ -19,11 +19,16 @@ static void resetLexerState(YAMLLexer *lexer);
 static void handleComment(YAMLLexer *lexer)
 {
     // bool did_break = false;
-    do
+
+    while (lexer->current_char != NULL_CHAR &&
+           lexer->current_char != NEWLINE_CHAR)
     {
         advanceChar(lexer);
-    } while (lexer->current_char != NULL_CHAR &&
-             lexer->current_char != NEWLINE_CHAR);
+    }
+    if (lexer->current_char == NEWLINE_CHAR)
+    {
+        advanceChar(lexer);
+    }
 
     // resetLexerState(lexer);
 }
@@ -173,6 +178,10 @@ static char *eatScalar(YAMLLexer *lexer)
         }
         if (!in_quotes)
         {
+            // if (lexer->current_char == SPACE_CHAR && peek(lexer, 1) == '#')
+            // {
+            //     break;
+            // }
             if (lexer->current_char == COLON_CHAR &&
                 (peek(lexer, 1) == SPACE_CHAR ||
                  peek(lexer, 1) == NEWLINE_CHAR))
@@ -273,12 +282,17 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
 
         if (lexer->current_char == TAB_CHAR)
         {
-            Log(FATAL, "tab is not supported WIP");
+            Log(ERROR, "tabs are not supported");
+            resetLexerState(lexer);
+            return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor + 1,
+                                 lexer->line, NULL);
         }
         else if (lexer->current_char == '#')
         {
-            Log(FATAL, "todo");
+            Log(FATAL, "WIP");
             handleComment(lexer);
+            // lexer->state = YAMLLexerStateJustGotNewline;
+            // resetLexerState(lexer);
         }
         else if (lexer->current_char == NEWLINE_CHAR)
         {
@@ -406,6 +420,10 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
                     advanceChar(lexer); // go past colon
                     advanceChar(lexer); // go past space
                 }
+                // if (lexer->current_char == '#')
+                // {
+                //     handleComment(lexer);
+                // }
 
                 return YAMLTokenInit(YAMLTokenValueIndicator, curr_pos,
                                      lexer->cursor, lexer->line, NULL);
