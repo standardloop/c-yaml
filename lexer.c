@@ -378,8 +378,17 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
             else if (lexer->current_char == NEWLINE_CHAR)
             {
                 lexer->state = YAMLLexerStateJustGotNewline;
+                // advanceChar(lexer); // do we need this
                 return handleYAMLLexerStateJustGotNewline(lexer);
             }
+            else
+            {
+                Log(FATAL, "%d", __LINE__);
+            }
+        }
+        else
+        {
+            // fall through
         }
     }
 
