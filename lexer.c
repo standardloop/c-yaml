@@ -284,6 +284,21 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         return YAMLTokenInit(YAMLTokenEndOfDocument, curr_pos,
                              lexer->cursor + 1, lexer->line, NULL);
     }
+    else if (lexer->current_char == DASH_MINUS_CHAR)
+    {
+        // Log(FATAL, "%s", lexer->buffer);
+        if (peek(lexer, 1) == SPACE_CHAR)
+        {
+            advanceChar(lexer);
+            return YAMLTokenInit(YAMLTokenListDash, curr_pos, lexer->cursor + 1,
+                                 lexer->line, NULL);
+        }
+        else
+        {
+            return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor + 1,
+                                 lexer->line, NULL);
+        }
+    }
     else if (lexer->current_char == COLON_CHAR)
     {
         // move past last for next run
@@ -320,6 +335,8 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         return YAMLTokenInit(YAMLTokenScalar, curr_pos, lexer->cursor,
                              lexer->line, scalar);
     }
+    Log(FATAL, "%d", __LINE__);
+    return NULL;
 }
 
 static YAMLToken *handleYAMLLexerStatePopDedent(YAMLLexer *lexer)
