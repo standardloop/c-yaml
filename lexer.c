@@ -301,6 +301,7 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         }
         else
         {
+            Log(DEBUG, "%d", __LINE__);
             return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor + 1,
                                  lexer->line, NULL);
         }
@@ -331,6 +332,7 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         else
         {
             advanceChar(lexer);
+            Log(DEBUG, "%d", __LINE__);
             return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor,
                                  lexer->line, NULL);
         }
@@ -447,6 +449,7 @@ static YAMLToken *handleYAMLLexerStatePopDedent(YAMLLexer *lexer)
         {
             ItemFree(dedent_item);
             resetLexerState(lexer); //  TODO
+            Log(DEBUG, "%d", __LINE__);
             return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor + 1,
                                  lexer->line, NULL);
         }
@@ -500,7 +503,7 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
 
     if (lexer->current_char == TAB_CHAR)
     {
-        Log(ERROR, "tabs are not supported");
+        Log(DEBUG, "%d", __LINE__);
         resetLexerState(lexer);
         return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor + 1,
                              lexer->line, NULL);
