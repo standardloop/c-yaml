@@ -207,8 +207,17 @@ static char *eatScalar(YAMLLexer *lexer)
         }
         else if (in_quotes && lexer->current_char == quote_char)
         {
-            advanceChar(lexer);
-            break;
+            if (quote_char == SINGLE_QUOTES_CHAR &&
+                peek(lexer, 1) == SINGLE_QUOTES_CHAR)
+            {
+                advanceChar(lexer);
+                // Log(DEBUG, "TODO");
+            }
+            else
+            {
+                advanceChar(lexer);
+                break;
+            }
         }
 
         DynStringAddCharAt(str, chars_found, lexer->current_char);
