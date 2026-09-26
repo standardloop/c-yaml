@@ -114,6 +114,7 @@ typedef struct
     char current_char;
     bool eof_reached;
     enum YAMLLexerState state;
+    List *flow_stack;
     List *indent_stack;
     int space_count;
 } YAMLLexer;

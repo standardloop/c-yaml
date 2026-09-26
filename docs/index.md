@@ -389,6 +389,7 @@ struct YAMLLexer
 | `char`                | [`current_char`](#current_char)       |             |
 | `bool`                | [`eof_reached`](#eof_reached)         |             |
 | `enum YAMLLexerState` | [`state`](#state)                     |             |
+| `List *`              | [`flow_stack`](#flow_stack)           |             |
 | `List *`              | [`indent_stack`](#indent_stack)       |             |
 | `int`                 | [`space_count`](#space_count)         |             |
 
@@ -454,6 +455,14 @@ bool eof_reached
 
 ```cpp
 enum YAMLLexerState state
+```
+
+---
+
+#### flow_stack
+
+```cpp
+List * flow_stack
 ```
 
 ---

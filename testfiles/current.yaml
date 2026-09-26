@@ -10,3 +10,45 @@ list:
     - 2
 
 flow_list: [1, 2]
+---
+root:
+  [
+    [
+      level_2,
+      [
+        100,
+        [
+          true,
+          false,
+          null,
+          [
+            unquoted_scalar_one,
+            plain_text_value,
+            [
+              [
+                [
+                  [
+                    [
+                      [
+                        [],
+                        [
+                          depth_10,
+                          [
+                            3,
+                            [
+                              maximum_depth_reached,
+                              [1, 2, [3, 4, [5, 6, [7, 8, [9]]]]],
+                            ],
+                          ],
+                        ],
+                      ],
+                    ],
+                  ],
+                ],
+              ],
+            ],
+          ],
+        ],
+      ],
+    ],
+  ]

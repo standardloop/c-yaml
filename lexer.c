@@ -144,6 +144,7 @@ extern YAMLLexer *YAMLLexerInit(FILE *file_ptr)
     Item *indent_zero_start = ItemInit(zero_int, &ItemValueIntOperations);
     ListAddFirst(lexer->indent_stack, indent_zero_start);
 
+    lexer->flow_stack = ListInitDefault();
     lexer->space_count = 0;
     lexer->state = YAMLLexerStateJustGotNewline;
     return lexer;
@@ -185,10 +186,16 @@ static char *eatScalar(YAMLLexer *lexer)
             {
                 break;
             }
-            else if (lexer->current_char == NEWLINE_CHAR ||
-                     lexer->current_char == COMMA_CHAR ||
-                     lexer->current_char == BRACKET_CLOSE_CHAR ||
-                     lexer->current_char == CURLY_CLOSE_CHAR)
+            else if (lexer->current_char == NEWLINE_CHAR)
+            {
+                break;
+            }
+        }
+        if (lexer->flow_stack->size > 0)
+        {
+            if (lexer->current_char == COMMA_CHAR ||
+                lexer->current_char == BRACKET_CLOSE_CHAR ||
+                lexer->current_char == CURLY_CLOSE_CHAR)
             {
                 break;
             }
@@ -339,6 +346,10 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
     }
     else if (lexer->current_char == COMMA_CHAR)
     {
+        if (lexer->flow_stack->size == 0)
+        {
+            Log(FATAL, "%d", __LINE__);
+        }
         if (peek(lexer, 1) == SPACE_CHAR)
         {
             advanceChar(lexer);
@@ -349,6 +360,13 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
     }
     else if (lexer->current_char == BRACKET_OPEN_CHAR)
     {
+        // push char
+        char *flow_entry_char = malloc(sizeof(char));
+        *flow_entry_char = BRACKET_OPEN_CHAR;
+        Item *flow_entry =
+            ItemInit(flow_entry_char, &ItemValueStringOperations);
+        ListAddFirst(lexer->flow_stack, flow_entry);
+
         advanceChar(lexer);
         while (lexer->current_char == SPACE_CHAR)
         {
@@ -360,6 +378,22 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
     }
     else if (lexer->current_char == BRACKET_CLOSE_CHAR)
     {
+        if (lexer->flow_stack == 0)
+        {
+            Log(FATAL, "%d", __LINE__);
+        }
+        else
+        {
+            if (*(char *)ListGetFirst(lexer->flow_stack)->value !=
+                BRACKET_OPEN_CHAR)
+            {
+                Log(FATAL, "%d", __LINE__);
+            }
+            else
+            {
+                ItemFree(ListPopFirst(lexer->flow_stack));
+            }
+        }
         advanceChar(lexer);
         while (lexer->current_char == SPACE_CHAR)
         {
@@ -371,6 +405,11 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
     }
     else if (lexer->current_char == CURLY_OPEN_CHAR)
     {
+        char *flow_entry_char = malloc(sizeof(char));
+        *flow_entry_char = CURLY_OPEN_CHAR;
+        Item *flow_entry =
+            ItemInit(flow_entry_char, &ItemValueStringOperations);
+        ListAddFirst(lexer->flow_stack, flow_entry);
         advanceChar(lexer);
         while (lexer->current_char == SPACE_CHAR)
         {
@@ -381,6 +420,22 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
     }
     else if (lexer->current_char == CURLY_CLOSE_CHAR)
     {
+        if (lexer->flow_stack == 0)
+        {
+            Log(FATAL, "%d", __LINE__);
+        }
+        else
+        {
+            if (*(char *)ListGetFirst(lexer->flow_stack)->value !=
+                CURLY_OPEN_CHAR)
+            {
+                Log(FATAL, "%d", __LINE__);
+            }
+            else
+            {
+                ItemFree(ListPopFirst(lexer->flow_stack));
+            }
+        }
         advanceChar(lexer);
         while (lexer->current_char == SPACE_CHAR)
         {
@@ -514,6 +569,12 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
         advanceChar(lexer);
         return YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->cursor + 1,
                              lexer->line, NULL);
+    }
+    else if (lexer->flow_stack->size > 0)
+    {
+        lexer->space_count = 0;
+        resetLexerState(lexer);
+        return handleYAMLLexerStateNormal(lexer);
     }
     else
     {
