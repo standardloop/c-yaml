@@ -331,6 +331,10 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
     }
     else if (lexer->current_char == COMMA_CHAR)
     {
+        if (peek(lexer, 1) == SPACE_CHAR)
+        {
+            advanceChar(lexer);
+        }
         advanceChar(lexer);
         return YAMLTokenInit(YAMLTokenFlowEntry, curr_pos, lexer->cursor,
                              lexer->line, NULL);
