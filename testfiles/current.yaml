@@ -1,6 +1,12 @@
+# foo
 ---
 hi:
   bye:
-    foo: 1 # 1 is a value
+    foo: 1
 this: yup
-# foo bar
+list:
+  this:
+    - 1
+    - 2
+
+flow_list: [1, 2]

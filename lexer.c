@@ -183,7 +183,8 @@ static char *eatScalar(YAMLLexer *lexer)
             }
             else if (lexer->current_char == NEWLINE_CHAR ||
                      lexer->current_char == COMMA_CHAR ||
-                     lexer->current_char == BRACKET_CLOSE_CHAR)
+                     lexer->current_char == BRACKET_CLOSE_CHAR ||
+                     lexer->current_char == CURLY_CLOSE_CHAR)
             {
                 break;
             }
@@ -410,7 +411,12 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
     assert(lexer->state == YAMLLexerStateJustGotNewline);
     u_int32_t curr_pos = lexer->cursor;
     // Log(DEBUG, "here");
-    if (lexer->current_char == SPACE_CHAR)
+    if (lexer->current_char == NULL_CHAR)
+    {
+        lexer->state = YAMLLexerStateFoundEOFNeedToPopRemainingDedent;
+        return handleYAMLLexerStateFoundEOFNeedToPopRemainingDedent(lexer);
+    }
+    else if (lexer->current_char == SPACE_CHAR)
     {
         // Log(DEBUG, "here");
         while (lexer->current_char == SPACE_CHAR)
@@ -515,7 +521,7 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
     assert(lexer != NULL);
     if (lexer->current_char == '#')
     {
-        // Log(DEBUG, "found a comment after a newline!");
+        // Log(DEBUG, "found a comment!");
         handleComment(lexer);
         // putchar(lexer->current_char);
         if (lexer->current_char == NEWLINE_CHAR)
