@@ -178,6 +178,15 @@ static char *eatScalar(YAMLLexer *lexer)
         {
             break;
         }
+        if (isInFlow(lexer) && !in_quotes)
+        {
+            if (lexer->current_char == COMMA_CHAR ||
+                lexer->current_char == BRACKET_CLOSE_CHAR ||
+                lexer->current_char == CURLY_CLOSE_CHAR)
+            {
+                break;
+            }
+        }
         if (!in_quotes)
         {
             if (lexer->current_char == SPACE_CHAR && peek(lexer, 1) == '#')
@@ -196,16 +205,7 @@ static char *eatScalar(YAMLLexer *lexer)
                 break;
             }
         }
-        if (isInFlow(lexer))
-        {
-            if (lexer->current_char == COMMA_CHAR ||
-                lexer->current_char == BRACKET_CLOSE_CHAR ||
-                lexer->current_char == CURLY_CLOSE_CHAR)
-            {
-                break;
-            }
-        }
-        else if (lexer->current_char == quote_char)
+        else if (in_quotes && lexer->current_char == quote_char)
         {
             advanceChar(lexer);
             break;
@@ -308,11 +308,13 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         if (peek(lexer, 1) == SPACE_CHAR)
         {
             advanceChar(lexer);
+            advanceChar(lexer);
             return YAMLTokenInit(YAMLTokenListDash, curr_pos, lexer->cursor + 1,
                                  lexer->line, NULL);
         }
         else
         {
+            advanceChar(lexer);
             Log(DEBUG, "%d", __LINE__);
             return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor + 1,
                                  lexer->line, NULL);

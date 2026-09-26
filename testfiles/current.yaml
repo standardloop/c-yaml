@@ -52,3 +52,7 @@ root:
       ],
     ],
   ]
+---
+test3:
+  - ["single 'quoted'", 'double "quoted"', plain_scalar]
+  - { "key 1": "val, with comma", "key 2": [true, 'nested "quote"'] }
