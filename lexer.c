@@ -11,11 +11,14 @@
 
 #include "./yaml.h"
 
+static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer);
+
 static void advanceChar(YAMLLexer *lexer);
 static void resetLexerState(YAMLLexer *lexer);
 
 static void handleComment(YAMLLexer *lexer)
 {
+    assert(lexer->current_char == '#');
     // bool did_break = false;
 
     while (lexer->current_char != NULL_CHAR &&
@@ -365,6 +368,31 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         advanceChar(lexer);
         return YAMLTokenInit(YAMLTokenFlowMappingEnd, curr_pos, lexer->cursor,
                              lexer->line, NULL);
+    }
+    else if (lexer->current_char == SPACE_CHAR)
+    {
+        if (peek(lexer, 1) == '#')
+        {
+            advanceChar(lexer);
+            handleComment(lexer);
+            if (lexer->current_char == NULL_CHAR)
+            {
+                lexer->state = YAMLLexerStateFoundEOFNeedToPopRemainingDedent;
+                return handleYAMLLexerStateFoundEOFNeedToPopRemainingDedent(
+                    lexer);
+            }
+            else if (lexer->current_char == NEWLINE_CHAR)
+            {
+                lexer->state = YAMLLexerStateJustGotNewline;
+                // advanceChar(lexer); // do we need this
+                return handleYAMLLexerStateJustGotNewline(lexer);
+            }
+        }
+        else
+        {
+            advanceChar(lexer);
+            Log(FATAL, "TODO %d", __LINE__);
+        }
     }
     else
     {
