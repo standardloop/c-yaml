@@ -363,7 +363,7 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         return YAMLTokenInit(YAMLTokenFlowMappingStart, curr_pos, lexer->cursor,
                              lexer->line, NULL);
     }
-    else if (lexer->current_char == CURLY_OPEN_CHAR)
+    else if (lexer->current_char == CURLY_CLOSE_CHAR)
     {
         advanceChar(lexer);
         return YAMLTokenInit(YAMLTokenFlowMappingEnd, curr_pos, lexer->cursor,
