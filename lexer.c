@@ -11,6 +11,11 @@
 
 #include "./yaml.h"
 
+static bool isInFlow(YAMLLexer *lexer)
+{
+    return lexer->flow_stack->size > 0;
+}
+
 static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer);
 
 static void advanceChar(YAMLLexer *lexer);
@@ -191,7 +196,7 @@ static char *eatScalar(YAMLLexer *lexer)
                 break;
             }
         }
-        if (lexer->flow_stack->size > 0)
+        if (isInFlow(lexer))
         {
             if (lexer->current_char == COMMA_CHAR ||
                 lexer->current_char == BRACKET_CLOSE_CHAR ||
@@ -346,15 +351,17 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
     }
     else if (lexer->current_char == COMMA_CHAR)
     {
-        if (lexer->flow_stack->size == 0)
+        if (!isInFlow(lexer))
         {
             Log(FATAL, "%d", __LINE__);
         }
-        if (peek(lexer, 1) == SPACE_CHAR)
+        advanceChar(lexer);
+        while (lexer->current_char == SPACE_CHAR ||
+               lexer->current_char == NEWLINE_CHAR)
         {
             advanceChar(lexer);
         }
-        advanceChar(lexer);
+
         return YAMLTokenInit(YAMLTokenFlowEntry, curr_pos, lexer->cursor,
                              lexer->line, NULL);
     }
@@ -368,10 +375,12 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         ListAddFirst(lexer->flow_stack, flow_entry);
 
         advanceChar(lexer);
-        while (lexer->current_char == SPACE_CHAR)
+        while (lexer->current_char == SPACE_CHAR ||
+               lexer->current_char == NEWLINE_CHAR)
         {
             advanceChar(lexer);
         }
+
         return YAMLTokenInit(YAMLTokenFlowSequenceStart, curr_pos,
                              lexer->cursor, lexer->line, NULL);
         // Log(FATAL, "%d", __LINE__);
@@ -411,7 +420,8 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
             ItemInit(flow_entry_char, &ItemValueStringOperations);
         ListAddFirst(lexer->flow_stack, flow_entry);
         advanceChar(lexer);
-        while (lexer->current_char == SPACE_CHAR)
+        while (lexer->current_char == SPACE_CHAR ||
+               lexer->current_char == NEWLINE_CHAR)
         {
             advanceChar(lexer);
         }
@@ -570,7 +580,7 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
         return YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->cursor + 1,
                              lexer->line, NULL);
     }
-    else if (lexer->flow_stack->size > 0)
+    else if (isInFlow(lexer))
     {
         lexer->space_count = 0;
         resetLexerState(lexer);
