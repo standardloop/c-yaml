@@ -11,6 +11,8 @@
 
 #include "./yaml.h"
 
+[[maybe_unused]] static void printchar(unsigned char c);
+
 static bool isInFlow(YAMLLexer *lexer)
 {
     return lexer->flow_stack->size > 0;
@@ -205,6 +207,10 @@ static char *eatScalar(YAMLLexer *lexer)
                 break;
             }
         }
+        else if (in_quotes && lexer->current_char == '\\')
+        {
+            advanceChar(lexer);
+        }
         else if (in_quotes && lexer->current_char == quote_char)
         {
             if (quote_char == SINGLE_QUOTES_CHAR &&
@@ -278,6 +284,15 @@ handleYAMLLexerStateFoundEOFNeedToPopRemainingDedent(YAMLLexer *lexer)
     }
 }
 
+static void skipSpaceAndNewline(YAMLLexer *lexer)
+{
+    while (lexer->current_char == SPACE_CHAR ||
+           lexer->current_char == NEWLINE_CHAR)
+    {
+        advanceChar(lexer);
+    }
+}
+
 static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
 {
     u_int32_t curr_pos = lexer->cursor;
@@ -285,13 +300,22 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
     assert(lexer->state == YAMLLexerStateNormal);
     if (lexer->current_char == NEWLINE_CHAR)
     {
-        // move past
-        advanceChar(lexer);
-        lexer->state = YAMLLexerStateJustGotNewline;
-        return YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->cursor + 1,
-                             lexer->line, NULL);
+        if (isInFlow(lexer))
+        {
+            skipSpaceAndNewline(lexer);
+            // fall though
+        }
+        else
+        {
+            // move past
+            advanceChar(lexer);
+            lexer->state = YAMLLexerStateJustGotNewline;
+            return YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->cursor + 1,
+                                 lexer->line, NULL);
+        }
     }
-    else if (isDocStart(lexer))
+
+    if (isDocStart(lexer))
     {
         advanceChar(lexer);
         advanceChar(lexer);
@@ -367,11 +391,7 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
             Log(FATAL, "%d", __LINE__);
         }
         advanceChar(lexer);
-        while (lexer->current_char == SPACE_CHAR ||
-               lexer->current_char == NEWLINE_CHAR)
-        {
-            advanceChar(lexer);
-        }
+        skipSpaceAndNewline(lexer);
 
         return YAMLTokenInit(YAMLTokenFlowEntry, curr_pos, lexer->cursor,
                              lexer->line, NULL);
@@ -386,11 +406,7 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         ListAddFirst(lexer->flow_stack, flow_entry);
 
         advanceChar(lexer);
-        while (lexer->current_char == SPACE_CHAR ||
-               lexer->current_char == NEWLINE_CHAR)
-        {
-            advanceChar(lexer);
-        }
+        skipSpaceAndNewline(lexer);
 
         return YAMLTokenInit(YAMLTokenFlowSequenceStart, curr_pos,
                              lexer->cursor, lexer->line, NULL);
@@ -419,6 +435,11 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         {
             advanceChar(lexer);
         }
+        if (isInFlow(lexer))
+        {
+            skipSpaceAndNewline(lexer);
+        }
+
         return YAMLTokenInit(YAMLTokenFlowSequenceEnd, curr_pos, lexer->cursor,
                              lexer->line, NULL);
         // Log(FATAL, "%d", __LINE__);
@@ -431,11 +452,7 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
             ItemInit(flow_entry_char, &ItemValueStringOperations);
         ListAddFirst(lexer->flow_stack, flow_entry);
         advanceChar(lexer);
-        while (lexer->current_char == SPACE_CHAR ||
-               lexer->current_char == NEWLINE_CHAR)
-        {
-            advanceChar(lexer);
-        }
+        skipSpaceAndNewline(lexer);
         return YAMLTokenInit(YAMLTokenFlowMappingStart, curr_pos, lexer->cursor,
                              lexer->line, NULL);
     }
@@ -462,37 +479,17 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         {
             advanceChar(lexer);
         }
+        if (isInFlow(lexer))
+        {
+            skipSpaceAndNewline(lexer);
+        }
+
         return YAMLTokenInit(YAMLTokenFlowMappingEnd, curr_pos, lexer->cursor,
                              lexer->line, NULL);
     }
-    // else if (lexer->current_char == SPACE_CHAR)
-    // {
-    //     if (peek(lexer, 1) == '#')
-    //     {
-    //         advanceChar(lexer);
-    //         handleComment(lexer);
-    //         if (lexer->current_char == NULL_CHAR)
-    //         {
-    //             lexer->state =
-    //             YAMLLexerStateFoundEOFNeedToPopRemainingDedent; return
-    //             handleYAMLLexerStateFoundEOFNeedToPopRemainingDedent(
-    //                 lexer);
-    //         }
-    //         else if (lexer->current_char == NEWLINE_CHAR)
-    //         {
-    //             lexer->state = YAMLLexerStateJustGotNewline;
-    //             // advanceChar(lexer); // do we need this
-    //             return handleYAMLLexerStateJustGotNewline(lexer);
-    //         }
-    //     }
-    //     else
-    //     {
-    //         advanceChar(lexer);
-    //         Log(FATAL, "TODO %d", __LINE__);
-    //     }
-    // }
     else
     {
+        // printchar(lexer->current_char);
         char *scalar = eatScalar(lexer);
         return YAMLTokenInit(YAMLTokenScalar, curr_pos, lexer->cursor,
                              lexer->line, scalar);
@@ -656,12 +653,12 @@ extern YAMLToken *YAMLLex(YAMLLexer *lexer)
         // Log(DEBUG, "found a comment!");
         handleComment(lexer);
         // putchar(lexer->current_char);
-        if (lexer->current_char == NEWLINE_CHAR)
-        {
-            advanceChar(lexer);
-            lexer->state = YAMLLexerStateJustGotNewline;
-        }
-        else if (lexer->current_char == NULL_CHAR)
+        // if (lexer->current_char == NEWLINE_CHAR)
+        // {
+        //     advanceChar(lexer);
+        //     lexer->state = YAMLLexerStateJustGotNewline;
+        // }
+        if (lexer->current_char == NULL_CHAR)
         {
             // written below, but serves as documentation here for now
             lexer->state = YAMLLexerStateFoundEOFNeedToPopRemainingDedent;
