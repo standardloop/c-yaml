@@ -37,7 +37,6 @@ enum YAMLTokenType
     // spacing
     YAMLTokenIndent,
     YAMLTokenDedent,
-    YAMLTokenSpace,   // do we need this?
     YAMLTokenNewline, // do we need this?
 
     // general
@@ -48,7 +47,7 @@ enum YAMLTokenType
     YAMLTokenFlowSequenceStart, // [
     YAMLTokenFlowSequenceEnd,   // ]
     YAMLTokenListDash,          // -
-    YAMLTokenComma,             // ,
+    YAMLTokenFlowEntry,         // ,
 
     YAMLTokenSingleQuotes, // "
     YAMLTokenDoubleQuotes, // "

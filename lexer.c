@@ -1,7 +1,5 @@
-#include <_stdlib.h>
 #include <assert.h>
 #include <errno.h>
-#include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -183,7 +181,9 @@ static char *eatScalar(YAMLLexer *lexer)
             {
                 break;
             }
-            else if (lexer->current_char == NEWLINE_CHAR)
+            else if (lexer->current_char == NEWLINE_CHAR ||
+                     lexer->current_char == COMMA_CHAR ||
+                     lexer->current_char == BRACKET_CLOSE_CHAR)
             {
                 break;
             }
@@ -328,6 +328,38 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
             return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor,
                                  lexer->line, NULL);
         }
+    }
+    else if (lexer->current_char == COMMA_CHAR)
+    {
+        advanceChar(lexer);
+        return YAMLTokenInit(YAMLTokenFlowEntry, curr_pos, lexer->cursor,
+                             lexer->line, NULL);
+    }
+    else if (lexer->current_char == BRACKET_OPEN_CHAR)
+    {
+        advanceChar(lexer);
+        return YAMLTokenInit(YAMLTokenFlowSequenceStart, curr_pos,
+                             lexer->cursor, lexer->line, NULL);
+        // Log(FATAL, "%d", __LINE__);
+    }
+    else if (lexer->current_char == BRACKET_CLOSE_CHAR)
+    {
+        advanceChar(lexer);
+        return YAMLTokenInit(YAMLTokenFlowSequenceEnd, curr_pos, lexer->cursor,
+                             lexer->line, NULL);
+        // Log(FATAL, "%d", __LINE__);
+    }
+    else if (lexer->current_char == CURLY_OPEN_CHAR)
+    {
+        advanceChar(lexer);
+        return YAMLTokenInit(YAMLTokenFlowMappingStart, curr_pos, lexer->cursor,
+                             lexer->line, NULL);
+    }
+    else if (lexer->current_char == CURLY_OPEN_CHAR)
+    {
+        advanceChar(lexer);
+        return YAMLTokenInit(YAMLTokenFlowMappingEnd, curr_pos, lexer->cursor,
+                             lexer->line, NULL);
     }
     else
     {
@@ -607,10 +639,6 @@ extern char *YAMLTokenTypeToString(enum YAMLTokenType type)
     {
         return "YAMLTokenDedent";
     }
-    else if (type == YAMLTokenSpace)
-    {
-        return "YAMLTokenSpace";
-    }
     else if (type == YAMLTokenScalar)
     {
         return "YAMLTokenScalar";
@@ -639,9 +667,9 @@ extern char *YAMLTokenTypeToString(enum YAMLTokenType type)
     {
         return "YAMLTokenListDash";
     }
-    else if (type == YAMLTokenComma)
+    else if (type == YAMLTokenFlowEntry)
     {
-        return "YAMLTokenComma";
+        return "YAMLTokenFlowEntry";
     }
     else if (type == YAMLTokenSingleQuotes)
     {

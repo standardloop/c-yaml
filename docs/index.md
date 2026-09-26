@@ -46,7 +46,6 @@ enum YAMLTokenType
 | `YAMLTokenDirective`         |             |
 | `YAMLTokenIndent`            |             |
 | `YAMLTokenDedent`            |             |
-| `YAMLTokenSpace`             |             |
 | `YAMLTokenNewline`           |             |
 | `YAMLTokenScalar`            |             |
 | `YAMLTokenValueIndicator`    |             |
@@ -55,7 +54,7 @@ enum YAMLTokenType
 | `YAMLTokenFlowSequenceStart` |             |
 | `YAMLTokenFlowSequenceEnd`   |             |
 | `YAMLTokenListDash`          |             |
-| `YAMLTokenComma`             |             |
+| `YAMLTokenFlowEntry`         |             |
 | `YAMLTokenSingleQuotes`      |             |
 | `YAMLTokenDoubleQuotes`      |             |
 | `YAMLTokenLiteralBlockStart` |             |
