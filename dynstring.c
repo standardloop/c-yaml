@@ -3,9 +3,20 @@
 #include <string.h>
 
 #include "./yaml.h"
+#include <standardloop/util.h>
 
 #define INIT_SIZE 20
 #define RESIZE_MULTIPLE 2
+// #define NULL_CHAR '\0'
+// #define SPACE_CHAR ' '
+//
+// typedef struct
+// {
+//     char *value;
+//     size_t size;
+//     // size_t chars;
+//     // size_t cur_idx;
+// } DynString;
 
 extern DynString *DynStringDefaultInit()
 {
@@ -53,7 +64,7 @@ extern void DynStringPrint(DynString *str)
     {
         for (size_t i = 0; i < str->size; i++)
         {
-            printf("%c", str->value[i]);
+            printf("\'%c\'", str->value[i]);
         }
     }
 }
@@ -75,6 +86,31 @@ extern char *DynStringToCString(DynString *str)
     return str->value;
 }
 
+extern void DynStringTrimEnd(DynString *str)
+{
+    if (str != NULL)
+    {
+        if (str->size != 0)
+        {
+            for (size_t i = str->size - 1; i > 0; i--)
+            {
+                if (str->value[i] == SPACE_CHAR)
+                {
+                    str->value[i] = NULL_CHAR;
+                }
+                else if (str->value[i] == NULL_CHAR)
+                {
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+    }
+}
+
 // void DynStringPrintInfo(DynString *str) {}
 
 // int main(void)
@@ -82,5 +118,16 @@ extern char *DynStringToCString(DynString *str)
 //     DynString *test = DynStringDefaultInit();
 //     DynStringAddCharAt(test, 0, 'a');
 //     DynStringAddCharAt(test, 1, 'b');
+//     DynStringAddCharAt(test, 2, 'b');
+//     DynStringAddCharAt(test, 3, 'b');
+//     DynStringAddCharAt(test, 4, 'b');
+//     DynStringAddCharAt(test, 5, 'b');
+//     DynStringAddCharAt(test, 6, 'b');
+//
+//     DynStringAddCharAt(test, 7, ' ');
 //     DynStringPrint(test);
+//     printf("\n");
+//     DynStringTrimEnd(test);
+//     DynStringPrint(test);
+//     printf("\n");
 // }

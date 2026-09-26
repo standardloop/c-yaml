@@ -156,6 +156,14 @@ void DynStringAddCharAt(DynString * str, size_t idx, char c)
 
 ---
 
+### DynStringTrimEnd
+
+```cpp
+void DynStringTrimEnd(DynString * str)
+```
+
+---
+
 ### DynStringDefaultInit
 
 ```cpp

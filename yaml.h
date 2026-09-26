@@ -8,7 +8,6 @@
 #define STANDARDLOOP_YAML_H
 
 #include <standardloop/collections.h>
-#include <sys/_types/_u_int32_t.h>
 
 typedef struct
 {
@@ -22,6 +21,7 @@ extern char *DynStringToCString(DynString *str);
 extern void DynStringFree(DynString *str);
 extern void DynStringPrint(DynString *str);
 extern void DynStringAddCharAt(DynString *str, size_t idx, char c);
+extern void DynStringTrimEnd(DynString *str);
 extern DynString *DynStringDefaultInit();
 
 // ————————— LEXER START —————————

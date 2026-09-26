@@ -174,13 +174,14 @@ static char *eatScalar(YAMLLexer *lexer)
         }
         if (!in_quotes)
         {
-            // if (lexer->current_char == SPACE_CHAR && peek(lexer, 1) == '#')
-            // {
-            //     break;
-            // }
-            if (lexer->current_char == COLON_CHAR &&
-                (peek(lexer, 1) == SPACE_CHAR ||
-                 peek(lexer, 1) == NEWLINE_CHAR))
+            if (lexer->current_char == SPACE_CHAR && peek(lexer, 1) == '#')
+            {
+                advanceChar(lexer);
+                break;
+            }
+            else if (lexer->current_char == COLON_CHAR &&
+                     (peek(lexer, 1) == SPACE_CHAR ||
+                      peek(lexer, 1) == NEWLINE_CHAR))
             {
                 break;
             }
@@ -203,6 +204,7 @@ static char *eatScalar(YAMLLexer *lexer)
         advanceChar(lexer);
     }
 
+    DynStringTrimEnd(str);
     char *ret_val = str->value;
     free(str); // only free the pointer to the DynString, not the
                // DynString->value
@@ -346,6 +348,10 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
     else if (lexer->current_char == BRACKET_OPEN_CHAR)
     {
         advanceChar(lexer);
+        while (lexer->current_char == SPACE_CHAR)
+        {
+            advanceChar(lexer);
+        }
         return YAMLTokenInit(YAMLTokenFlowSequenceStart, curr_pos,
                              lexer->cursor, lexer->line, NULL);
         // Log(FATAL, "%d", __LINE__);
@@ -353,6 +359,10 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
     else if (lexer->current_char == BRACKET_CLOSE_CHAR)
     {
         advanceChar(lexer);
+        while (lexer->current_char == SPACE_CHAR)
+        {
+            advanceChar(lexer);
+        }
         return YAMLTokenInit(YAMLTokenFlowSequenceEnd, curr_pos, lexer->cursor,
                              lexer->line, NULL);
         // Log(FATAL, "%d", __LINE__);
@@ -360,40 +370,49 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
     else if (lexer->current_char == CURLY_OPEN_CHAR)
     {
         advanceChar(lexer);
+        while (lexer->current_char == SPACE_CHAR)
+        {
+            advanceChar(lexer);
+        }
         return YAMLTokenInit(YAMLTokenFlowMappingStart, curr_pos, lexer->cursor,
                              lexer->line, NULL);
     }
     else if (lexer->current_char == CURLY_CLOSE_CHAR)
     {
         advanceChar(lexer);
+        while (lexer->current_char == SPACE_CHAR)
+        {
+            advanceChar(lexer);
+        }
         return YAMLTokenInit(YAMLTokenFlowMappingEnd, curr_pos, lexer->cursor,
                              lexer->line, NULL);
     }
-    else if (lexer->current_char == SPACE_CHAR)
-    {
-        if (peek(lexer, 1) == '#')
-        {
-            advanceChar(lexer);
-            handleComment(lexer);
-            if (lexer->current_char == NULL_CHAR)
-            {
-                lexer->state = YAMLLexerStateFoundEOFNeedToPopRemainingDedent;
-                return handleYAMLLexerStateFoundEOFNeedToPopRemainingDedent(
-                    lexer);
-            }
-            else if (lexer->current_char == NEWLINE_CHAR)
-            {
-                lexer->state = YAMLLexerStateJustGotNewline;
-                // advanceChar(lexer); // do we need this
-                return handleYAMLLexerStateJustGotNewline(lexer);
-            }
-        }
-        else
-        {
-            advanceChar(lexer);
-            Log(FATAL, "TODO %d", __LINE__);
-        }
-    }
+    // else if (lexer->current_char == SPACE_CHAR)
+    // {
+    //     if (peek(lexer, 1) == '#')
+    //     {
+    //         advanceChar(lexer);
+    //         handleComment(lexer);
+    //         if (lexer->current_char == NULL_CHAR)
+    //         {
+    //             lexer->state =
+    //             YAMLLexerStateFoundEOFNeedToPopRemainingDedent; return
+    //             handleYAMLLexerStateFoundEOFNeedToPopRemainingDedent(
+    //                 lexer);
+    //         }
+    //         else if (lexer->current_char == NEWLINE_CHAR)
+    //         {
+    //             lexer->state = YAMLLexerStateJustGotNewline;
+    //             // advanceChar(lexer); // do we need this
+    //             return handleYAMLLexerStateJustGotNewline(lexer);
+    //         }
+    //     }
+    //     else
+    //     {
+    //         advanceChar(lexer);
+    //         Log(FATAL, "TODO %d", __LINE__);
+    //     }
+    // }
     else
     {
         char *scalar = eatScalar(lexer);
