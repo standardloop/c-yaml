@@ -286,10 +286,79 @@ static void testMultiDocumentAndFlowContainers(void)
     ASSERT_TOKEN(YAMLTokenFlowEntry, "44. Flow entry comma (,)");
     ASSERT_SCALAR("100", "45. Plain scalar '100'");
     ASSERT_TOKEN(YAMLTokenFlowSequenceEnd, "46. Flow sequence end (])");
-    ASSERT_TOKEN(YAMLTokenNewline, "47. Newline after flow sequence");
 
     // EOF
-    ASSERT_TOKEN(YAMLTokenEOF, "48. EOF reached");
+    ASSERT_TOKEN(YAMLTokenEOF, "47. EOF reached");
+
+    YAMLLexerFree(lexer);
+    fclose(file_ptr);
+}
+
+static void testNested(void)
+{
+    FILE *file_ptr = fopen("./testfiles/nested.yaml", "rb");
+    TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
+    if (!file_ptr)
+    {
+        return;
+    }
+
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
+    YAMLToken *token = NULL;
+
+    // root:
+    ASSERT_SCALAR("root", "1. Root scalar 'root'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
+    ASSERT_TOKEN(YAMLTokenNewline, "3. Newline after root:");
+
+    //   level1: (2 spaces)
+    ASSERT_TOKEN(YAMLTokenIndent, "4. Indent to level 1");
+    ASSERT_SCALAR("level1", "5. Scalar 'level1'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "6. Value indicator (:)");
+    ASSERT_TOKEN(YAMLTokenNewline, "7. Newline after level1:");
+
+    //     - level2_item1: (4 spaces)
+    ASSERT_TOKEN(YAMLTokenIndent, "8. Indent to level 2");
+    ASSERT_TOKEN(YAMLTokenListDash, "9. List dash (-)");
+    ASSERT_SCALAR("level2_item1", "10. Scalar 'level2_item1'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "11. Value indicator (:)");
+    ASSERT_TOKEN(YAMLTokenNewline, "12. Newline after level2_item1:");
+
+    //         level3: (8 spaces)
+    ASSERT_TOKEN(YAMLTokenIndent, "13. Indent to level 3");
+    ASSERT_SCALAR("level3", "14. Scalar 'level3'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "15. Value indicator (:)");
+    ASSERT_TOKEN(YAMLTokenNewline, "16. Newline after level3:");
+
+    //           - [ { deep_key: "nested \"value\"" }, 42 ] (10 spaces)
+    ASSERT_TOKEN(YAMLTokenIndent, "17. Indent to level 4");
+    ASSERT_TOKEN(YAMLTokenListDash, "18. List dash (-)");
+    ASSERT_TOKEN(YAMLTokenFlowSequenceStart, "19. Flow sequence start ([)");
+    ASSERT_TOKEN(YAMLTokenFlowMappingStart, "20. Flow mapping start ({)");
+    ASSERT_SCALAR("deep_key", "21. Flow key scalar 'deep_key'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "22. Value indicator (:)");
+    ASSERT_SCALAR("nested \"value\"", "23. Double-quoted scalar with escape");
+    ASSERT_TOKEN(YAMLTokenFlowMappingEnd, "24. Flow mapping end (})");
+    ASSERT_TOKEN(YAMLTokenFlowEntry, "25. Flow entry comma (,)");
+    ASSERT_SCALAR("42", "26. Plain scalar '42'");
+    ASSERT_TOKEN(YAMLTokenFlowSequenceEnd, "27. Flow sequence end (])");
+    ASSERT_TOKEN(YAMLTokenNewline,
+                 "28. Newline after line (ignoring # comment)");
+
+    //     - level2_item2: end (drops from 10 spaces back to 4 spaces)
+    ASSERT_TOKEN(YAMLTokenDedent, "29. First dedent (10 -> 8 spaces)");
+    ASSERT_TOKEN(YAMLTokenDedent, "30. Second dedent (8 -> 4 spaces)");
+    ASSERT_TOKEN(YAMLTokenListDash, "31. List dash (-)");
+    ASSERT_SCALAR("level2_item2", "32. Scalar 'level2_item2'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "33. Value indicator (:)");
+    ASSERT_SCALAR("end", "34. Scalar 'end'");
+    ASSERT_TOKEN(YAMLTokenNewline, "35. Newline after last item");
+
+    // EOF Indent Unwinding (stack unwinds from 4 spaces to 0)
+    ASSERT_TOKEN(YAMLTokenDedent, "36. EOF dedent (4 -> 2 spaces)");
+    ASSERT_TOKEN(YAMLTokenDedent, "37. EOF dedent (2 -> 0 spaces)");
+    ASSERT_TOKEN(YAMLTokenNewline, "38. newline before eof");
+    ASSERT_TOKEN(YAMLTokenEOF, "39. End of file");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -297,6 +366,8 @@ static void testMultiDocumentAndFlowContainers(void)
 
 extern void TestLexer(void)
 {
+    YAMLLexerDebugTest("./testfiles/nested.yaml");
     testOnly();
     testMultiDocumentAndFlowContainers();
+    testNested();
 }
