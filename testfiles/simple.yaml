@@ -1,8 +1,0 @@
----
-test: hi
-foo:
-  - 1
-  - bar:
-      fizz: buzz
-this: [1, 2, 3, 4, 5]
-that: { "key": "value" }
