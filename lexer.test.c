@@ -294,9 +294,9 @@ static void testMultiDocumentAndFlowContainers(void)
     fclose(file_ptr);
 }
 
-static void testNested(void)
+static void testNestedWithFlow(void)
 {
-    FILE *file_ptr = fopen("./testfiles/nested.yaml", "rb");
+    FILE *file_ptr = fopen("./testfiles/nested-with-flow.yaml", "rb");
     TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
     if (!file_ptr)
     {
@@ -364,10 +364,83 @@ static void testNested(void)
     fclose(file_ptr);
 }
 
+static void testNested(void)
+{
+    FILE *file_ptr = fopen("./testfiles/nested.yaml", "rb");
+    TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
+    if (!file_ptr)
+    {
+        return;
+    }
+
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
+    YAMLToken *token = NULL;
+
+    // foo:
+    ASSERT_SCALAR("foo", "1. Scalar 'foo'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
+    ASSERT_TOKEN(YAMLTokenNewline, "3. Newline after foo:");
+
+    //   bar: (2 spaces)
+    ASSERT_TOKEN(YAMLTokenIndent, "4. Indent to 2 spaces");
+    ASSERT_SCALAR("bar", "5. Scalar 'bar'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "6. Value indicator (:)");
+    ASSERT_TOKEN(YAMLTokenNewline, "7. Newline after bar:");
+
+    //     - fizz: (4 spaces)
+    ASSERT_TOKEN(YAMLTokenIndent, "8. Indent to 4 spaces");
+    ASSERT_TOKEN(YAMLTokenListDash, "9. List dash (-)");
+    ASSERT_SCALAR("fizz", "10. Scalar 'fizz'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "11. Value indicator (:)");
+    ASSERT_TOKEN(YAMLTokenNewline, "12. Newline after fizz:");
+
+    //         buzz: (8 spaces)
+    ASSERT_TOKEN(YAMLTokenIndent, "13. Indent to 8 spaces");
+    ASSERT_SCALAR("buzz", "14. Scalar 'buzz'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "15. Value indicator (:)");
+    ASSERT_TOKEN(YAMLTokenNewline, "16. Newline after buzz:");
+
+    //           - bazz (10 spaces)
+    ASSERT_TOKEN(YAMLTokenIndent, "17. Indent to 10 spaces");
+    ASSERT_TOKEN(YAMLTokenListDash, "18. List dash (-)");
+    ASSERT_SCALAR("bazz", "19. Scalar 'bazz'");
+    ASSERT_TOKEN(YAMLTokenNewline, "20. Newline after bazz");
+
+    //           - qux: (10 spaces)
+    ASSERT_TOKEN(YAMLTokenListDash, "21. List dash (-)");
+    ASSERT_SCALAR("qux", "22. Scalar 'qux'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "23. Value indicator (:)");
+    ASSERT_TOKEN(YAMLTokenNewline, "24. Newline after qux:");
+
+    //               quux: corge (14 spaces)
+    ASSERT_TOKEN(YAMLTokenIndent, "25. Indent to 14 spaces");
+    ASSERT_SCALAR("quux", "26. Scalar 'quux'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "27. Value indicator (:)");
+    ASSERT_SCALAR("corge", "28. Scalar 'corge'");
+    ASSERT_TOKEN(YAMLTokenNewline, "29. Newline after corge");
+
+    //     - grault (drops 14 spaces -> 4 spaces across 3 stack levels)
+    ASSERT_TOKEN(YAMLTokenDedent, "30. First dedent (14 -> 10 spaces)");
+    ASSERT_TOKEN(YAMLTokenDedent, "31. Second dedent (10 -> 8 spaces)");
+    ASSERT_TOKEN(YAMLTokenDedent, "32. Third dedent (8 -> 4 spaces)");
+    ASSERT_TOKEN(YAMLTokenListDash, "33. List dash (-)");
+    ASSERT_SCALAR("grault", "34. Scalar 'grault'");
+    ASSERT_TOKEN(YAMLTokenNewline, "35. Newline after grault");
+
+    // EOF Indent Unwinding (unwinds 4 spaces -> 2 spaces -> 0 spaces)
+    ASSERT_TOKEN(YAMLTokenDedent, "36. EOF dedent (4 -> 2 spaces)");
+    ASSERT_TOKEN(YAMLTokenDedent, "37. EOF dedent (2 -> 0 spaces)");
+    ASSERT_TOKEN(YAMLTokenEOF, "38. End of file");
+
+    YAMLLexerFree(lexer);
+    fclose(file_ptr);
+}
+
 extern void TestLexer(void)
 {
     YAMLLexerDebugTest("./testfiles/nested.yaml");
     testOnly();
     testMultiDocumentAndFlowContainers();
     testNested();
+    testNestedWithFlow();
 }
