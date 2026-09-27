@@ -120,6 +120,7 @@ static void advanceChar(YAMLLexer *lexer)
 
 extern YAMLLexer *YAMLLexerInit(FILE *file_ptr)
 {
+    assert(file_ptr != NULL);
     YAMLLexer *lexer = malloc(sizeof(YAMLLexer));
     lexer->file_ptr = file_ptr;
     lexer->cursor = 0;
@@ -297,22 +298,22 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
 {
     u_int32_t curr_pos = lexer->cursor;
 
+    if (isInFlow(lexer))
+    {
+        skipSpaceAndNewline(lexer);
+        // fall though
+    }
+
     assert(lexer->state == YAMLLexerStateNormal);
     if (lexer->current_char == NEWLINE_CHAR)
     {
-        if (isInFlow(lexer))
-        {
-            skipSpaceAndNewline(lexer);
-            // fall though
-        }
-        else
-        {
-            // move past
-            advanceChar(lexer);
-            lexer->state = YAMLLexerStateJustGotNewline;
-            return YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->cursor + 1,
-                                 lexer->line, NULL);
-        }
+        assert(!isInFlow(lexer));
+
+        // move past
+        advanceChar(lexer);
+        lexer->state = YAMLLexerStateJustGotNewline;
+        return YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->cursor + 1,
+                             lexer->line, NULL);
     }
 
     if (isDocStart(lexer))
