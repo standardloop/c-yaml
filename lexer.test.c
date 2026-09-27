@@ -208,8 +208,6 @@ static void testOnly(void)
     testOnlyNull();
 }
 
-static void testSimple(void) {}
-
 static void testMultiDocumentAndFlowContainers(void)
 {
     FILE *file_ptr = fopen("./testfiles/multi-doc-flow.yaml", "rb");
@@ -300,6 +298,5 @@ static void testMultiDocumentAndFlowContainers(void)
 extern void TestLexer(void)
 {
     testOnly();
-    testSimple();
     testMultiDocumentAndFlowContainers();
 }
