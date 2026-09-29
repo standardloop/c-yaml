@@ -1,0 +1,40 @@
+# Server Configuration
+server:
+  host: "127.0.0.1"
+  port: 8080
+  debug: true
+
+# Block Scalars (Literal | vs Folded >)
+scripts:
+  # Literal (|): Preserves line breaks exactly as written
+  literal_script: |
+    echo "Starting process..."
+    python3 app.py
+    echo "Done."
+
+  # Strip (-): Removes all trailing newlines
+  strip_scalar: |-
+    single line with no trailing newline
+
+  # Keep (+): Retains all trailing blank lines
+  keep_scalar: |+
+    content with trailing blank lines
+
+
+  # Folded (>): Converts single newlines into spaces
+  folded_description: >
+    This is a long sentence that spans across
+    multiple lines in the file, but will be read as a single
+    continuous line of text.
+
+  # Explicit Indentation (|2): Forces base indentation level (2 extra spaces)
+  explicit_indent: |2
+      leading spaces on this line are kept
+      as part of the string content
+
+# Collections (Block & Flow Styles)
+services:
+  - name: auth_service
+    ports: [8081, 8082] # Flow sequence
+  - name: db_service
+    config: { max_conn: 100, pool_timeout: 30 } # Flow mapping

@@ -8,6 +8,7 @@
 #include <standardloop/collections.h>
 #include <standardloop/logger.h>
 #include <standardloop/util.h>
+#include <sys/_types/_u_int8_t.h>
 
 #include "./yaml.h"
 
@@ -125,6 +126,14 @@ static void advanceChar(YAMLLexer *lexer)
     }
 }
 
+static void resetLexerBlockScalarOptions(YAMLLexer *lexer)
+{
+    assert(lexer != NULL);
+    lexer->block_scalar_options.enabled = false;
+    lexer->block_scalar_options.style = BlockScalarStyleLiteral;
+    lexer->block_scalar_options.chomping = BlockScalarStyleClip;
+}
+
 extern YAMLLexer *YAMLLexerInit(FILE *file_ptr)
 {
     assert(file_ptr != NULL);
@@ -162,6 +171,7 @@ extern YAMLLexer *YAMLLexerInit(FILE *file_ptr)
     lexer->flow_stack = ListInitDefault();
     lexer->space_count = 0;
     lexer->state = YAMLLexerStateJustGotNewline;
+    resetLexerBlockScalarOptions(lexer);
     return lexer;
 }
 
@@ -171,6 +181,9 @@ static char *eatScalar(YAMLLexer *lexer)
     {
         return NULL;
     }
+
+    // need to check lexer->block_scalar_options
+
     DynString *str = DynStringDefaultInit();
     char quote_char = NULL_CHAR;
 
@@ -243,6 +256,8 @@ static char *eatScalar(YAMLLexer *lexer)
     char *ret_val = str->value;
     free(str); // only free the pointer to the DynString, not the
                // DynString->value
+
+    resetLexerBlockScalarOptions(lexer);
     return ret_val;
 }
 
@@ -289,6 +304,55 @@ handleYAMLLexerStateFoundEOFNeedToPopRemainingDedent(YAMLLexer *lexer)
         return YAMLTokenInit(YAMLTokenDedent, curr_pos, lexer->cursor + 1,
                              lexer->line, NULL);
         // }
+    }
+}
+
+static bool isExplicitIndentCharNumber(char c)
+{
+    return c == '1' || c == '2' || c == '3' || c == '4' || c == '5' ||
+           c == '6' || c == '7' || c == '8' || c == '9';
+}
+
+static void peekForChompingOptions(YAMLLexer *lexer)
+{
+    if (peek(lexer, 1) == '-' || peek(lexer, 1) == '+')
+    {
+        lexer->block_scalar_options.chomping = lexer->current_char;
+    }
+    else if (peek(lexer, 2) == '-' || peek(lexer, 2) == '+')
+    {
+        lexer->block_scalar_options.chomping = lexer->current_char;
+    }
+    lexer->block_scalar_options.chomping = BlockScalarStyleClip;
+}
+
+static void peekForIndentOptions(YAMLLexer *lexer)
+{
+    lexer->block_scalar_options.explicit_indent = 0;
+    if (isExplicitIndentCharNumber(peek(lexer, 1)))
+    {
+        lexer->block_scalar_options.explicit_indent = peek(lexer, 1) - '0';
+        return;
+    }
+    else if (isExplicitIndentCharNumber(peek(lexer, 2)))
+    {
+        lexer->block_scalar_options.explicit_indent = peek(lexer, 2) - '0';
+        return;
+    }
+}
+
+static void checkOtherBlockScalarOptions(YAMLLexer *lexer)
+{
+    peekForChompingOptions(lexer);
+    peekForIndentOptions(lexer);
+
+    if (lexer->block_scalar_options.explicit_indent != 0)
+    {
+        advanceChar(lexer);
+    }
+    if (lexer->block_scalar_options.chomping != BlockScalarStyleClip)
+    {
+        advanceChar(lexer);
     }
 }
 
@@ -495,15 +559,26 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         return YAMLTokenInit(YAMLTokenFlowMappingEnd, curr_pos, lexer->cursor,
                              lexer->line, NULL);
     }
-    else
+    else if (lexer->current_char == '|' || lexer->current_char == '>')
     {
-        // printchar(lexer->current_char);
-        char *scalar = eatScalar(lexer);
-        return YAMLTokenInit(YAMLTokenScalar, curr_pos, lexer->cursor,
-                             lexer->line, scalar);
+        if (isInFlow(lexer))
+        {
+            return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor,
+                                 lexer->line, NULL);
+        }
+        lexer->block_scalar_options.style = lexer->current_char;
+
+        // will need to throughly test this part
+        checkOtherBlockScalarOptions(lexer);
+
+        // fall through
+        Log(FATAL, "TODO %d", __LINE__);
     }
-    Log(FATAL, "%d", __LINE__);
-    return NULL;
+
+    // printchar(lexer->current_char);
+    char *scalar = eatScalar(lexer);
+    return YAMLTokenInit(YAMLTokenScalar, curr_pos, lexer->cursor, lexer->line,
+                         scalar);
 }
 
 static YAMLToken *handleYAMLLexerStatePopDedent(YAMLLexer *lexer)
@@ -826,34 +901,6 @@ extern char *YAMLTokenTypeToString(enum YAMLTokenType type)
     {
         return "YAMLTokenFlowEntry";
     }
-    else if (type == YAMLTokenSingleQuotes)
-    {
-        return "YAMLTokenSingleQuotes";
-    }
-    else if (type == YAMLTokenDoubleQuotes)
-    {
-        return "YAMLTokenDoubleQuotes";
-    }
-    else if (type == YAMLTokenLiteralBlockStart)
-    {
-        return "YAMLTokenLiteralBlockStart";
-    }
-    else if (type == YAMLTokenFoldedBlockStart)
-    {
-        return "YAMLTokenFoldedBlockStart";
-    }
-    else if (type == YAMLTokenListChompingDash)
-    {
-        return "YAMLTokenListChompingDash";
-    }
-    else if (type == YAMLTokenListKeepChomping)
-    {
-        return "YAMLTokenListKeepChomping";
-    }
-    else if (type == YAMLTokenChompingNumber)
-    {
-        return "YAMLTokenChompingNumber";
-    }
     else if (type == YAMLTokenAlias)
     {
         return "YAMLTokenAlias";
@@ -869,10 +916,6 @@ extern char *YAMLTokenTypeToString(enum YAMLTokenType type)
     else if (type == YAMLTokenTag)
     {
         return "YAMLTokenTag";
-    }
-    else if (type == YAMLTokenComment)
-    {
-        return "YAMLTokenComment";
     }
     else if (type == YAMLTokenAT)
     {

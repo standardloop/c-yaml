@@ -2,14 +2,15 @@
 
 ## Classes
 
-| Name                        | Description |
-| --------------------------- | ----------- |
-| [`YAML`](#yaml)             |             |
-| [`DynString`](#dynstring)   |             |
-| [`YAMLLexer`](#yamllexer)   |             |
-| [`YAMLToken`](#yamltoken)   |             |
-| [`YAMLValue`](#yamlvalue)   |             |
-| [`YAMLParser`](#yamlparser) |             |
+| Name                                                | Description |
+| --------------------------------------------------- | ----------- |
+| [`YAML`](#yaml)                                     |             |
+| [`DynString`](#dynstring)                           |             |
+| [`YAMLLexer`](#yamllexer)                           |             |
+| [`YAMLToken`](#yamltoken)                           |             |
+| [`YAMLValue`](#yamlvalue)                           |             |
+| [`YAMLParser`](#yamlparser)                         |             |
+| [`block_scalar_options_s`](#block_scalar_options_s) |             |
 
 ## Macros
 
@@ -55,18 +56,10 @@ enum YAMLTokenType
 | `YAMLTokenFlowSequenceEnd`   |             |
 | `YAMLTokenListDash`          |             |
 | `YAMLTokenFlowEntry`         |             |
-| `YAMLTokenSingleQuotes`      |             |
-| `YAMLTokenDoubleQuotes`      |             |
-| `YAMLTokenLiteralBlockStart` |             |
-| `YAMLTokenFoldedBlockStart`  |             |
-| `YAMLTokenListChompingDash`  |             |
-| `YAMLTokenListKeepChomping`  |             |
-| `YAMLTokenChompingNumber`    |             |
 | `YAMLTokenAlias`             |             |
 | `YAMLTokenAnchor`            |             |
 | `YAMLTokenKeyIndicator`      |             |
 | `YAMLTokenTag`               |             |
-| `YAMLTokenComment`           |             |
 | `YAMLTokenAT`                |             |
 | `YAMLTokenBacktick`          |             |
 | `YAMLTokenMerge`             |             |
@@ -89,6 +82,33 @@ enum YAMLLexerState
 | `YAMLLexerStateFoundEOFNeedToPopRemainingDedent` |             |
 | `YAMLLexerStateCurlyFlow`                        |             |
 | `YAMLLexerStateSequenceFlow`                     |             |
+
+---
+
+### BlockScalarStyle
+
+```cpp
+enum BlockScalarStyle
+```
+
+| Value                     | Description |
+| ------------------------- | ----------- |
+| `BlockScalarStyleLiteral` |             |
+| `BlockScalarStyleFolded`  |             |
+
+---
+
+### BlockScalarChomping
+
+```cpp
+enum BlockScalarChomping
+```
+
+| Value                   | Description |
+| ----------------------- | ----------- |
+| `BlockScalarStyleClip`  |             |
+| `BlockScalarStyleStrip` |             |
+| `BlockScalarStyleKeep`  |             |
 
 ---
 
@@ -379,19 +399,20 @@ struct YAMLLexer
 
 ### Public Attributes
 
-| Return                | Name                                  | Description |
-| --------------------- | ------------------------------------- | ----------- |
-| `FILE *`              | [`file_ptr`](#file_ptr)               |             |
-| `char`                | [`buffer`](#buffer)                   |             |
-| `size_t`              | [`cursor`](#cursor)                   |             |
-| `size_t`              | [`bytes_in_buffer`](#bytes_in_buffer) |             |
-| `u_int32_t`           | [`line`](#line)                       |             |
-| `char`                | [`current_char`](#current_char)       |             |
-| `bool`                | [`eof_reached`](#eof_reached)         |             |
-| `enum YAMLLexerState` | [`state`](#state)                     |             |
-| `List *`              | [`flow_stack`](#flow_stack)           |             |
-| `List *`              | [`indent_stack`](#indent_stack)       |             |
-| `int`                 | [`space_count`](#space_count)         |             |
+| Return                                     | Name                                            | Description |
+| ------------------------------------------ | ----------------------------------------------- | ----------- |
+| `FILE *`                                   | [`file_ptr`](#file_ptr)                         |             |
+| `char`                                     | [`buffer`](#buffer)                             |             |
+| `size_t`                                   | [`cursor`](#cursor)                             |             |
+| `size_t`                                   | [`bytes_in_buffer`](#bytes_in_buffer)           |             |
+| `u_int32_t`                                | [`line`](#line)                                 |             |
+| `char`                                     | [`current_char`](#current_char)                 |             |
+| `bool`                                     | [`eof_reached`](#eof_reached)                   |             |
+| `enum YAMLLexerState`                      | [`state`](#state)                               |             |
+| `List *`                                   | [`flow_stack`](#flow_stack)                     |             |
+| `List *`                                   | [`indent_stack`](#indent_stack)                 |             |
+| `int`                                      | [`space_count`](#space_count)                   |             |
+| `struct YAMLLexer::block_scalar_options_s` | [`block_scalar_options`](#block_scalar_options) |             |
 
 ---
 
@@ -479,6 +500,61 @@ List * indent_stack
 
 ```cpp
 int space_count
+```
+
+---
+
+#### block_scalar_options
+
+```cpp
+struct YAMLLexer::block_scalar_options_s block_scalar_options
+```
+
+## block_scalar_options_s
+
+```cpp
+struct block_scalar_options_s
+```
+
+### Public Attributes
+
+| Return                     | Name                                  | Description |
+| -------------------------- | ------------------------------------- | ----------- |
+| `bool`                     | [`enabled`](#enabled)                 |             |
+| `enum BlockScalarStyle`    | [`style`](#style)                     |             |
+| `enum BlockScalarChomping` | [`chomping`](#chomping)               |             |
+| `uint8_t`                  | [`explicit_indent`](#explicit_indent) |             |
+
+---
+
+#### enabled
+
+```cpp
+bool enabled
+```
+
+---
+
+#### style
+
+```cpp
+enum BlockScalarStyle style
+```
+
+---
+
+#### chomping
+
+```cpp
+enum BlockScalarChomping chomping
+```
+
+---
+
+#### explicit_indent
+
+```cpp
+uint8_t explicit_indent
 ```
 
 ## YAMLToken
@@ -750,6 +826,53 @@ union [union].__unnamed0__
 
 ```cpp
 FILE * file_ptr
+```
+
+## block_scalar_options_s
+
+```cpp
+struct block_scalar_options_s
+```
+
+### Public Attributes
+
+| Return                     | Name                                  | Description |
+| -------------------------- | ------------------------------------- | ----------- |
+| `bool`                     | [`enabled`](#enabled)                 |             |
+| `enum BlockScalarStyle`    | [`style`](#style)                     |             |
+| `enum BlockScalarChomping` | [`chomping`](#chomping)               |             |
+| `uint8_t`                  | [`explicit_indent`](#explicit_indent) |             |
+
+---
+
+#### enabled
+
+```cpp
+bool enabled
+```
+
+---
+
+#### style
+
+```cpp
+enum BlockScalarStyle style
+```
+
+---
+
+#### chomping
+
+```cpp
+enum BlockScalarChomping chomping
+```
+
+---
+
+#### explicit_indent
+
+```cpp
+uint8_t explicit_indent
 ```
 
 ## [union].**unnamed0**

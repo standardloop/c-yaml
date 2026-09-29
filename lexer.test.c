@@ -498,7 +498,7 @@ static void testMixed(void)
 
 extern void TestLexer(void)
 {
-    // YAMLLexerDebugTest("./testfiles/mixed.yaml");
+    YAMLLexerDebugTest("./testfiles/folded/simple.yaml");
     testOnly();
     testMultiDocumentAndFlowContainers();
     testNested();

@@ -49,22 +49,11 @@ enum YAMLTokenType
     YAMLTokenListDash,          // -
     YAMLTokenFlowEntry,         // ,
 
-    YAMLTokenSingleQuotes, // "
-    YAMLTokenDoubleQuotes, // "
-
-    YAMLTokenLiteralBlockStart, // |
-    YAMLTokenFoldedBlockStart,  // >
-    YAMLTokenListChompingDash,  // -
-    YAMLTokenListKeepChomping,  // +
-    YAMLTokenChompingNumber,    // 1-9
-
     YAMLTokenAlias,        // *
     YAMLTokenAnchor,       // &
     YAMLTokenKeyIndicator, // ? // TODO: understand this one more
 
     YAMLTokenTag, // !
-
-    YAMLTokenComment, // #
 
     // reserved
     YAMLTokenAT,       // @
@@ -104,6 +93,26 @@ enum YAMLLexerState
 #define CHUNK_SIZE 4096
 #define BUFFER_SIZE (CHUNK_SIZE * 2)
 
+enum BlockScalarStyle
+{
+    BlockScalarStyleLiteral =
+        '|', // '|' Every consumed \n in the body is appended directly as \n.
+    BlockScalarStyleFolded =
+        '>', // '>' \n line breaks between normal text lines are converted to
+             // space characters (' '). Double line breaks (blank lines) remain
+             // as
+             // \n.
+};
+
+enum BlockScalarChomping
+{
+    BlockScalarStyleClip =
+        0, // Keeps exactly one trailing \n. Strips any extra blank lines.
+    BlockScalarStyleStrip = '-', //  Removes all trailing \n characters.
+    BlockScalarStyleKeep =
+        '+', // Retains all trailing \n characters and blank lines verbatim.
+};
+
 typedef struct
 {
     FILE *file_ptr;
@@ -117,6 +126,13 @@ typedef struct
     List *flow_stack;
     List *indent_stack;
     int space_count;
+    struct block_scalar_options_s
+    {
+        bool enabled;
+        enum BlockScalarStyle style;
+        enum BlockScalarChomping chomping;
+        uint8_t explicit_indent; // 1 - 9
+    } block_scalar_options;
 } YAMLLexer;
 
 /// @cond INTERNAL
