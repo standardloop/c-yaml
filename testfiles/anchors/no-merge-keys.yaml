@@ -1,0 +1,10 @@
+# Define the anchor on a single value
+company_name: &corp "Example, Inc."
+
+departments:
+  shipping:
+    name: "Shipping Department"
+    legal_entity: *corp
+  billing:
+    name: "Billing Department"
+    legal_entity: *corp

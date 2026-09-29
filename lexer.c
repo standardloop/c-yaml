@@ -594,6 +594,24 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         lexer->state = YAMLLexerStateJustGotNewline;
         return handleYAMLLexerStateJustGotNewline(lexer);
     }
+    else if (lexer->current_char == AND_CHAR)
+    {
+        Log(FATAL, "TODO %d", __LINE__);
+        advanceChar(lexer);
+        char *scalar = eatScalar(lexer);
+        // lexer->state = YAMLLexerStateJustGotNewline;
+        return YAMLTokenInit(YAMLTokenAnchor, curr_pos, lexer->cursor,
+                             lexer->line, scalar);
+    }
+    else if (lexer->current_char == '*')
+    {
+        Log(FATAL, "TODO %d", __LINE__);
+        advanceChar(lexer);
+        char *scalar = eatScalar(lexer);
+        // lexer->state = YAMLLexerStateJustGotNewline;
+        return YAMLTokenInit(YAMLTokenAlias, curr_pos, lexer->cursor,
+                             lexer->line, scalar);
+    }
 
     // printchar(lexer->current_char);
     char *scalar = eatScalar(lexer);

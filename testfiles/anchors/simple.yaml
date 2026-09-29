@@ -1,0 +1,5 @@
+defaults: &base_settings
+  timeout: 30
+production:
+  <<: *base_settings
+  timeout: 60
