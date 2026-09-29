@@ -34,14 +34,12 @@ static void resetLexerState(YAMLLexer *lexer);
 static void handleComment(YAMLLexer *lexer)
 {
     assert(lexer->current_char == '#');
-    // bool did_break = false;
 
     while (lexer->current_char != NULL_CHAR &&
            lexer->current_char != NEWLINE_CHAR)
     {
         advanceChar(lexer);
     }
-    // resetLexerState(lexer);
 }
 
 static void resetLexerState(YAMLLexer *lexer)
@@ -437,6 +435,7 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
             }
             else
             {
+                maintainLexerState(lexer, YAMLLexerStateNormal);
                 advanceChar(lexer); // go past colon
                 advanceChar(lexer); // go past space
             }
@@ -567,12 +566,33 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
                                  lexer->line, NULL);
         }
         lexer->block_scalar_options.style = lexer->current_char;
+        advanceChar(lexer);
 
         // will need to throughly test this part
         checkOtherBlockScalarOptions(lexer);
 
-        // fall through
-        Log(FATAL, "TODO %d", __LINE__);
+        if (lexer->current_char != NEWLINE_CHAR &&
+            lexer->current_char != SPACE_CHAR && lexer->current_char != '#')
+        {
+            return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor,
+                                 lexer->line, NULL);
+        }
+        else
+        {
+            while (lexer->current_char == SPACE_CHAR)
+            {
+                advanceChar(lexer);
+            }
+            if (lexer->current_char == '#')
+            {
+                handleComment(lexer);
+            }
+        }
+        assert(lexer->current_char == NEWLINE_CHAR ||
+               lexer->current_char == NULL_CHAR);
+
+        lexer->state = YAMLLexerStateJustGotNewline;
+        return handleYAMLLexerStateJustGotNewline(lexer);
     }
 
     // printchar(lexer->current_char);
