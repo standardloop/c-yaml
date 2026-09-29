@@ -435,11 +435,73 @@ static void testNested(void)
     fclose(file_ptr);
 }
 
+static void testMixed(void)
+{
+    FILE *file_ptr = fopen("./testfiles/mixed.yaml", "rb");
+    TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
+    if (!file_ptr)
+    {
+        return;
+    }
+
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
+    YAMLToken *token = NULL;
+
+    // foo: "bar with \"quotes\""
+    ASSERT_SCALAR("foo", "1. Scalar 'foo'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
+    ASSERT_SCALAR("bar with \"quotes\"", "3. Unescaped double-quoted scalar");
+    ASSERT_TOKEN(YAMLTokenNewline, "4. Newline after double quote");
+
+    // fizz:
+    ASSERT_SCALAR("fizz", "5. Scalar 'fizz'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "6. Value indicator (:)");
+    ASSERT_TOKEN(YAMLTokenNewline, "7. Newline after fizz:");
+
+    //   - 'buzz ''quote''' (2 spaces)
+    ASSERT_TOKEN(YAMLTokenIndent, "8. Indent to 2 spaces");
+    ASSERT_TOKEN(YAMLTokenListDash, "9. List dash (-)");
+    ASSERT_SCALAR("buzz 'quote'", "10. Unescaped single-quoted scalar");
+    ASSERT_TOKEN(YAMLTokenNewline, "11. Newline after single quote");
+
+    //   - { bazz: qux, quux: [ corge, grault ] } (2 spaces)
+    ASSERT_TOKEN(YAMLTokenListDash, "12. List dash (-)");
+    ASSERT_TOKEN(YAMLTokenFlowMappingStart, "13. Flow mapping start ({)");
+    ASSERT_SCALAR("bazz", "14. Key 'bazz'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "15. Value indicator (:)");
+    ASSERT_SCALAR("qux", "16. Value 'qux'");
+    ASSERT_TOKEN(YAMLTokenFlowEntry, "17. Flow entry comma (,)");
+    ASSERT_SCALAR("quux", "18. Key 'quux'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "19. Value indicator (:)");
+    ASSERT_TOKEN(YAMLTokenFlowSequenceStart, "20. Flow sequence start ([)");
+    ASSERT_SCALAR("corge", "21. Sequence item 'corge'");
+    ASSERT_TOKEN(YAMLTokenFlowEntry, "22. Flow entry comma (,)");
+    ASSERT_SCALAR("grault", "23. Sequence item 'grault'");
+    ASSERT_TOKEN(YAMLTokenFlowSequenceEnd, "24. Flow sequence end (])");
+    ASSERT_TOKEN(YAMLTokenFlowMappingEnd, "25. Flow mapping end (})");
+    ASSERT_TOKEN(YAMLTokenNewline, "26. Newline after flow mapping");
+
+    //   - foo_bar: fizz:buzz (2 spaces)
+    ASSERT_TOKEN(YAMLTokenListDash, "27. List dash (-)");
+    ASSERT_SCALAR("foo_bar", "28. Key 'foo_bar'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "29. Value indicator (:)");
+    ASSERT_SCALAR("fizz:buzz", "30. Plain scalar with embedded colon");
+    ASSERT_TOKEN(YAMLTokenNewline, "31. Newline after line");
+
+    // EOF Indent Unwinding (2 spaces -> 0 spaces)
+    ASSERT_TOKEN(YAMLTokenDedent, "32. Dedent at EOF (2 -> 0 spaces)");
+    ASSERT_TOKEN(YAMLTokenEOF, "33. End of file");
+
+    YAMLLexerFree(lexer);
+    fclose(file_ptr);
+}
+
 extern void TestLexer(void)
 {
-    YAMLLexerDebugTest("./testfiles/nested-with-flow.yaml");
+    // YAMLLexerDebugTest("./testfiles/mixed.yaml");
     testOnly();
     testMultiDocumentAndFlowContainers();
     testNested();
     testNestedWithFlow();
+    testMixed();
 }

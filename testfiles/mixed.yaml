@@ -1,0 +1,5 @@
+foo: 'bar with "quotes"'
+fizz:
+  - "buzz 'quote'"
+  - { bazz: qux, quux: [corge, grault] }
+  - foo_bar: fizz:buzz
