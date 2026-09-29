@@ -11,6 +11,13 @@
 
 #include "./yaml.h"
 
+// this function is silly, but serves as documentation in the code
+static inline void maintainLexerState(YAMLLexer *lexer,
+                                      enum YAMLLexerState state)
+{
+    assert(lexer->state == state);
+}
+
 [[maybe_unused]] static void printchar(unsigned char c);
 
 static bool isInFlow(YAMLLexer *lexer)
@@ -519,6 +526,10 @@ static YAMLToken *handleYAMLLexerStatePopDedent(YAMLLexer *lexer)
                 lexer->space_count)
             {
                 resetLexerState(lexer);
+            }
+            else
+            {
+                maintainLexerState(lexer, YAMLLexerStatePopDedent);
             }
             return YAMLTokenInit(YAMLTokenDedent, curr_pos, lexer->cursor + 1,
                                  lexer->line, NULL);

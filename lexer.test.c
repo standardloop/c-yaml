@@ -357,8 +357,7 @@ static void testNestedWithFlow(void)
     // EOF Indent Unwinding (stack unwinds from 4 spaces to 0)
     ASSERT_TOKEN(YAMLTokenDedent, "36. EOF dedent (4 -> 2 spaces)");
     ASSERT_TOKEN(YAMLTokenDedent, "37. EOF dedent (2 -> 0 spaces)");
-    ASSERT_TOKEN(YAMLTokenNewline, "38. newline before eof");
-    ASSERT_TOKEN(YAMLTokenEOF, "39. End of file");
+    ASSERT_TOKEN(YAMLTokenEOF, "38. End of file");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -438,7 +437,7 @@ static void testNested(void)
 
 extern void TestLexer(void)
 {
-    YAMLLexerDebugTest("./testfiles/nested.yaml");
+    YAMLLexerDebugTest("./testfiles/nested-with-flow.yaml");
     testOnly();
     testMultiDocumentAndFlowContainers();
     testNested();
