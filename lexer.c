@@ -515,7 +515,11 @@ static YAMLToken *handleYAMLLexerStatePopDedent(YAMLLexer *lexer)
         if (dedent_item_value > lexer->space_count)
         {
             ItemFree(dedent_item);
-            // resetLexerState(lexer);
+            if (*(int *)ListGetFirst(lexer->indent_stack)->value ==
+                lexer->space_count)
+            {
+                resetLexerState(lexer);
+            }
             return YAMLTokenInit(YAMLTokenDedent, curr_pos, lexer->cursor + 1,
                                  lexer->line, NULL);
         }

@@ -4,5 +4,5 @@ foo:
         buzz:
           - bazz
           - qux:
-              quux: corge
+            quux: corge
     - grault
