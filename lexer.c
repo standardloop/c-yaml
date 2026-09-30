@@ -12,6 +12,8 @@
 
 #include "./yaml.h"
 
+static void checkOtherBlockScalarOptions(YAMLLexer *lexer);
+
 // this function is silly, but serves as documentation in the code
 static inline void maintainLexerState(YAMLLexer *lexer,
                                       enum YAMLLexerState state)
@@ -173,14 +175,40 @@ extern YAMLLexer *YAMLLexerInit(FILE *file_ptr)
     return lexer;
 }
 
+static char *eatBlockScalar(YAMLLexer *lexer)
+{
+    assert(lexer != NULL);
+    assert(lexer->current_char == NEWLINE_CHAR);
+    assert(lexer->block_scalar_options.enabled == true);
+    assert(lexer->block_scalar_options.style == BlockScalarStyleLiteral ||
+           lexer->block_scalar_options.style == BlockScalarStyleFolded);
+
+    advanceChar(lexer); // move past newline
+
+    DynString *str = DynStringDefaultInit();
+    size_t chars_found = 0;
+
+    while (true)
+    {
+        if (lexer->current_char == NULL_CHAR)
+        {
+            break;
+        }
+
+        DynStringAddCharAt(str, chars_found, lexer->current_char);
+        chars_found++;
+        advanceChar(lexer);
+    }
+    resetLexerBlockScalarOptions(lexer);
+    char *ret_val = str->value;
+    free(str); // only free the pointer to the DynString, not the
+               // DynString->value
+    return ret_val;
+}
+
 static char *eatScalar(YAMLLexer *lexer)
 {
-    if (lexer == NULL)
-    {
-        return NULL;
-    }
-
-    // need to check lexer->block_scalar_options
+    assert(lexer != NULL);
 
     DynString *str = DynStringDefaultInit();
     char quote_char = NULL_CHAR;
@@ -254,9 +282,46 @@ static char *eatScalar(YAMLLexer *lexer)
     char *ret_val = str->value;
     free(str); // only free the pointer to the DynString, not the
                // DynString->value
-
-    resetLexerBlockScalarOptions(lexer);
     return ret_val;
+}
+
+static YAMLToken *handleBlockScalar(YAMLLexer *lexer)
+{
+    u_int32_t curr_pos = lexer->cursor;
+    lexer->block_scalar_options.style = lexer->current_char;
+    lexer->block_scalar_options.enabled = true;
+    advanceChar(lexer);
+
+    // will need to throughly test this part
+    checkOtherBlockScalarOptions(lexer);
+
+    if (lexer->current_char != NEWLINE_CHAR &&
+        lexer->current_char != SPACE_CHAR && lexer->current_char != '#')
+    {
+        return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor,
+                             lexer->line, NULL);
+    }
+    else
+    {
+        while (lexer->current_char == SPACE_CHAR)
+        {
+            advanceChar(lexer);
+        }
+        if (lexer->current_char == '#')
+        {
+            handleComment(lexer);
+        }
+    }
+    assert(lexer->current_char == NEWLINE_CHAR ||
+           lexer->current_char == NULL_CHAR);
+
+    if (lexer->current_char == NULL_CHAR)
+    {
+        Log(FATAL, "%d", __LINE__);
+    }
+    char *scalar = eatBlockScalar(lexer);
+    return YAMLTokenInit(YAMLTokenScalar, curr_pos, lexer->cursor, lexer->line,
+                         scalar);
 }
 
 static inline bool isWhiteSpaceOrBreak(char c)
@@ -365,6 +430,7 @@ static void skipSpaceAndNewline(YAMLLexer *lexer)
 
 static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
 {
+    assert(lexer->state == YAMLLexerStateNormal);
     u_int32_t curr_pos = lexer->cursor;
 
     if (isInFlow(lexer))
@@ -373,7 +439,6 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         // fall though
     }
 
-    assert(lexer->state == YAMLLexerStateNormal);
     if (lexer->current_char == NEWLINE_CHAR)
     {
         assert(!isInFlow(lexer));
@@ -562,37 +627,11 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
     {
         if (isInFlow(lexer))
         {
+            advanceChar(lexer);
             return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor,
                                  lexer->line, NULL);
         }
-        lexer->block_scalar_options.style = lexer->current_char;
-        advanceChar(lexer);
-
-        // will need to throughly test this part
-        checkOtherBlockScalarOptions(lexer);
-
-        if (lexer->current_char != NEWLINE_CHAR &&
-            lexer->current_char != SPACE_CHAR && lexer->current_char != '#')
-        {
-            return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor,
-                                 lexer->line, NULL);
-        }
-        else
-        {
-            while (lexer->current_char == SPACE_CHAR)
-            {
-                advanceChar(lexer);
-            }
-            if (lexer->current_char == '#')
-            {
-                handleComment(lexer);
-            }
-        }
-        assert(lexer->current_char == NEWLINE_CHAR ||
-               lexer->current_char == NULL_CHAR);
-
-        lexer->state = YAMLLexerStateJustGotNewline;
-        return handleYAMLLexerStateJustGotNewline(lexer);
+        return handleBlockScalar(lexer);
     }
     else if (lexer->current_char == AND_CHAR)
     {

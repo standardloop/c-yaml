@@ -498,8 +498,8 @@ static void testMixed(void)
 
 extern void TestLexer(void)
 {
-    // YAMLLexerDebugTest("./testfiles/folded/simple.yaml");
-    YAMLLexerDebugTest("./testfiles/anchors/no-merge-keys.yaml");
+    YAMLLexerDebugTest("./testfiles/folded/simple.yaml");
+    // YAMLLexerDebugTest("./testfiles/anchors/no-merge-keys.yaml");
     testOnly();
     testMultiDocumentAndFlowContainers();
     testNested();
