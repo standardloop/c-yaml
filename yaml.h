@@ -49,17 +49,15 @@ enum YAMLTokenType
     YAMLTokenListDash,          // -
     YAMLTokenFlowEntry,         // ,
 
-    YAMLTokenAlias,        // *
-    YAMLTokenAnchor,       // &
-    YAMLTokenKeyIndicator, // ? // TODO: understand this one more
+    YAMLTokenAlias,               // *
+    YAMLTokenAnchor,              // &
+    YAMLTokenComplexKeyIndicator, // ? // TODO: understand this one more
 
     YAMLTokenTag, // !
 
     // reserved
     YAMLTokenAT,       // @
     YAMLTokenBacktick, // `
-    // yaml 1.1
-    YAMLTokenMerge, // <<
 
     YAMLTokenEOF,
     YAMLTokenIllegal

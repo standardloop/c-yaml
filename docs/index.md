@@ -40,31 +40,30 @@
 enum YAMLTokenType
 ```
 
-| Value                        | Description |
-| ---------------------------- | ----------- |
-| `YAMLTokenStartOfDocument`   |             |
-| `YAMLTokenEndOfDocument`     |             |
-| `YAMLTokenDirective`         |             |
-| `YAMLTokenIndent`            |             |
-| `YAMLTokenDedent`            |             |
-| `YAMLTokenNewline`           |             |
-| `YAMLTokenScalar`            |             |
-| `YAMLTokenValueIndicator`    |             |
-| `YAMLTokenFlowMappingStart`  |             |
-| `YAMLTokenFlowMappingEnd`    |             |
-| `YAMLTokenFlowSequenceStart` |             |
-| `YAMLTokenFlowSequenceEnd`   |             |
-| `YAMLTokenListDash`          |             |
-| `YAMLTokenFlowEntry`         |             |
-| `YAMLTokenAlias`             |             |
-| `YAMLTokenAnchor`            |             |
-| `YAMLTokenKeyIndicator`      |             |
-| `YAMLTokenTag`               |             |
-| `YAMLTokenAT`                |             |
-| `YAMLTokenBacktick`          |             |
-| `YAMLTokenMerge`             |             |
-| `YAMLTokenEOF`               |             |
-| `YAMLTokenIllegal`           |             |
+| Value                          | Description |
+| ------------------------------ | ----------- |
+| `YAMLTokenStartOfDocument`     |             |
+| `YAMLTokenEndOfDocument`       |             |
+| `YAMLTokenDirective`           |             |
+| `YAMLTokenIndent`              |             |
+| `YAMLTokenDedent`              |             |
+| `YAMLTokenNewline`             |             |
+| `YAMLTokenScalar`              |             |
+| `YAMLTokenValueIndicator`      |             |
+| `YAMLTokenFlowMappingStart`    |             |
+| `YAMLTokenFlowMappingEnd`      |             |
+| `YAMLTokenFlowSequenceStart`   |             |
+| `YAMLTokenFlowSequenceEnd`     |             |
+| `YAMLTokenListDash`            |             |
+| `YAMLTokenFlowEntry`           |             |
+| `YAMLTokenAlias`               |             |
+| `YAMLTokenAnchor`              |             |
+| `YAMLTokenComplexKeyIndicator` |             |
+| `YAMLTokenTag`                 |             |
+| `YAMLTokenAT`                  |             |
+| `YAMLTokenBacktick`            |             |
+| `YAMLTokenEOF`                 |             |
+| `YAMLTokenIllegal`             |             |
 
 ---
 

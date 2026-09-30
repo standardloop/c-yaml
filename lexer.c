@@ -612,6 +612,12 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         return YAMLTokenInit(YAMLTokenAlias, curr_pos, lexer->cursor,
                              lexer->line, scalar);
     }
+    else if (lexer->current_char == QUESTION_CHAR)
+    {
+        advanceChar(lexer);
+        return YAMLTokenInit(YAMLTokenComplexKeyIndicator, curr_pos,
+                             lexer->cursor, lexer->line, NULL);
+    }
 
     // printchar(lexer->current_char);
     char *scalar = eatScalar(lexer);
@@ -947,9 +953,9 @@ extern char *YAMLTokenTypeToString(enum YAMLTokenType type)
     {
         return "YAMLTokenAnchor";
     }
-    else if (type == YAMLTokenKeyIndicator)
+    else if (type == YAMLTokenComplexKeyIndicator)
     {
-        return "YAMLTokenKeyIndicator";
+        return "YAMLTokenComplexKeyIndicator";
     }
     else if (type == YAMLTokenTag)
     {
@@ -962,10 +968,6 @@ extern char *YAMLTokenTypeToString(enum YAMLTokenType type)
     else if (type == YAMLTokenBacktick)
     {
         return "YAMLTokenBacktick";
-    }
-    else if (type == YAMLTokenMerge)
-    {
-        return "YAMLTokenMerge";
     }
     else if (type == YAMLTokenEOF)
     {
