@@ -1,3 +1,4 @@
+#include <_stdio.h>
 #include <assert.h>
 #include <errno.h>
 #include <stdbool.h>
@@ -175,6 +176,40 @@ extern YAMLLexer *YAMLLexerInit(FILE *file_ptr)
     return lexer;
 }
 
+static void blockScalarPostProcess(enum BlockScalarChomping chomping,
+                                   DynString *str)
+{
+    assert(str != NULL);
+    if (chomping == BlockScalarStyleKeep)
+    {
+        return;
+    }
+    size_t i = str->size - 1;
+    for (; i >= 0; i--)
+    {
+        if (str->value[i] == NEWLINE_CHAR)
+        {
+            break;
+        }
+    }
+    if (str->value[i] != NEWLINE_CHAR)
+    {
+        Log(FATAL, "%d", __LINE__);
+    }
+
+    while (str->value[i] == NEWLINE_CHAR)
+    {
+        str->value[i] = NULL_CHAR;
+        i--;
+    }
+    if (chomping == BlockScalarStyleClip)
+    {
+        // keep the last one
+        i++;
+        str->value[i] = NEWLINE_CHAR;
+    }
+}
+
 static char *eatBlockScalar(YAMLLexer *lexer)
 {
     assert(lexer != NULL);
@@ -246,6 +281,7 @@ static char *eatBlockScalar(YAMLLexer *lexer)
 
         just_got_newline = lexer->current_char == NEWLINE_CHAR;
     }
+    blockScalarPostProcess(lexer->block_scalar_options.chomping, str);
     // post processing now
     resetLexerBlockScalarOptions(lexer);
     char *ret_val = str->value;
@@ -968,7 +1004,13 @@ extern void YAMLTokenPrint(YAMLToken *token)
         printf("%s", YAMLTokenTypeToString(token->type));
         if (token->literal)
         {
-            printf(":%s\n", token->literal);
+            printf(":");
+            size_t literal_len = strlen(token->literal);
+            for (size_t i = 0; i < literal_len; i++)
+            {
+                printchar(token->literal[i]);
+            }
+            printf("\n");
         }
         else
         {
@@ -1089,7 +1131,7 @@ extern void YAMLLexerFree(YAMLLexer *lexer)
     switch (c)
     {
     case '\n':
-        printf("\\n\n");
+        printf("\\n");
         break;
     case '\r':
         printf("\\r");
