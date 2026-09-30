@@ -496,13 +496,40 @@ static void testMixed(void)
     fclose(file_ptr);
 }
 
+static void testFoldedSimple()
+{
+    FILE *file_ptr = fopen("./testfiles/folded/simple.yaml", "rb");
+    TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
+    if (!file_ptr)
+    {
+        return;
+    }
+
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
+    YAMLToken *token = NULL;
+
+    ASSERT_SCALAR("test", "1. Scalar 'test'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
+    ASSERT_SCALAR("foo\nbar\nfizz\nbuzz\nbazz\n",
+                  "3. Literal block scalar payload");
+    ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
+
+    YAMLLexerFree(lexer);
+    fclose(file_ptr);
+}
+
+static void testFolded()
+{
+    testFoldedSimple();
+}
+
 extern void TestLexer(void)
 {
-    YAMLLexerDebugTest("./testfiles/folded/simple.yaml");
-    // YAMLLexerDebugTest("./testfiles/anchors/no-merge-keys.yaml");
+    // YAMLLexerDebugTest("./testfiles/folded/simple.yaml");
     testOnly();
     testMultiDocumentAndFlowContainers();
     testNested();
     testNestedWithFlow();
     testMixed();
+    testFolded();
 }
