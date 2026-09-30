@@ -496,9 +496,9 @@ static void testMixed(void)
     fclose(file_ptr);
 }
 
-static void testFoldedSimple()
+static void testBlockLiteralSimple()
 {
-    FILE *file_ptr = fopen("./testfiles/folded/simple.yaml", "rb");
+    FILE *file_ptr = fopen("./testfiles/block/literal/simple.yaml", "rb");
     TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
     if (!file_ptr)
     {
@@ -518,9 +518,9 @@ static void testFoldedSimple()
     fclose(file_ptr);
 }
 
-static void testFoldedSimpleStrip()
+static void testBlockLiteralSimpleStrip()
 {
-    FILE *file_ptr = fopen("./testfiles/folded/simple-strip.yaml", "rb");
+    FILE *file_ptr = fopen("./testfiles/block/literal/simple-strip.yaml", "rb");
     TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
     if (!file_ptr)
     {
@@ -540,9 +540,9 @@ static void testFoldedSimpleStrip()
     fclose(file_ptr);
 }
 
-static void testFoldedSimpleKeep()
+static void testBlockLiteralSimpleKeep()
 {
-    FILE *file_ptr = fopen("./testfiles/folded/simple-keep.yaml", "rb");
+    FILE *file_ptr = fopen("./testfiles/block/literal/simple-keep.yaml", "rb");
     TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
     if (!file_ptr)
     {
@@ -563,20 +563,48 @@ static void testFoldedSimpleKeep()
     fclose(file_ptr);
 }
 
-static void testFolded()
+static void testBlockLiteral()
 {
-    testFoldedSimple();
-    testFoldedSimpleStrip();
-    testFoldedSimpleKeep();
+    testBlockLiteralSimple();
+    testBlockLiteralSimpleStrip();
+    testBlockLiteralSimpleKeep();
+}
+
+static void testBlockFoldedSimple()
+{
+    FILE *file_ptr = fopen("./testfiles/block/folded/simple.yaml", "rb");
+    TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
+    if (!file_ptr)
+    {
+        return;
+    }
+
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
+    YAMLToken *token = NULL;
+
+    ASSERT_SCALAR("test", "1. Scalar 'test'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
+    ASSERT_SCALAR("foo bar fizz buzz bazz\n",
+                  "3. Folded block scalar payload (newlines folded to spaces)");
+    ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
+
+    YAMLLexerFree(lexer);
+    fclose(file_ptr);
+}
+
+static void testBlockFolded()
+{
+    testBlockFoldedSimple();
 }
 
 extern void TestLexer(void)
 {
-    YAMLLexerDebugTest("./testfiles/folded/simple-keep.yaml");
+    YAMLLexerDebugTest("./testfiles/block/folded/simple.yaml");
     testOnly();
     testMultiDocumentAndFlowContainers();
     testNested();
     testNestedWithFlow();
     testMixed();
-    testFolded();
+    testBlockLiteral();
+    testBlockFolded();
 }
