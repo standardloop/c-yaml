@@ -540,15 +540,39 @@ static void testFoldedSimpleStrip()
     fclose(file_ptr);
 }
 
+static void testFoldedSimpleKeep()
+{
+    FILE *file_ptr = fopen("./testfiles/folded/simple-keep.yaml", "rb");
+    TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
+    if (!file_ptr)
+    {
+        return;
+    }
+
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
+    YAMLToken *token = NULL;
+
+    ASSERT_SCALAR("test", "1. Scalar 'test'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
+    ASSERT_SCALAR(
+        "foo\nbar\nfizz\nbuzz\nbazz\n\n\n\n\n",
+        "3. Keep block scalar payload (all trailing newlines preserved)");
+    ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
+
+    YAMLLexerFree(lexer);
+    fclose(file_ptr);
+}
+
 static void testFolded()
 {
     testFoldedSimple();
     testFoldedSimpleStrip();
+    testFoldedSimpleKeep();
 }
 
 extern void TestLexer(void)
 {
-    YAMLLexerDebugTest("./testfiles/folded/simple-strip.yaml");
+    YAMLLexerDebugTest("./testfiles/folded/simple-keep.yaml");
     testOnly();
     testMultiDocumentAndFlowContainers();
     testNested();
