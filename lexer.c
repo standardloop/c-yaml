@@ -185,20 +185,68 @@ static char *eatBlockScalar(YAMLLexer *lexer)
 
     advanceChar(lexer); // move past newline
 
+    int parent_indent = *(int *)ListGetFirst(lexer->indent_stack)->value;
+
+    int first_list_count_space = 0;
+    while (lexer->current_char == SPACE_CHAR)
+    {
+        first_list_count_space++;
+        advanceChar(lexer);
+    }
+
+    if (first_list_count_space < parent_indent)
+    {
+        Log(FATAL, "%d", __LINE__);
+    }
+    // Log(DEBUG, "%d", first_list_count_space);
+
     DynString *str = DynStringDefaultInit();
     size_t chars_found = 0;
 
-    while (true)
+    bool just_got_newline = false;
+    bool is_first_itr = true;
+
+    while (ALWAYS)
     {
         if (lexer->current_char == NULL_CHAR)
         {
+            // found_end = true;
             break;
         }
 
+        if (just_got_newline && !is_first_itr)
+        {
+            while (lexer->current_char == NEWLINE_CHAR)
+            {
+                DynStringAddCharAt(str, chars_found, lexer->current_char);
+                chars_found++;
+                advanceChar(lexer);
+            }
+            just_got_newline = false;
+            if (lexer->current_char != SPACE_CHAR)
+            {
+                break;
+            }
+        }
+        if (lexer->current_char == SPACE_CHAR)
+        {
+            for (int i = 0; i < first_list_count_space; i++)
+            {
+                if (lexer->current_char != SPACE_CHAR)
+                {
+                    Log(FATAL, "%d", __LINE__);
+                }
+                advanceChar(lexer);
+            }
+        }
+        is_first_itr = false;
         DynStringAddCharAt(str, chars_found, lexer->current_char);
         chars_found++;
         advanceChar(lexer);
+
+        just_got_newline = lexer->current_char == NEWLINE_CHAR;
     }
+    // post processing now
     resetLexerBlockScalarOptions(lexer);
     char *ret_val = str->value;
     free(str); // only free the pointer to the DynString, not the
