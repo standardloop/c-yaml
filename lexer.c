@@ -371,6 +371,7 @@ static char *eatScalar(YAMLLexer *lexer)
 
 static YAMLToken *handleBlockScalar(YAMLLexer *lexer)
 {
+    assert(lexer->current_char == '|' || lexer->current_char == '>');
     u_int32_t curr_pos = lexer->cursor;
     lexer->block_scalar_options.style = lexer->current_char;
     lexer->block_scalar_options.enabled = true;
@@ -462,29 +463,35 @@ static bool isExplicitIndentCharNumber(char c)
 
 static void peekForChompingOptions(YAMLLexer *lexer)
 {
+    lexer->block_scalar_options.chomping = BlockScalarStyleClip;
+    if (lexer->current_char == '-' || lexer->current_char == '+')
+    {
+        lexer->block_scalar_options.chomping = lexer->current_char;
+    }
     if (peek(lexer, 1) == '-' || peek(lexer, 1) == '+')
     {
+        if (lexer->block_scalar_options.chomping != BlockScalarStyleClip)
+        {
+            Log(FATAL, "double chomping option...");
+        }
         lexer->block_scalar_options.chomping = lexer->current_char;
     }
-    else if (peek(lexer, 2) == '-' || peek(lexer, 2) == '+')
-    {
-        lexer->block_scalar_options.chomping = lexer->current_char;
-    }
-    lexer->block_scalar_options.chomping = BlockScalarStyleClip;
 }
 
 static void peekForIndentOptions(YAMLLexer *lexer)
 {
     lexer->block_scalar_options.explicit_indent = 0;
+    if (isExplicitIndentCharNumber(lexer->current_char))
+    {
+        lexer->block_scalar_options.explicit_indent = lexer->current_char - '0';
+    }
     if (isExplicitIndentCharNumber(peek(lexer, 1)))
     {
+        if (lexer->block_scalar_options.explicit_indent != 0)
+        {
+            Log(FATAL, "duplicate number option found");
+        }
         lexer->block_scalar_options.explicit_indent = peek(lexer, 1) - '0';
-        return;
-    }
-    else if (isExplicitIndentCharNumber(peek(lexer, 2)))
-    {
-        lexer->block_scalar_options.explicit_indent = peek(lexer, 2) - '0';
-        return;
     }
 }
 
