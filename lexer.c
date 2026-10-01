@@ -220,35 +220,49 @@ static char *eatBlockScalar(YAMLLexer *lexer)
 
     advanceChar(lexer); // move past newline
 
+    bool just_got_newline = false;
+    bool is_first_itr = true;
+
     DynString *str = DynStringDefaultInit();
     size_t chars_found = 0;
 
     int parent_indent = *(int *)ListGetFirst(lexer->indent_stack)->value;
 
-    int first_list_count_space = 0;
-
+    // skip leading newlines
     while (lexer->current_char == NEWLINE_CHAR)
     {
         DynStringAddCharAt(str, chars_found, lexer->current_char);
+        chars_found++;
         advanceChar(lexer);
     }
 
-    // first line with space indent
-    while (lexer->current_char == SPACE_CHAR)
+    int amount_spaces_before_content = 0;
+
+    if (lexer->block_scalar_options.explicit_indent != 0)
     {
-        first_list_count_space++;
-        advanceChar(lexer);
+        amount_spaces_before_content =
+            parent_indent + lexer->block_scalar_options.explicit_indent;
+        just_got_newline = true;
+        is_first_itr = false;
+    }
+    else
+    {
+        // first line with space indent is our base indent
+        assert(lexer->block_scalar_options.explicit_indent == 0);
+        while (lexer->current_char == SPACE_CHAR)
+        {
+            amount_spaces_before_content++;
+            advanceChar(lexer);
+        }
     }
 
-    if (first_list_count_space < parent_indent)
+    // base space indent should always be more than the parents
+    if (amount_spaces_before_content < parent_indent)
     {
         Log(FATAL, "%d", __LINE__);
     }
-    // first_list_count_space += parent_indent;
-    // Log(DEBUG, "%d", first_list_count_space);
 
-    bool just_got_newline = false;
-    bool is_first_itr = true;
+    // Log(DEBUG, "%d", first_list_count_space);
 
     while (ALWAYS)
     {
@@ -273,12 +287,15 @@ static char *eatBlockScalar(YAMLLexer *lexer)
             }
             else
             {
-                for (int i = 0; i < first_list_count_space; i++)
+                for (int i = 0; i < amount_spaces_before_content; i++)
                 {
                     if (lexer->current_char != SPACE_CHAR)
                     {
                         // printchar(lexer->current_char);
                         // DynStringPrint(str);
+                        // TODO
+                        // according to yaml spec, we need to just skip over
+                        // this?
                         Log(FATAL, "%d", __LINE__);
                     }
                     advanceChar(lexer);
