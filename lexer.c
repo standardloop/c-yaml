@@ -220,9 +220,20 @@ static char *eatBlockScalar(YAMLLexer *lexer)
 
     advanceChar(lexer); // move past newline
 
+    DynString *str = DynStringDefaultInit();
+    size_t chars_found = 0;
+
     int parent_indent = *(int *)ListGetFirst(lexer->indent_stack)->value;
 
     int first_list_count_space = 0;
+
+    while (lexer->current_char == NEWLINE_CHAR)
+    {
+        DynStringAddCharAt(str, chars_found, lexer->current_char);
+        advanceChar(lexer);
+    }
+
+    // first line with space indent
     while (lexer->current_char == SPACE_CHAR)
     {
         first_list_count_space++;
@@ -233,10 +244,8 @@ static char *eatBlockScalar(YAMLLexer *lexer)
     {
         Log(FATAL, "%d", __LINE__);
     }
+    // first_list_count_space += parent_indent;
     // Log(DEBUG, "%d", first_list_count_space);
-
-    DynString *str = DynStringDefaultInit();
-    size_t chars_found = 0;
 
     bool just_got_newline = false;
     bool is_first_itr = true;
@@ -262,16 +271,18 @@ static char *eatBlockScalar(YAMLLexer *lexer)
             {
                 break;
             }
-        }
-        if (lexer->current_char == SPACE_CHAR)
-        {
-            for (int i = 0; i < first_list_count_space; i++)
+            else
             {
-                if (lexer->current_char != SPACE_CHAR)
+                for (int i = 0; i < first_list_count_space; i++)
                 {
-                    Log(FATAL, "%d", __LINE__);
+                    if (lexer->current_char != SPACE_CHAR)
+                    {
+                        // printchar(lexer->current_char);
+                        // DynStringPrint(str);
+                        Log(FATAL, "%d", __LINE__);
+                    }
+                    advanceChar(lexer);
                 }
-                advanceChar(lexer);
             }
         }
         is_first_itr = false;
@@ -959,6 +970,10 @@ extern void YAMLLexerDebugTest(char *file_name)
 {
     // char *file_name = "./testfiles/playground.yaml";
     FILE *file_ptr = fopen(file_name, "rb");
+    if (file_ptr == NULL)
+    {
+        Log(FATAL, "file_ptr is NULL in %s", __FUNCTION__);
+    }
 
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
 

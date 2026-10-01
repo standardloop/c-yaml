@@ -1,0 +1,5 @@
+foo:
+  bar:
+    example: |
+      hello
+      this is an example

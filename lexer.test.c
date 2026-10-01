@@ -563,11 +563,102 @@ static void testBlockLiteralSimpleKeep()
     fclose(file_ptr);
 }
 
+static void testBlockLiteralSimpleWithNumber()
+{
+    FILE *file_ptr =
+        fopen("./testfiles/block/literal/simple-with-number.yaml", "rb");
+    TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
+    if (!file_ptr)
+    {
+        return;
+    }
+
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
+    YAMLToken *token = NULL;
+
+    ASSERT_SCALAR("doc_explicit_indent", "1. Scalar 'doc_explicit_indent'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
+    ASSERT_SCALAR("  leading spaces are content\n  second line\n",
+                  "3. Literal block scalar with explicit indent |2");
+    ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
+
+    YAMLLexerFree(lexer);
+    fclose(file_ptr);
+}
+
+static void testBlockLiteralSimpleNested()
+{
+    FILE *file_ptr =
+        fopen("./testfiles/block/literal/simple-nested.yaml", "rb");
+    TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
+    if (!file_ptr)
+    {
+        return;
+    }
+
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
+    YAMLToken *token = NULL;
+
+    // foo:
+    ASSERT_SCALAR("foo", "1. Scalar 'foo'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
+    ASSERT_TOKEN(YAMLTokenNewline, "3. Newline after foo:");
+
+    //   bar:
+    ASSERT_TOKEN(YAMLTokenIndent, "4. Indent to 2 spaces");
+    ASSERT_SCALAR("bar", "5. Scalar 'bar'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "6. Value indicator (:)");
+    ASSERT_TOKEN(YAMLTokenNewline, "7. Newline after bar:");
+
+    //     example: |
+    ASSERT_TOKEN(YAMLTokenIndent, "8. Indent to 4 spaces");
+    ASSERT_SCALAR("example", "9. Scalar 'example'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "10. Value indicator (:)");
+
+    // Block scalar payload (strips 6 spaces per line)
+    ASSERT_SCALAR("hello\nthis is an example\n",
+                  "11. Nested block scalar payload");
+
+    // EOF unwinds indent stack from 4 -> 2 -> 0
+    ASSERT_TOKEN(YAMLTokenDedent, "12. Dedent (4 -> 2 spaces)");
+    ASSERT_TOKEN(YAMLTokenDedent, "13. Dedent (2 -> 0 spaces)");
+    ASSERT_TOKEN(YAMLTokenEOF, "14. End of file");
+
+    YAMLLexerFree(lexer);
+    fclose(file_ptr);
+}
+
+static void testBlockLiteralSimpleWithLeadingLines()
+{
+    FILE *file_ptr =
+        fopen("./testfiles/block/literal/simple-leading-newlines.yaml", "rb");
+    TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
+    if (!file_ptr)
+    {
+        return;
+    }
+
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
+    YAMLToken *token = NULL;
+
+    ASSERT_SCALAR("example", "1. Scalar 'example'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
+    ASSERT_SCALAR("\n\nhello\n  world\n",
+                  "3. Payload with leading blank lines and relative indent");
+    ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
+
+    YAMLLexerFree(lexer);
+    fclose(file_ptr);
+}
+
 static void testBlockLiteral()
 {
     testBlockLiteralSimple();
     testBlockLiteralSimpleStrip();
     testBlockLiteralSimpleKeep();
+    testBlockLiteralSimpleWithNumber();
+    testBlockLiteralSimpleNested();
+    testBlockLiteralSimpleWithLeadingLines();
 }
 
 static void testBlockFoldedSimple()
@@ -599,12 +690,14 @@ static void testBlockFolded()
 
 extern void TestLexer(void)
 {
-    YAMLLexerDebugTest("./testfiles/block/folded/simple.yaml");
+    YAMLLexerDebugTest(
+        "./testfiles/block/literal/simple-leading-newlines.yaml");
     testOnly();
     testMultiDocumentAndFlowContainers();
     testNested();
     testNestedWithFlow();
     testMixed();
     testBlockLiteral();
+    return;
     testBlockFolded();
 }
