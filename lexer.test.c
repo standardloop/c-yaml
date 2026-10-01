@@ -651,6 +651,65 @@ static void testBlockLiteralSimpleWithLeadingLines()
     fclose(file_ptr);
 }
 
+static void testBlockScalarSimpleAfterDash()
+{
+    FILE *file_ptr =
+        fopen("./testfiles/block/literal/simple-after-dash.yaml", "rb");
+    TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
+    if (!file_ptr)
+    {
+        return;
+    }
+
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
+    YAMLToken *token = NULL;
+
+    // First sequence entry: - | (Auto-detects I_base = 2)
+    ASSERT_TOKEN(YAMLTokenListDash, "1. Block entry indicator (-)");
+    ASSERT_SCALAR("first line\nsecond line\n",
+                  "2. Compact block scalar payload (2 spaces)");
+
+    // Second sequence entry: - | (Auto-detects I_base = 4)
+    ASSERT_TOKEN(YAMLTokenListDash, "3. Block entry indicator (-)");
+    ASSERT_SCALAR("indented further\nsecond line\n",
+                  "4. Compact block scalar payload (4 spaces)");
+
+    ASSERT_TOKEN(YAMLTokenEOF, "5. End of file");
+
+    YAMLLexerFree(lexer);
+    fclose(file_ptr);
+}
+
+static void testBlockLiteralSimpleWithDashAndNumber()
+{
+    FILE *file_ptr = fopen(
+        "./testfiles/block/literal/simple-with-dash-and-number.yaml", "rb");
+    TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
+    if (!file_ptr)
+    {
+        return;
+    }
+
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
+    YAMLToken *token = NULL;
+
+    // Item 1: - |2 with 4 spaces (strips I_base = 2, preserves 2 relative
+    // spaces)
+    ASSERT_TOKEN(YAMLTokenListDash, "1. Sequence entry dash (-)");
+    ASSERT_SCALAR("  extra indented content\n  second line\n",
+                  "2. Scalar payload preserving 2 extra spaces");
+
+    // Item 2: - |2 with 2 spaces (strips I_base = 2, preserves 0 extra spaces)
+    ASSERT_TOKEN(YAMLTokenListDash, "3. Sequence entry dash (-)");
+    ASSERT_SCALAR("exact base indent\n",
+                  "4. Scalar payload matching explicit base indent");
+
+    ASSERT_TOKEN(YAMLTokenEOF, "5. End of file");
+
+    YAMLLexerFree(lexer);
+    fclose(file_ptr);
+}
+
 static void testBlockLiteral()
 {
     testBlockLiteralSimple();
@@ -659,6 +718,8 @@ static void testBlockLiteral()
     testBlockLiteralSimpleWithNumber();
     testBlockLiteralSimpleNested();
     testBlockLiteralSimpleWithLeadingLines();
+    testBlockScalarSimpleAfterDash();
+    testBlockLiteralSimpleWithDashAndNumber();
 }
 
 static void testBlockFoldedSimple()
@@ -691,7 +752,7 @@ static void testBlockFolded()
 extern void TestLexer(void)
 {
     YAMLLexerDebugTest(
-        "./testfiles/block/literal/simple-leading-newlines.yaml");
+        "./testfiles/block/literal/simple-with-dash-and-number.yaml");
     testOnly();
     testMultiDocumentAndFlowContainers();
     testNested();
