@@ -751,14 +751,14 @@ static void testBlockFolded()
 
 extern void TestLexer(void)
 {
-    YAMLLexerDebugTest(
-        "./testfiles/block/literal/simple-with-dash-and-number.yaml");
+    YAMLLexerDebugTest("./testfiles/block/folded/simple.yaml");
     testOnly();
     testMultiDocumentAndFlowContainers();
     testNested();
     testNestedWithFlow();
     testMixed();
     testBlockLiteral();
-    return;
+
     testBlockFolded();
+    return;
 }

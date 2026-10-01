@@ -268,7 +268,6 @@ static char *eatBlockScalar(YAMLLexer *lexer)
     {
         if (lexer->current_char == NULL_CHAR)
         {
-            // found_end = true;
             break;
         }
 
@@ -276,9 +275,29 @@ static char *eatBlockScalar(YAMLLexer *lexer)
         {
             while (lexer->current_char == NEWLINE_CHAR)
             {
-                DynStringAddCharAt(str, chars_found, lexer->current_char);
-                chars_found++;
-                advanceChar(lexer);
+                if (lexer->block_scalar_options.style == BlockScalarStyleFolded)
+                {
+                    if (peek(lexer, 1) == NEWLINE_CHAR)
+                    {
+                        DynStringAddCharAt(str, chars_found,
+                                           lexer->current_char);
+                        advanceChar(lexer);
+                    }
+                    else
+                    {
+                        DynStringAddCharAt(str, chars_found, SPACE_CHAR);
+                    }
+                    chars_found++;
+                    advanceChar(lexer);
+                }
+                else
+                {
+                    assert(lexer->block_scalar_options.style ==
+                           BlockScalarStyleLiteral);
+                    DynStringAddCharAt(str, chars_found, lexer->current_char);
+                    chars_found++;
+                    advanceChar(lexer);
+                }
             }
             just_got_newline = false;
             if (lexer->current_char != SPACE_CHAR)
