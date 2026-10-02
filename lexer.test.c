@@ -799,7 +799,8 @@ static void testBlockFolded()
 extern void TestLexer(void)
 {
     // YAMLLexerDebugTest("./testfiles/anchors/no-merge-keys.yaml");
-    // exit(1);
+    YAMLLexerDebugTest("./testfiles/departments-no-anchors.yaml");
+    exit(1);
     testOnly();
     testMultiDocumentAndFlowContainers();
     testNested();

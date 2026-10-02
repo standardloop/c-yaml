@@ -309,8 +309,6 @@ static char *eatBlockScalar(YAMLLexer *lexer)
         {
             while (lexer->current_char == NEWLINE_CHAR)
             {
-                // assert(lexer->block_scalar_options.style ==
-                //        BlockScalarStyleLiteral);
                 DynStringAddCharAt(str, chars_found, lexer->current_char);
                 chars_found++;
                 advanceChar(lexer);
@@ -354,7 +352,7 @@ static char *eatBlockScalar(YAMLLexer *lexer)
     return ret_val;
 }
 
-static char *eatScalar(YAMLLexer *lexer)
+static char *eatScalar(YAMLLexer *lexer, bool in_anchor)
 {
     assert(lexer != NULL);
 
@@ -386,10 +384,20 @@ static char *eatScalar(YAMLLexer *lexer)
         }
         if (!in_quotes)
         {
-            if (lexer->current_char == SPACE_CHAR && peek(lexer, 1) == '#')
+            if (lexer->current_char == SPACE_CHAR)
+
             {
-                advanceChar(lexer);
-                break;
+                // break out and handle comment afterwards
+                if (peek(lexer, 1) == '#')
+                {
+                    advanceChar(lexer);
+                    break;
+                }
+                if (in_anchor)
+                {
+                    advanceChar(lexer);
+                    break;
+                }
             }
             else if (lexer->current_char == COLON_CHAR &&
                      (peek(lexer, 1) == SPACE_CHAR ||
@@ -790,18 +798,22 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
     }
     else if (lexer->current_char == AND_CHAR)
     {
-        Log(FATAL, "TODO %d", __LINE__);
+        // Log(FATAL, "TODO %d", __LINE__);
         advanceChar(lexer);
-        char *scalar = eatScalar(lexer);
+        char *scalar = eatScalar(lexer, true);
+        while (lexer->current_char == SPACE_CHAR)
+        {
+            advanceChar(lexer);
+        }
         // lexer->state = YAMLLexerStateJustGotNewline;
         return YAMLTokenInit(YAMLTokenAnchor, curr_pos, lexer->cursor,
                              lexer->line, scalar);
     }
     else if (lexer->current_char == '*')
     {
-        Log(FATAL, "TODO %d", __LINE__);
+        // Log(FATAL, "TODO %d", __LINE__);
         advanceChar(lexer);
-        char *scalar = eatScalar(lexer);
+        char *scalar = eatScalar(lexer, false);
         // lexer->state = YAMLLexerStateJustGotNewline;
         return YAMLTokenInit(YAMLTokenAlias, curr_pos, lexer->cursor,
                              lexer->line, scalar);
@@ -812,11 +824,13 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         return YAMLTokenInit(YAMLTokenComplexKeyIndicator, curr_pos,
                              lexer->cursor, lexer->line, NULL);
     }
-
-    // printchar(lexer->current_char);
-    char *scalar = eatScalar(lexer);
-    return YAMLTokenInit(YAMLTokenScalar, curr_pos, lexer->cursor, lexer->line,
-                         scalar);
+    else
+    {
+        // printchar(lexer->current_char);
+        char *scalar = eatScalar(lexer, false);
+        return YAMLTokenInit(YAMLTokenScalar, curr_pos, lexer->cursor,
+                             lexer->line, scalar);
+    }
 }
 
 static YAMLToken *handleYAMLLexerStatePopDedent(YAMLLexer *lexer)
@@ -852,6 +866,7 @@ static YAMLToken *handleYAMLLexerStatePopDedent(YAMLLexer *lexer)
             ItemFree(dedent_item);
             resetLexerState(lexer); //  TODO
             Log(DEBUG, "%d", __LINE__);
+
             return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor + 1,
                                  lexer->line, NULL);
         }
