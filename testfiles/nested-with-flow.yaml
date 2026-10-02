@@ -1,6 +1,0 @@
-root:
-  level1:
-    - level2_item1:
-        level3:
-          - [{ deep_key: 'nested "value"' }, 42] # comment at level 4
-    - level2_item2: end

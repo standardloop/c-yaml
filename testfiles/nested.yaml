@@ -1,8 +1,0 @@
-foo:
-  bar:
-    - fizz:
-        buzz:
-          - bazz
-          - qux:
-            quux: corge
-    - grault

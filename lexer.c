@@ -19,7 +19,7 @@ static void checkOtherBlockScalarOptions(YAMLLexer *lexer);
 static void resetLexerSpaceCount(YAMLLexer *lexer)
 {
     lexer->space_count = 0;
-    lexer->this_indent_space_count = 0;
+    // lexer->this_indent_space_count = 0;
 }
 
 // this function is silly, but serves as documentation in the code
@@ -897,7 +897,12 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
             lexer->space_count++;
             advanceChar(lexer);
         }
-        lexer->this_indent_space_count = lexer->space_count;
+        // we only set this on the first one
+        if (lexer->indent_stack->size == 1)
+        {
+            lexer->this_indent_space_count = lexer->space_count;
+        }
+
         // Log(DEBUG, "space count: %d", lexer->space_count);
         if (lexer->current_char == '#')
         {
