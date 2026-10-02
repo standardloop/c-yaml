@@ -9,11 +9,11 @@
     token = YAMLLex(lexer);              \
     TestCaseVerify(true, msg, token != NULL && token->type == expected_type)
 
-#define ASSERT_SCALAR(expected_val, msg)                              \
-    token = YAMLLex(lexer);                                           \
-    TestCaseVerify(true, msg,                                         \
-                   token != NULL && token->type == YAMLTokenScalar && \
-                       token->literal != NULL &&                      \
+#define ASSERT_TOKEN_WITH_VAL(expected_type, expected_val, msg)     \
+    token = YAMLLex(lexer);                                         \
+    TestCaseVerify(true, msg,                                       \
+                   token != NULL && token->type == expected_type && \
+                       token->literal != NULL &&                    \
                        strcmp(token->literal, expected_val) == 0)
 
 static void testOnlyEmpty(void)
@@ -223,23 +223,24 @@ static void testMultiDocumentAndFlowContainers(void)
     ASSERT_TOKEN(YAMLTokenStartOfDocument, "1. Start of Document (---)");
     ASSERT_TOKEN(YAMLTokenNewline, "2. Newline after doc start");
 
-    ASSERT_SCALAR("server", "3. Scalar 'server'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "server", "3. Scalar 'server'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "4. Value indicator (:)");
     ASSERT_TOKEN(YAMLTokenNewline, "5. Newline after server:");
     ASSERT_TOKEN(YAMLTokenIndent, "6. Indent under server");
 
-    ASSERT_SCALAR("url", "7. Scalar 'url'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "url", "7. Scalar 'url'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "8. Value indicator (:)");
-    ASSERT_SCALAR("http://localhost:8080/path",
-                  "9. Scalar URL with embedded colon");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "http://localhost:8080/path",
+                          "9. Scalar URL with embedded colon");
     ASSERT_TOKEN(YAMLTokenNewline, "10. Newline after url");
 
-    ASSERT_SCALAR("active", "11. Scalar 'active'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "active", "11. Scalar 'active'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "12. Value indicator (:)");
-    ASSERT_SCALAR("true", "13. Scalar 'true'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "true", "13. Scalar 'true'");
     ASSERT_TOKEN(YAMLTokenNewline, "14. Newline after active");
 
-    ASSERT_SCALAR("empty_containers", "15. Scalar 'empty_containers'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "empty_containers",
+                          "15. Scalar 'empty_containers'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "16. Value indicator (:)");
     ASSERT_TOKEN(YAMLTokenFlowSequenceStart,
                  "17. Outer flow sequence start ([)");
@@ -261,21 +262,26 @@ static void testMultiDocumentAndFlowContainers(void)
 
     ASSERT_TOKEN(YAMLTokenListDash, "30. List dash (-)");
     ASSERT_TOKEN(YAMLTokenFlowMappingStart, "31. Flow mapping start ({)");
-    ASSERT_SCALAR("item", "32. Single-quoted scalar 'item'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "item",
+                          "32. Single-quoted scalar 'item'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "33. Value indicator (:)");
-    ASSERT_SCALAR("quoted \"val\"", "34. Double-quoted unescaped scalar");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "quoted \"val\"",
+                          "34. Double-quoted unescaped scalar");
     ASSERT_TOKEN(YAMLTokenFlowEntry, "35. Flow entry comma (,)");
-    ASSERT_SCALAR("status", "36. Unquoted key scalar 'status'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "status",
+                          "36. Unquoted key scalar 'status'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "37. Value indicator (:)");
-    ASSERT_SCALAR("ok", "38. Unquoted value scalar 'ok'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "ok",
+                          "38. Unquoted value scalar 'ok'");
     ASSERT_TOKEN(YAMLTokenFlowMappingEnd, "39. Flow mapping end (})");
     ASSERT_TOKEN(YAMLTokenNewline, "40. Newline after flow mapping");
 
     ASSERT_TOKEN(YAMLTokenListDash, "41. List dash (-)");
     ASSERT_TOKEN(YAMLTokenFlowSequenceStart, "42. Flow sequence start ([)");
-    ASSERT_SCALAR("unquoted string", "43. Plain scalar with space");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "unquoted string",
+                          "43. Plain scalar with space");
     ASSERT_TOKEN(YAMLTokenFlowEntry, "44. Flow entry comma (,)");
-    ASSERT_SCALAR("100", "45. Plain scalar '100'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "100", "45. Plain scalar '100'");
     ASSERT_TOKEN(YAMLTokenFlowSequenceEnd, "46. Flow sequence end (])");
 
     ASSERT_TOKEN(YAMLTokenEOF, "47. EOF reached");
@@ -297,44 +303,49 @@ static void testMixed(void)
     YAMLToken *token = NULL;
 
     // foo: "bar with \"quotes\""
-    ASSERT_SCALAR("foo", "1. Scalar 'foo'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "foo", "1. Scalar 'foo'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
-    ASSERT_SCALAR("bar with \"quotes\"", "3. Unescaped double-quoted scalar");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "bar with \"quotes\"",
+                          "3. Unescaped double-quoted scalar");
     ASSERT_TOKEN(YAMLTokenNewline, "4. Newline after double quote");
 
     // fizz:
-    ASSERT_SCALAR("fizz", "5. Scalar 'fizz'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "fizz", "5. Scalar 'fizz'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "6. Value indicator (:)");
     ASSERT_TOKEN(YAMLTokenNewline, "7. Newline after fizz:");
 
     //   - 'buzz ''quote''' (2 spaces)
     ASSERT_TOKEN(YAMLTokenIndent, "8. Indent to 2 spaces");
     ASSERT_TOKEN(YAMLTokenListDash, "9. List dash (-)");
-    ASSERT_SCALAR("buzz 'quote'", "10. Unescaped single-quoted scalar");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "buzz 'quote'",
+                          "10. Unescaped single-quoted scalar");
     ASSERT_TOKEN(YAMLTokenNewline, "11. Newline after single quote");
 
     //   - { bazz: qux, quux: [ corge, grault ] } (2 spaces)
     ASSERT_TOKEN(YAMLTokenListDash, "12. List dash (-)");
     ASSERT_TOKEN(YAMLTokenFlowMappingStart, "13. Flow mapping start ({)");
-    ASSERT_SCALAR("bazz", "14. Key 'bazz'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "bazz", "14. Key 'bazz'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "15. Value indicator (:)");
-    ASSERT_SCALAR("qux", "16. Value 'qux'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "qux", "16. Value 'qux'");
     ASSERT_TOKEN(YAMLTokenFlowEntry, "17. Flow entry comma (,)");
-    ASSERT_SCALAR("quux", "18. Key 'quux'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "quux", "18. Key 'quux'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "19. Value indicator (:)");
     ASSERT_TOKEN(YAMLTokenFlowSequenceStart, "20. Flow sequence start ([)");
-    ASSERT_SCALAR("corge", "21. Sequence item 'corge'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "corge",
+                          "21. Sequence item 'corge'");
     ASSERT_TOKEN(YAMLTokenFlowEntry, "22. Flow entry comma (,)");
-    ASSERT_SCALAR("grault", "23. Sequence item 'grault'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "grault",
+                          "23. Sequence item 'grault'");
     ASSERT_TOKEN(YAMLTokenFlowSequenceEnd, "24. Flow sequence end (])");
     ASSERT_TOKEN(YAMLTokenFlowMappingEnd, "25. Flow mapping end (})");
     ASSERT_TOKEN(YAMLTokenNewline, "26. Newline after flow mapping");
 
     //   - foo_bar: fizz:buzz (2 spaces)
     ASSERT_TOKEN(YAMLTokenListDash, "27. List dash (-)");
-    ASSERT_SCALAR("foo_bar", "28. Key 'foo_bar'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "foo_bar", "28. Key 'foo_bar'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "29. Value indicator (:)");
-    ASSERT_SCALAR("fizz:buzz", "30. Plain scalar with embedded colon");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "fizz:buzz",
+                          "30. Plain scalar with embedded colon");
     ASSERT_TOKEN(YAMLTokenNewline, "31. Newline after line");
 
     // EOF Indent Unwinding (2 spaces -> 0 spaces)
@@ -357,10 +368,10 @@ static void testBlockLiteralSimple()
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
-    ASSERT_SCALAR("test", "1. Scalar 'test'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "test", "1. Scalar 'test'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
-    ASSERT_SCALAR("foo\nbar\nfizz\nbuzz\nbazz\n",
-                  "3. Literal block scalar payload");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "foo\nbar\nfizz\nbuzz\nbazz\n",
+                          "3. Literal block scalar payload");
     ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
 
     YAMLLexerFree(lexer);
@@ -379,10 +390,11 @@ static void testBlockLiteralSimpleStrip()
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
-    ASSERT_SCALAR("test", "1. Scalar 'test'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "test", "1. Scalar 'test'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
-    ASSERT_SCALAR("foo\nbar\nfizz\nbuzz\nbazz",
-                  "3. Strip block scalar payload (no trailing newline)");
+    ASSERT_TOKEN_WITH_VAL(
+        YAMLTokenScalar, "foo\nbar\nfizz\nbuzz\nbazz",
+        "3. Strip block scalar payload (no trailing newline)");
     ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
 
     YAMLLexerFree(lexer);
@@ -401,10 +413,10 @@ static void testBlockLiteralSimpleKeep()
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
-    ASSERT_SCALAR("test", "1. Scalar 'test'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "test", "1. Scalar 'test'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
-    ASSERT_SCALAR(
-        "foo\nbar\nfizz\nbuzz\nbazz\n\n\n\n\n",
+    ASSERT_TOKEN_WITH_VAL(
+        YAMLTokenScalar, "foo\nbar\nfizz\nbuzz\nbazz\n\n\n\n\n",
         "3. Keep block scalar payload (all trailing newlines preserved)");
     ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
 
@@ -425,10 +437,12 @@ static void testBlockLiteralSimpleWithNumber()
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
-    ASSERT_SCALAR("doc_explicit_indent", "1. Scalar 'doc_explicit_indent'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "doc_explicit_indent",
+                          "1. Scalar 'doc_explicit_indent'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
-    ASSERT_SCALAR("  leading spaces are content\n  second line\n",
-                  "3. Literal block scalar with explicit indent |2");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar,
+                          "  leading spaces are content\n  second line\n",
+                          "3. Literal block scalar with explicit indent |2");
     ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
 
     YAMLLexerFree(lexer);
@@ -448,21 +462,21 @@ static void testBlockLiteralSimpleNested()
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
-    ASSERT_SCALAR("foo", "1. Scalar 'foo'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "foo", "1. Scalar 'foo'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
     ASSERT_TOKEN(YAMLTokenNewline, "3. Newline after foo:");
 
     ASSERT_TOKEN(YAMLTokenIndent, "4. Indent to 2 spaces");
-    ASSERT_SCALAR("bar", "5. Scalar 'bar'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "bar", "5. Scalar 'bar'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "6. Value indicator (:)");
     ASSERT_TOKEN(YAMLTokenNewline, "7. Newline after bar:");
 
     ASSERT_TOKEN(YAMLTokenIndent, "8. Indent to 4 spaces");
-    ASSERT_SCALAR("example", "9. Scalar 'example'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "example", "9. Scalar 'example'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "10. Value indicator (:)");
 
-    ASSERT_SCALAR("hello\nthis is an example\n",
-                  "11. Nested block scalar payload");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "hello\nthis is an example\n",
+                          "11. Nested block scalar payload");
 
     ASSERT_TOKEN(YAMLTokenDedent, "12. Dedent (4 -> 2 spaces)");
     ASSERT_TOKEN(YAMLTokenDedent, "13. Dedent (2 -> 0 spaces)");
@@ -485,10 +499,11 @@ static void testBlockLiteralSimpleWithLeadingLines()
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
-    ASSERT_SCALAR("example", "1. Scalar 'example'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "example", "1. Scalar 'example'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
-    ASSERT_SCALAR("\n\nhello\n  world\n",
-                  "3. Payload with leading blank lines and relative indent");
+    ASSERT_TOKEN_WITH_VAL(
+        YAMLTokenScalar, "\n\nhello\n  world\n",
+        "3. Payload with leading blank lines and relative indent");
     ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
 
     YAMLLexerFree(lexer);
@@ -509,12 +524,12 @@ static void testBlockScalarSimpleAfterDash()
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenListDash, "1. Block entry indicator (-)");
-    ASSERT_SCALAR("first line\nsecond line\n",
-                  "2. Compact block scalar payload (2 spaces)");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "first line\nsecond line\n",
+                          "2. Compact block scalar payload (2 spaces)");
 
     ASSERT_TOKEN(YAMLTokenListDash, "3. Block entry indicator (-)");
-    ASSERT_SCALAR("indented further\nsecond line\n",
-                  "4. Compact block scalar payload (4 spaces)");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "indented further\nsecond line\n",
+                          "4. Compact block scalar payload (4 spaces)");
 
     ASSERT_TOKEN(YAMLTokenEOF, "5. End of file");
 
@@ -536,12 +551,13 @@ static void testBlockLiteralSimpleWithDashAndNumber()
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenListDash, "1. Sequence entry dash (-)");
-    ASSERT_SCALAR("  extra indented content\n  second line\n",
-                  "2. Scalar payload preserving 2 extra spaces");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar,
+                          "  extra indented content\n  second line\n",
+                          "2. Scalar payload preserving 2 extra spaces");
 
     ASSERT_TOKEN(YAMLTokenListDash, "3. Sequence entry dash (-)");
-    ASSERT_SCALAR("exact base indent\n",
-                  "4. Scalar payload matching explicit base indent");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "exact base indent\n",
+                          "4. Scalar payload matching explicit base indent");
 
     ASSERT_TOKEN(YAMLTokenEOF, "5. End of file");
 
@@ -573,10 +589,11 @@ static void testBlockFoldedSimple()
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
-    ASSERT_SCALAR("test", "1. Scalar 'test'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "test", "1. Scalar 'test'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
-    ASSERT_SCALAR("foo bar\n",
-                  "3. Folded block scalar payload (newlines folded to spaces)");
+    ASSERT_TOKEN_WITH_VAL(
+        YAMLTokenScalar, "foo bar\n",
+        "3. Folded block scalar payload (newlines folded to spaces)");
     ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
 
     YAMLLexerFree(lexer);
@@ -596,10 +613,11 @@ static void testBlockSimpleFoldedWithKeepChomping()
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
-    ASSERT_SCALAR("test", "1. Scalar 'test'");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "test", "1. Scalar 'test'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
-    ASSERT_SCALAR("foo bar fizz buzz\nbazz\n\n\n",
-                  "3. Folded block scalar payload (newlines folded to spaces)");
+    ASSERT_TOKEN_WITH_VAL(
+        YAMLTokenScalar, "foo bar fizz buzz\nbazz\n\n\n",
+        "3. Folded block scalar payload (newlines folded to spaces)");
     ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
 
     YAMLLexerFree(lexer);
@@ -620,8 +638,9 @@ static void testBlockSimpleFoldedAfterDash()
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenListDash, "1. Value dash (-)");
-    ASSERT_SCALAR("first line second line\n",
-                  "2. Folded block scalar payload (newlines folded to spaces)");
+    ASSERT_TOKEN_WITH_VAL(
+        YAMLTokenScalar, "first line second line\n",
+        "2. Folded block scalar payload (newlines folded to spaces)");
     ASSERT_TOKEN(YAMLTokenEOF, "3. End of file");
 
     YAMLLexerFree(lexer);
@@ -647,39 +666,39 @@ static void testDepartmentsNoAnchors()
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
-    ASSERT_SCALAR("company_name", "1");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "company_name", "1");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2");
-    ASSERT_SCALAR("Example, Inc.", "3");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "Example, Inc.", "3");
     ASSERT_TOKEN(YAMLTokenNewline, "4");
     ASSERT_TOKEN(YAMLTokenNewline, "5");
-    ASSERT_SCALAR("departments", "6");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "departments", "6");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "7");
     ASSERT_TOKEN(YAMLTokenNewline, "8");
     ASSERT_TOKEN(YAMLTokenIndent, "8");
-    ASSERT_SCALAR("shipping", "9");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "shipping", "9");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "12");
     ASSERT_TOKEN(YAMLTokenNewline, "25");
     ASSERT_TOKEN(YAMLTokenIndent, "8");
-    ASSERT_SCALAR("name", "11");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "name", "11");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "12");
-    ASSERT_SCALAR("Shipping Department", "13");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "Shipping Department", "13");
     ASSERT_TOKEN(YAMLTokenNewline, "14");
-    ASSERT_SCALAR("legal_entity", "15");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "legal_entity", "15");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "16");
-    ASSERT_SCALAR("Example, Inc.", "17");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "Example, Inc.", "17");
     ASSERT_TOKEN(YAMLTokenNewline, "18");
     ASSERT_TOKEN(YAMLTokenDedent, "19");
-    ASSERT_SCALAR("billing", "20");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "billing", "20");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "23");
     ASSERT_TOKEN(YAMLTokenNewline, "25");
     ASSERT_TOKEN(YAMLTokenIndent, "21");
-    ASSERT_SCALAR("name", "22");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "name", "22");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "23");
-    ASSERT_SCALAR("Billing Department", "24");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "Billing Department", "24");
     ASSERT_TOKEN(YAMLTokenNewline, "25");
-    ASSERT_SCALAR("legal_entity", "26");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "legal_entity", "26");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "27");
-    ASSERT_SCALAR("Example, Inc.", "28");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "Example, Inc.", "28");
     ASSERT_TOKEN(YAMLTokenNewline, "29");
     ASSERT_TOKEN(YAMLTokenDedent, "30");
     ASSERT_TOKEN(YAMLTokenDedent, "31");
@@ -689,9 +708,71 @@ static void testDepartmentsNoAnchors()
     fclose(file_ptr);
 }
 
+static void testDepartments()
+{
+
+    FILE *file_ptr = fopen("./testfiles/anchors/departments.yaml", "rb");
+    TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
+    if (!file_ptr)
+    {
+        return;
+    }
+
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
+    YAMLToken *token = NULL;
+
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "company_name", "1");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "2");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenAnchor, "corp", "2");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "Example, Inc.", "3");
+    ASSERT_TOKEN(YAMLTokenNewline, "4");
+    ASSERT_TOKEN(YAMLTokenNewline, "5");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "departments", "6");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "7");
+    ASSERT_TOKEN(YAMLTokenNewline, "8");
+    ASSERT_TOKEN(YAMLTokenIndent, "8");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "shipping", "9");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "12");
+    ASSERT_TOKEN(YAMLTokenNewline, "25");
+    ASSERT_TOKEN(YAMLTokenIndent, "8");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "name", "11");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "12");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "Shipping Department", "13");
+    ASSERT_TOKEN(YAMLTokenNewline, "14");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "legal_entity", "15");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "16");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "Example, Inc.", "17");
+    ASSERT_TOKEN(YAMLTokenNewline, "18");
+    ASSERT_TOKEN(YAMLTokenDedent, "19");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "billing", "20");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "23");
+    ASSERT_TOKEN(YAMLTokenNewline, "25");
+    ASSERT_TOKEN(YAMLTokenIndent, "21");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "name", "22");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "23");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "Billing Department", "24");
+    ASSERT_TOKEN(YAMLTokenNewline, "25");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "legal_entity", "26");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "27");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "Example, Inc.", "28");
+    ASSERT_TOKEN(YAMLTokenNewline, "29");
+    ASSERT_TOKEN(YAMLTokenDedent, "30");
+    ASSERT_TOKEN(YAMLTokenDedent, "31");
+    ASSERT_TOKEN(YAMLTokenEOF, "32");
+
+    YAMLLexerFree(lexer);
+    fclose(file_ptr);
+}
+
+static void testAnchors()
+{
+
+    testDepartments();
+}
+
 extern void TestLexer(void)
 {
-    YAMLLexerDebugTest("./testfiles/departments-no-anchors.yaml");
+    YAMLLexerDebugTest("./testfiles/anchors/departments.yaml");
     // YAMLLexerDebugTest("./testfiles/indent/different-levels.yaml");
     // exit(1);
     testOnly();
@@ -700,5 +781,7 @@ extern void TestLexer(void)
     testBlockLiteral();
     testBlockFolded();
     testDepartmentsNoAnchors();
+
     return;
+    testAnchors();
 }
