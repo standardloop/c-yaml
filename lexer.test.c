@@ -736,6 +736,29 @@ static void testBlockFoldedSimple()
 
     ASSERT_SCALAR("test", "1. Scalar 'test'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
+    ASSERT_SCALAR("foo bar\n",
+                  "3. Folded block scalar payload (newlines folded to spaces)");
+    ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
+
+    YAMLLexerFree(lexer);
+    fclose(file_ptr);
+}
+
+static void testBlockSimpleFoldedWithKeepChomping()
+{
+    FILE *file_ptr =
+        fopen("./testfiles/block/folded/simple-with-keep-chomping.yaml", "rb");
+    TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
+    if (!file_ptr)
+    {
+        return;
+    }
+
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
+    YAMLToken *token = NULL;
+
+    ASSERT_SCALAR("test", "1. Scalar 'test'");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
     ASSERT_SCALAR("foo bar fizz buzz\nbazz\n\n\n",
                   "3. Folded block scalar payload (newlines folded to spaces)");
     ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
@@ -747,6 +770,7 @@ static void testBlockFoldedSimple()
 static void testBlockFolded()
 {
     testBlockFoldedSimple();
+    testBlockSimpleFoldedWithKeepChomping();
 }
 
 extern void TestLexer(void)

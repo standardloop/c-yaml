@@ -1,9 +1,3 @@
-test: >+
+test: >
   foo
   bar
-  fizz
-  buzz
-
-  bazz
-
-

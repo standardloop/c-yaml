@@ -207,8 +207,7 @@ static void blockScalarPostProcess(struct block_scalar_options_s options,
     if (options.chomping == BlockScalarStyleClip)
     {
         // keep the last one
-        i++;
-        str->value[i] = NEWLINE_CHAR;
+        str->value[i + 1] = NEWLINE_CHAR;
     }
     // handle folded
     if (options.style != BlockScalarStyleLiteral)
