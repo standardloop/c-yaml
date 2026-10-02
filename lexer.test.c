@@ -767,15 +767,38 @@ static void testBlockSimpleFoldedWithKeepChomping()
     fclose(file_ptr);
 }
 
+static void testBlockSimpleFoldedAfterDash()
+{
+    FILE *file_ptr =
+        fopen("./testfiles/block/folded/simple-after-dash.yaml", "rb");
+    TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
+    if (!file_ptr)
+    {
+        return;
+    }
+
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
+    YAMLToken *token = NULL;
+
+    ASSERT_TOKEN(YAMLTokenListDash, "1. Value dash (-)");
+    ASSERT_SCALAR("first line second line\n",
+                  "2. Folded block scalar payload (newlines folded to spaces)");
+    ASSERT_TOKEN(YAMLTokenEOF, "3. End of file");
+
+    YAMLLexerFree(lexer);
+    fclose(file_ptr);
+}
+
 static void testBlockFolded()
 {
     testBlockFoldedSimple();
     testBlockSimpleFoldedWithKeepChomping();
+    testBlockSimpleFoldedAfterDash();
 }
 
 extern void TestLexer(void)
 {
-    YAMLLexerDebugTest("./testfiles/block/folded/simple.yaml");
+    YAMLLexerDebugTest("./testfiles/block/folded/simple-after-dash.yaml");
     // exit(1);
     testOnly();
     testMultiDocumentAndFlowContainers();
