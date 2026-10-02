@@ -220,30 +220,25 @@ static void testMultiDocumentAndFlowContainers(void)
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
-    // --- Document 1 Start ---
     ASSERT_TOKEN(YAMLTokenStartOfDocument, "1. Start of Document (---)");
     ASSERT_TOKEN(YAMLTokenNewline, "2. Newline after doc start");
 
-    // server:
     ASSERT_SCALAR("server", "3. Scalar 'server'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "4. Value indicator (:)");
     ASSERT_TOKEN(YAMLTokenNewline, "5. Newline after server:");
     ASSERT_TOKEN(YAMLTokenIndent, "6. Indent under server");
 
-    // url: http://localhost:8080/path
     ASSERT_SCALAR("url", "7. Scalar 'url'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "8. Value indicator (:)");
     ASSERT_SCALAR("http://localhost:8080/path",
                   "9. Scalar URL with embedded colon");
     ASSERT_TOKEN(YAMLTokenNewline, "10. Newline after url");
 
-    // active: true
     ASSERT_SCALAR("active", "11. Scalar 'active'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "12. Value indicator (:)");
     ASSERT_SCALAR("true", "13. Scalar 'true'");
     ASSERT_TOKEN(YAMLTokenNewline, "14. Newline after active");
 
-    // empty_containers: [ {}, [] ]
     ASSERT_SCALAR("empty_containers", "15. Scalar 'empty_containers'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "16. Value indicator (:)");
     ASSERT_TOKEN(YAMLTokenFlowSequenceStart,
@@ -257,16 +252,13 @@ static void testMultiDocumentAndFlowContainers(void)
     ASSERT_TOKEN(YAMLTokenFlowSequenceEnd, "23. Outer flow sequence end (])");
     ASSERT_TOKEN(YAMLTokenNewline, "24. Newline after flow sequence");
 
-    // Document 1 End
     ASSERT_TOKEN(YAMLTokenDedent, "25. Dedent before doc end");
     ASSERT_TOKEN(YAMLTokenEndOfDocument, "26. End of Document (...)");
     ASSERT_TOKEN(YAMLTokenNewline, "27. Newline after doc end");
 
-    // --- Document 2 Start ---
     ASSERT_TOKEN(YAMLTokenStartOfDocument, "28. Start of Document (---)");
     ASSERT_TOKEN(YAMLTokenNewline, "29. Newline after doc start");
 
-    // - { 'item': "quoted \"val\"", status: ok }
     ASSERT_TOKEN(YAMLTokenListDash, "30. List dash (-)");
     ASSERT_TOKEN(YAMLTokenFlowMappingStart, "31. Flow mapping start ({)");
     ASSERT_SCALAR("item", "32. Single-quoted scalar 'item'");
@@ -279,7 +271,6 @@ static void testMultiDocumentAndFlowContainers(void)
     ASSERT_TOKEN(YAMLTokenFlowMappingEnd, "39. Flow mapping end (})");
     ASSERT_TOKEN(YAMLTokenNewline, "40. Newline after flow mapping");
 
-    // - [ unquoted string, 100 ]
     ASSERT_TOKEN(YAMLTokenListDash, "41. List dash (-)");
     ASSERT_TOKEN(YAMLTokenFlowSequenceStart, "42. Flow sequence start ([)");
     ASSERT_SCALAR("unquoted string", "43. Plain scalar with space");
@@ -287,7 +278,6 @@ static void testMultiDocumentAndFlowContainers(void)
     ASSERT_SCALAR("100", "45. Plain scalar '100'");
     ASSERT_TOKEN(YAMLTokenFlowSequenceEnd, "46. Flow sequence end (])");
 
-    // EOF
     ASSERT_TOKEN(YAMLTokenEOF, "47. EOF reached");
 
     YAMLLexerFree(lexer);
@@ -458,27 +448,22 @@ static void testBlockLiteralSimpleNested()
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
-    // foo:
     ASSERT_SCALAR("foo", "1. Scalar 'foo'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
     ASSERT_TOKEN(YAMLTokenNewline, "3. Newline after foo:");
 
-    //   bar:
     ASSERT_TOKEN(YAMLTokenIndent, "4. Indent to 2 spaces");
     ASSERT_SCALAR("bar", "5. Scalar 'bar'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "6. Value indicator (:)");
     ASSERT_TOKEN(YAMLTokenNewline, "7. Newline after bar:");
 
-    //     example: |
     ASSERT_TOKEN(YAMLTokenIndent, "8. Indent to 4 spaces");
     ASSERT_SCALAR("example", "9. Scalar 'example'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "10. Value indicator (:)");
 
-    // Block scalar payload (strips 6 spaces per line)
     ASSERT_SCALAR("hello\nthis is an example\n",
                   "11. Nested block scalar payload");
 
-    // EOF unwinds indent stack from 4 -> 2 -> 0
     ASSERT_TOKEN(YAMLTokenDedent, "12. Dedent (4 -> 2 spaces)");
     ASSERT_TOKEN(YAMLTokenDedent, "13. Dedent (2 -> 0 spaces)");
     ASSERT_TOKEN(YAMLTokenEOF, "14. End of file");
@@ -523,12 +508,10 @@ static void testBlockScalarSimpleAfterDash()
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
-    // First sequence entry: - | (Auto-detects I_base = 2)
     ASSERT_TOKEN(YAMLTokenListDash, "1. Block entry indicator (-)");
     ASSERT_SCALAR("first line\nsecond line\n",
                   "2. Compact block scalar payload (2 spaces)");
 
-    // Second sequence entry: - | (Auto-detects I_base = 4)
     ASSERT_TOKEN(YAMLTokenListDash, "3. Block entry indicator (-)");
     ASSERT_SCALAR("indented further\nsecond line\n",
                   "4. Compact block scalar payload (4 spaces)");
@@ -552,13 +535,10 @@ static void testBlockLiteralSimpleWithDashAndNumber()
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
-    // Item 1: - |2 with 4 spaces (strips I_base = 2, preserves 2 relative
-    // spaces)
     ASSERT_TOKEN(YAMLTokenListDash, "1. Sequence entry dash (-)");
     ASSERT_SCALAR("  extra indented content\n  second line\n",
                   "2. Scalar payload preserving 2 extra spaces");
 
-    // Item 2: - |2 with 2 spaces (strips I_base = 2, preserves 0 extra spaces)
     ASSERT_TOKEN(YAMLTokenListDash, "3. Sequence entry dash (-)");
     ASSERT_SCALAR("exact base indent\n",
                   "4. Scalar payload matching explicit base indent");
