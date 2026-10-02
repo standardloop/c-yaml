@@ -183,6 +183,14 @@ void DynStringTrimEnd(DynString * str)
 
 ---
 
+### DynStringShiftLeft
+
+```cpp
+void DynStringShiftLeft(DynString * str, size_t index)
+```
+
+---
+
 ### DynStringDefaultInit
 
 ```cpp

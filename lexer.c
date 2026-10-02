@@ -227,11 +227,8 @@ static void blockScalarPostProcess(struct block_scalar_options_s options,
             {
                 if (x + 1 <= content_end && str->value[x + 1] == NEWLINE_CHAR)
                 {
-                    for (size_t y = x + 1; y <= content_end; y++)
-                    {
-                        str->value[y] = str->value[y + 1];
-                    }
-                    // content_end--;
+                    DynStringShiftLeft(str, x);
+                    content_end--;
                 }
                 else
                 {

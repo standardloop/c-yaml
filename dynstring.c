@@ -9,7 +9,7 @@
 #define RESIZE_MULTIPLE 2
 // #define NULL_CHAR '\0'
 // #define SPACE_CHAR ' '
-//
+
 // typedef struct
 // {
 //     char *value;
@@ -86,6 +86,15 @@ extern char *DynStringToCString(DynString *str)
     return str->value;
 }
 
+extern void DynStringShiftLeft(DynString *str, size_t index)
+{
+    if (str == NULL || str->value == NULL || index >= str->size)
+    {
+        return;
+    }
+    memmove(str->value + index, str->value + index + 1, str->size - 1);
+}
+
 extern void DynStringTrimEnd(DynString *str)
 {
     if (str != NULL)
@@ -130,4 +139,10 @@ extern void DynStringTrimEnd(DynString *str)
 //     DynStringTrimEnd(test);
 //     DynStringPrint(test);
 //     printf("\n");
+//
+//     DynStringShiftLeft(test, 3);
+//     DynStringPrint(test);
+//     printf("\n");
+//
+//     DynStringFree(test);
 // }
