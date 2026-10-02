@@ -10,7 +10,6 @@
 #include <standardloop/collections.h>
 #include <standardloop/logger.h>
 #include <standardloop/util.h>
-#include <sys/_types/_u_int8_t.h>
 
 #include "./yaml.h"
 
@@ -521,15 +520,12 @@ handleYAMLLexerStateFoundEOFNeedToPopRemainingDedent(YAMLLexer *lexer)
     {
         Item *dedent_item = ListPopFirst(lexer->indent_stack);
         ItemFree(dedent_item);
-        // if (dedent_item_value > lexer->space_count)
-        // {
 
         lexer->state =
             YAMLLexerStateFoundEOFNeedToPopRemainingDedent; // maintain
                                                             // state
         return YAMLTokenInit(YAMLTokenDedent, curr_pos, lexer->cursor + 1,
                              lexer->line, NULL);
-        // }
     }
 }
 
@@ -864,6 +860,7 @@ static YAMLToken *handleYAMLLexerStatePopDedent(YAMLLexer *lexer)
             {
                 maintainLexerState(lexer, YAMLLexerStatePopDedent);
             }
+            // lexer->space_count -= lexer->this_indent_space_count;
             return YAMLTokenInit(YAMLTokenDedent, curr_pos, lexer->cursor + 1,
                                  lexer->line, NULL);
         }
@@ -884,6 +881,7 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
     assert(lexer->state == YAMLLexerStateJustGotNewline);
     u_int32_t curr_pos = lexer->cursor;
     // Log(DEBUG, "here");
+    resetLexerSpaceCount(lexer);
     if (lexer->current_char == NULL_CHAR)
     {
         lexer->state = YAMLLexerStateFoundEOFNeedToPopRemainingDedent;
@@ -987,7 +985,6 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
             {
                 lexer->state = YAMLLexerStatePopDedent;
                 assert(lexer->this_indent_space_count >= 1);
-                lexer->space_count -= lexer->this_indent_space_count;
                 return handleYAMLLexerStatePopDedent(lexer);
             }
             else

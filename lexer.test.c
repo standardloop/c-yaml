@@ -635,16 +635,70 @@ static void testBlockFolded()
     testBlockSimpleFoldedAfterDash();
 }
 
+static void testDepartmentsNoAnchors()
+{
+    FILE *file_ptr = fopen("./testfiles/departments-no-anchors.yaml", "rb");
+    TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
+    if (!file_ptr)
+    {
+        return;
+    }
+
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
+    YAMLToken *token = NULL;
+
+    ASSERT_SCALAR("company_name", "1");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "2");
+    ASSERT_SCALAR("Example, Inc.", "3");
+    ASSERT_TOKEN(YAMLTokenNewline, "4");
+    ASSERT_TOKEN(YAMLTokenNewline, "5");
+    ASSERT_SCALAR("departments", "6");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "7");
+    ASSERT_TOKEN(YAMLTokenNewline, "8");
+    ASSERT_TOKEN(YAMLTokenIndent, "8");
+    ASSERT_SCALAR("shipping", "9");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "12");
+    ASSERT_TOKEN(YAMLTokenNewline, "25");
+    ASSERT_TOKEN(YAMLTokenIndent, "8");
+    ASSERT_SCALAR("name", "11");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "12");
+    ASSERT_SCALAR("Shipping Department", "13");
+    ASSERT_TOKEN(YAMLTokenNewline, "14");
+    ASSERT_SCALAR("legal_entity", "15");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "16");
+    ASSERT_SCALAR("Example, Inc.", "17");
+    ASSERT_TOKEN(YAMLTokenNewline, "18");
+    ASSERT_TOKEN(YAMLTokenDedent, "19");
+    ASSERT_SCALAR("billing", "20");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "23");
+    ASSERT_TOKEN(YAMLTokenNewline, "25");
+    ASSERT_TOKEN(YAMLTokenIndent, "21");
+    ASSERT_SCALAR("name", "22");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "23");
+    ASSERT_SCALAR("Billing Department", "24");
+    ASSERT_TOKEN(YAMLTokenNewline, "25");
+    ASSERT_SCALAR("legal_entity", "26");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "27");
+    ASSERT_SCALAR("Example, Inc.", "28");
+    ASSERT_TOKEN(YAMLTokenNewline, "29");
+    ASSERT_TOKEN(YAMLTokenDedent, "30");
+    ASSERT_TOKEN(YAMLTokenDedent, "31");
+    ASSERT_TOKEN(YAMLTokenEOF, "32");
+
+    YAMLLexerFree(lexer);
+    fclose(file_ptr);
+}
+
 extern void TestLexer(void)
 {
-    // YAMLLexerDebugTest("./testfiles/departments-no-anchors.yaml");
+    YAMLLexerDebugTest("./testfiles/departments-no-anchors.yaml");
     // YAMLLexerDebugTest("./testfiles/indent/different-levels.yaml");
     // exit(1);
     testOnly();
     testMultiDocumentAndFlowContainers();
     testMixed();
     testBlockLiteral();
-
     testBlockFolded();
+    testDepartmentsNoAnchors();
     return;
 }
