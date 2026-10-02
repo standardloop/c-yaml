@@ -741,7 +741,7 @@ static void testDepartments()
     ASSERT_TOKEN(YAMLTokenNewline, "14");
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "legal_entity", "15");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "16");
-    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "Example, Inc.", "17");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenAlias, "corp", "17");
     ASSERT_TOKEN(YAMLTokenNewline, "18");
     ASSERT_TOKEN(YAMLTokenDedent, "19");
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "billing", "20");
@@ -754,7 +754,7 @@ static void testDepartments()
     ASSERT_TOKEN(YAMLTokenNewline, "25");
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "legal_entity", "26");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "27");
-    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "Example, Inc.", "28");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenAlias, "corp", "28");
     ASSERT_TOKEN(YAMLTokenNewline, "29");
     ASSERT_TOKEN(YAMLTokenDedent, "30");
     ASSERT_TOKEN(YAMLTokenDedent, "31");
@@ -766,7 +766,6 @@ static void testDepartments()
 
 static void testAnchors()
 {
-
     testDepartments();
 }
 
@@ -782,6 +781,6 @@ extern void TestLexer(void)
     testBlockFolded();
     testDepartmentsNoAnchors();
 
-    return;
     testAnchors();
+    return;
 }
