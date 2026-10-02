@@ -124,6 +124,9 @@ typedef struct
     enum YAMLLexerState state;
     List *flow_stack;
     List *indent_stack;
+    u_int8_t this_indent_space_count; // You can use different indentation
+                                      // inside of the same YAML document, as
+                                      // long as it is the same for one level.
     int space_count;
     struct block_scalar_options_s
     {

@@ -406,20 +406,21 @@ struct YAMLLexer
 
 ### Public Attributes
 
-| Return                                     | Name                                            | Description |
-| ------------------------------------------ | ----------------------------------------------- | ----------- |
-| `FILE *`                                   | [`file_ptr`](#file_ptr)                         |             |
-| `char`                                     | [`buffer`](#buffer)                             |             |
-| `size_t`                                   | [`cursor`](#cursor)                             |             |
-| `size_t`                                   | [`bytes_in_buffer`](#bytes_in_buffer)           |             |
-| `u_int32_t`                                | [`line`](#line)                                 |             |
-| `char`                                     | [`current_char`](#current_char)                 |             |
-| `bool`                                     | [`eof_reached`](#eof_reached)                   |             |
-| `enum YAMLLexerState`                      | [`state`](#state)                               |             |
-| `List *`                                   | [`flow_stack`](#flow_stack)                     |             |
-| `List *`                                   | [`indent_stack`](#indent_stack)                 |             |
-| `int`                                      | [`space_count`](#space_count)                   |             |
-| `struct YAMLLexer::block_scalar_options_s` | [`block_scalar_options`](#block_scalar_options) |             |
+| Return                                     | Name                                                  | Description |
+| ------------------------------------------ | ----------------------------------------------------- | ----------- |
+| `FILE *`                                   | [`file_ptr`](#file_ptr)                               |             |
+| `char`                                     | [`buffer`](#buffer)                                   |             |
+| `size_t`                                   | [`cursor`](#cursor)                                   |             |
+| `size_t`                                   | [`bytes_in_buffer`](#bytes_in_buffer)                 |             |
+| `u_int32_t`                                | [`line`](#line)                                       |             |
+| `char`                                     | [`current_char`](#current_char)                       |             |
+| `bool`                                     | [`eof_reached`](#eof_reached)                         |             |
+| `enum YAMLLexerState`                      | [`state`](#state)                                     |             |
+| `List *`                                   | [`flow_stack`](#flow_stack)                           |             |
+| `List *`                                   | [`indent_stack`](#indent_stack)                       |             |
+| `u_int8_t`                                 | [`this_indent_space_count`](#this_indent_space_count) |             |
+| `int`                                      | [`space_count`](#space_count)                         |             |
+| `struct YAMLLexer::block_scalar_options_s` | [`block_scalar_options`](#block_scalar_options)       |             |
 
 ---
 
@@ -499,6 +500,14 @@ List * flow_stack
 
 ```cpp
 List * indent_stack
+```
+
+---
+
+#### this_indent_space_count
+
+```cpp
+u_int8_t this_indent_space_count
 ```
 
 ---

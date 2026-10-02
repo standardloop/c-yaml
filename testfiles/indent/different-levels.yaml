@@ -1,0 +1,5 @@
+test:
+  two_space: allowed
+
+different:
+    four_spaces: allowed!

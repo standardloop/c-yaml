@@ -1,9 +1,9 @@
-company_name: "Example, Inc."
+company_name: Example, Inc.
 
 departments:
   shipping:
-    name: "Shipping Department"
-    legal_entity: "Example, Inc."
+    name: Shipping Department
+    legal_entity: Example, Inc.
   billing:
-    name: "Billing Department"
-    legal_entity: "Example, Inc."
+    name: Billing Department
+    legal_entity: Example, Inc.

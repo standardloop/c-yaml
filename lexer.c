@@ -16,6 +16,12 @@
 
 static void checkOtherBlockScalarOptions(YAMLLexer *lexer);
 
+static void resetLexerSpaceCount(YAMLLexer *lexer)
+{
+    lexer->space_count = 0;
+    lexer->this_indent_space_count = 0;
+}
+
 // this function is silly, but serves as documentation in the code
 static inline void maintainLexerState(YAMLLexer *lexer,
                                       enum YAMLLexerState state)
@@ -171,7 +177,7 @@ extern YAMLLexer *YAMLLexerInit(FILE *file_ptr)
     ListAddFirst(lexer->indent_stack, indent_zero_start);
 
     lexer->flow_stack = ListInitDefault();
-    lexer->space_count = 0;
+    resetLexerSpaceCount(lexer);
     lexer->state = YAMLLexerStateJustGotNewline;
     resetLexerBlockScalarOptions(lexer);
     return lexer;
@@ -891,9 +897,12 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
             lexer->space_count++;
             advanceChar(lexer);
         }
+        lexer->this_indent_space_count = lexer->space_count;
+        // Log(DEBUG, "space count: %d", lexer->space_count);
         if (lexer->current_char == '#')
         {
-            lexer->space_count = 0;
+            resetLexerSpaceCount(lexer);
+
             handleComment(lexer);
             if (lexer->current_char == NULL_CHAR)
             {
@@ -921,6 +930,7 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
     if (lexer->current_char == TAB_CHAR)
     {
         Log(DEBUG, "%d", __LINE__);
+        resetLexerSpaceCount(lexer);
         resetLexerState(lexer);
         return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor + 1,
                              lexer->line, NULL);
@@ -934,7 +944,7 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
     }
     else if (isInFlow(lexer))
     {
-        lexer->space_count = 0;
+        resetLexerSpaceCount(lexer);
         resetLexerState(lexer);
         return handleYAMLLexerStateNormal(lexer);
     }
@@ -946,7 +956,7 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
         if (lexer->space_count == top_of_stack_value)
         {
             // Log(DEBUG, "same indent %d", __LINE__);
-            lexer->space_count = 0;
+            resetLexerSpaceCount(lexer);
             resetLexerState(lexer);
             return handleYAMLLexerStateNormal(lexer);
         }
@@ -959,8 +969,7 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
             ListAddFirst(lexer->indent_stack, new_top_item);
             // ListPrint(lexer->indent_stack);
 
-            lexer->space_count = 0;
-
+            resetLexerSpaceCount(lexer);
             resetLexerState(lexer);
             // advanceChar(lexer);
             return YAMLTokenInit(YAMLTokenIndent, curr_pos, lexer->cursor + 1,
@@ -972,11 +981,14 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
             if (lexer->indent_stack->size > 1)
             {
                 lexer->state = YAMLLexerStatePopDedent;
+                assert(lexer->this_indent_space_count >= 1);
+                lexer->space_count -= lexer->this_indent_space_count;
                 return handleYAMLLexerStatePopDedent(lexer);
             }
             else
             {
                 resetLexerState(lexer);
+                resetLexerSpaceCount(lexer);
                 return handleYAMLLexerStateNormal(lexer);
             }
         }
@@ -1221,7 +1233,7 @@ extern void YAMLLexerFree(YAMLLexer *lexer)
     switch (c)
     {
     case SPACE_CHAR:
-        printf("'_'");
+        printf("␣");
         break;
     case '\n':
         printf("\\n");
