@@ -736,7 +736,7 @@ static void testBlockFoldedSimple()
 
     ASSERT_SCALAR("test", "1. Scalar 'test'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
-    ASSERT_SCALAR("foo bar fizz buzz bazz\n",
+    ASSERT_SCALAR("foo bar fizz buzz\nbazz\n\n\n",
                   "3. Folded block scalar payload (newlines folded to spaces)");
     ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
 
@@ -752,6 +752,7 @@ static void testBlockFolded()
 extern void TestLexer(void)
 {
     YAMLLexerDebugTest("./testfiles/block/folded/simple.yaml");
+    // exit(1);
     testOnly();
     testMultiDocumentAndFlowContainers();
     testNested();

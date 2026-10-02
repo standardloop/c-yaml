@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <strings.h>
@@ -176,15 +177,13 @@ extern YAMLLexer *YAMLLexerInit(FILE *file_ptr)
     return lexer;
 }
 
-static void blockScalarPostProcess(enum BlockScalarChomping chomping,
+static void blockScalarPostProcess(struct block_scalar_options_s options,
                                    DynString *str)
 {
     assert(str != NULL);
-    if (chomping == BlockScalarStyleKeep)
-    {
-        return;
-    }
     size_t i = str->size - 1;
+    // trim trailing newlines
+
     for (; i >= 0; i--)
     {
         if (str->value[i] == NEWLINE_CHAR)
@@ -199,15 +198,52 @@ static void blockScalarPostProcess(enum BlockScalarChomping chomping,
 
     while (str->value[i] == NEWLINE_CHAR)
     {
-        str->value[i] = NULL_CHAR;
+        if (options.chomping != BlockScalarStyleKeep)
+        {
+            str->value[i] = NULL_CHAR;
+        }
         i--;
     }
-    if (chomping == BlockScalarStyleClip)
+    if (options.chomping == BlockScalarStyleClip)
     {
         // keep the last one
         i++;
         str->value[i] = NEWLINE_CHAR;
     }
+    // handle folded
+    if (options.style != BlockScalarStyleLiteral)
+    {
+        size_t content_end = i;
+        // for (size_t s = 0; s <= content_end; s++)
+        // {
+        //     printchar(str->value[s]);
+        // }
+        // exit(1);
+
+        // Log(DEBUG, "%d", content_end);
+        for (size_t x = 0; x <= content_end; x++)
+        {
+            if (str->value[x] == NEWLINE_CHAR)
+            {
+                if (x + 1 <= content_end && str->value[x + 1] == NEWLINE_CHAR)
+                {
+                    for (size_t y = x + 1; y <= content_end; y++)
+                    {
+                        str->value[y] = str->value[y + 1];
+                    }
+                    // content_end--;
+                }
+                else
+                {
+                    str->value[x] = SPACE_CHAR;
+                }
+            }
+            // printchar(str->value[x]);
+        }
+    }
+
+    // DynStringPrint(str);
+    // exit(1);
 }
 
 static char *eatBlockScalar(YAMLLexer *lexer)
@@ -264,6 +300,8 @@ static char *eatBlockScalar(YAMLLexer *lexer)
 
     // Log(DEBUG, "%d", first_list_count_space);
 
+    // int pending_newlines = 0;
+
     while (ALWAYS)
     {
         if (lexer->current_char == NULL_CHAR)
@@ -275,25 +313,38 @@ static char *eatBlockScalar(YAMLLexer *lexer)
         {
             while (lexer->current_char == NEWLINE_CHAR)
             {
-                if (lexer->block_scalar_options.style == BlockScalarStyleFolded)
+                if (false)
+                // if (lexer->block_scalar_options.style ==
+                // BlockScalarStyleFolded)
                 {
                     if (peek(lexer, 1) == NEWLINE_CHAR)
                     {
                         DynStringAddCharAt(str, chars_found,
                                            lexer->current_char);
-                        advanceChar(lexer);
+                        // advanceChar(lexer);
+                    }
+                    else if (peek(lexer, 1) == SPACE_CHAR)
+                    {
+                        DynStringAddCharAt(str, chars_found, SPACE_CHAR);
                     }
                     else
                     {
-                        DynStringAddCharAt(str, chars_found, SPACE_CHAR);
+                        // if we found the end, then we don't want to worry
+                        // about turning more newlines into spaces or two
+                        // sequential newlines into one newline, so we switch
+                        // the style to literal for the remaining chars
+                        lexer->block_scalar_options.style =
+                            BlockScalarStyleLiteral;
+                        DynStringAddCharAt(str, chars_found,
+                                           lexer->current_char);
                     }
                     chars_found++;
                     advanceChar(lexer);
                 }
                 else
                 {
-                    assert(lexer->block_scalar_options.style ==
-                           BlockScalarStyleLiteral);
+                    // assert(lexer->block_scalar_options.style ==
+                    //        BlockScalarStyleLiteral);
                     DynStringAddCharAt(str, chars_found, lexer->current_char);
                     chars_found++;
                     advanceChar(lexer);
@@ -328,7 +379,8 @@ static char *eatBlockScalar(YAMLLexer *lexer)
 
         just_got_newline = lexer->current_char == NEWLINE_CHAR;
     }
-    blockScalarPostProcess(lexer->block_scalar_options.chomping, str);
+    // DynStringPrint(str);
+    blockScalarPostProcess(lexer->block_scalar_options, str);
     // post processing now
     resetLexerBlockScalarOptions(lexer);
     char *ret_val = str->value;
@@ -1188,6 +1240,9 @@ extern void YAMLLexerFree(YAMLLexer *lexer)
 {
     switch (c)
     {
+    case SPACE_CHAR:
+        printf("'_'");
+        break;
     case '\n':
         printf("\\n");
         break;
