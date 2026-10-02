@@ -309,42 +309,11 @@ static char *eatBlockScalar(YAMLLexer *lexer)
         {
             while (lexer->current_char == NEWLINE_CHAR)
             {
-                if (false)
-                // if (lexer->block_scalar_options.style ==
-                // BlockScalarStyleFolded)
-                {
-                    if (peek(lexer, 1) == NEWLINE_CHAR)
-                    {
-                        DynStringAddCharAt(str, chars_found,
-                                           lexer->current_char);
-                        // advanceChar(lexer);
-                    }
-                    else if (peek(lexer, 1) == SPACE_CHAR)
-                    {
-                        DynStringAddCharAt(str, chars_found, SPACE_CHAR);
-                    }
-                    else
-                    {
-                        // if we found the end, then we don't want to worry
-                        // about turning more newlines into spaces or two
-                        // sequential newlines into one newline, so we switch
-                        // the style to literal for the remaining chars
-                        lexer->block_scalar_options.style =
-                            BlockScalarStyleLiteral;
-                        DynStringAddCharAt(str, chars_found,
-                                           lexer->current_char);
-                    }
-                    chars_found++;
-                    advanceChar(lexer);
-                }
-                else
-                {
-                    // assert(lexer->block_scalar_options.style ==
-                    //        BlockScalarStyleLiteral);
-                    DynStringAddCharAt(str, chars_found, lexer->current_char);
-                    chars_found++;
-                    advanceChar(lexer);
-                }
+                // assert(lexer->block_scalar_options.style ==
+                //        BlockScalarStyleLiteral);
+                DynStringAddCharAt(str, chars_found, lexer->current_char);
+                chars_found++;
+                advanceChar(lexer);
             }
             just_got_newline = false;
             if (lexer->current_char != SPACE_CHAR)

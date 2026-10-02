@@ -798,7 +798,7 @@ static void testBlockFolded()
 
 extern void TestLexer(void)
 {
-    YAMLLexerDebugTest("./testfiles/block/folded/simple-after-dash.yaml");
+    // YAMLLexerDebugTest("./testfiles/anchors/no-merge-keys.yaml");
     // exit(1);
     testOnly();
     testMultiDocumentAndFlowContainers();
