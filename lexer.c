@@ -512,7 +512,7 @@ handleYAMLLexerStateFoundEOFNeedToPopRemainingDedent(YAMLLexer *lexer)
     assert(lexer->state == YAMLLexerStateFoundEOFNeedToPopRemainingDedent);
     if (lexer->indent_stack->size == 1)
     {
-        return YAMLTokenInit(YAMLTokenEOF, curr_pos, lexer->cursor + 1,
+        return YAMLTokenInit(YAMLTokenEndStream, curr_pos, lexer->cursor + 1,
                              lexer->line, NULL);
     }
     else
@@ -1078,7 +1078,7 @@ extern void YAMLLexerDebugTest(char *file_name)
         {
             Log(FATAL, "null token...");
         }
-        if (token != NULL && token->type == YAMLTokenEOF)
+        if (token != NULL && token->type == YAMLTokenEndStream)
         {
             break;
         }
@@ -1217,9 +1217,9 @@ extern char *YAMLTokenTypeToString(enum YAMLTokenType type)
     {
         return "YAMLTokenBacktick";
     }
-    else if (type == YAMLTokenEOF)
+    else if (type == YAMLTokenEndStream)
     {
-        return "YAMLTokenEOF";
+        return "YAMLTokenEndStream";
     }
     else if (type == YAMLTokenIllegal)
     {

@@ -30,7 +30,7 @@ static void testOnlyEmpty(void)
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
 
-    ASSERT_TOKEN(YAMLTokenEOF, "Ensure empty file only has eof token");
+    ASSERT_TOKEN(YAMLTokenEndStream, "Ensure empty file only has eof token");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -51,7 +51,7 @@ static void testOnlyDocStart(void)
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
 
     ASSERT_TOKEN(YAMLTokenStartOfDocument, "Ensure first token is doc start");
-    ASSERT_TOKEN(YAMLTokenEOF, "Ensure next token is eof");
+    ASSERT_TOKEN(YAMLTokenEndStream, "Ensure next token is eof");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -72,7 +72,7 @@ static void testOnlyDocEnd(void)
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
 
     ASSERT_TOKEN(YAMLTokenEndOfDocument, "Ensure first token is doc end");
-    ASSERT_TOKEN(YAMLTokenEOF, "Ensure next token is eof");
+    ASSERT_TOKEN(YAMLTokenEndStream, "Ensure next token is eof");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -95,7 +95,7 @@ static void testOnlyListFlow(void)
     ASSERT_TOKEN(YAMLTokenFlowSequenceStart, "Ensure token is start flow");
     ASSERT_TOKEN(YAMLTokenScalar, "Ensure token scalar");
     ASSERT_TOKEN(YAMLTokenFlowSequenceEnd, "Ensure token is end flow");
-    ASSERT_TOKEN(YAMLTokenEOF, "Ensure token is eof");
+    ASSERT_TOKEN(YAMLTokenEndStream, "Ensure token is eof");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -117,7 +117,7 @@ static void testOnlyListNormal(void)
 
     ASSERT_TOKEN(YAMLTokenListDash, "Ensure token is dash");
     ASSERT_TOKEN(YAMLTokenScalar, "Ensure token scalar");
-    ASSERT_TOKEN(YAMLTokenEOF, "Ensure token is eof");
+    ASSERT_TOKEN(YAMLTokenEndStream, "Ensure token is eof");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -140,7 +140,7 @@ static void testOnlyMapNormal(void)
     ASSERT_TOKEN(YAMLTokenScalar, "Ensure token is scalar");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "Ensure token value indicator");
     ASSERT_TOKEN(YAMLTokenScalar, "Ensure token is scalar");
-    ASSERT_TOKEN(YAMLTokenEOF, "Ensure token is eof");
+    ASSERT_TOKEN(YAMLTokenEndStream, "Ensure token is eof");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -165,7 +165,7 @@ static void testOnlyMapFlow(void)
     ASSERT_TOKEN(YAMLTokenValueIndicator, "Ensure token value indicator");
     ASSERT_TOKEN(YAMLTokenScalar, "Ensure token is scalar");
     ASSERT_TOKEN(YAMLTokenFlowMappingEnd, "Ensure token is flow end");
-    ASSERT_TOKEN(YAMLTokenEOF, "Ensure token is eof");
+    ASSERT_TOKEN(YAMLTokenEndStream, "Ensure token is eof");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -186,7 +186,7 @@ static void testOnlyString(void)
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
 
     ASSERT_TOKEN(YAMLTokenScalar, "Ensure first token scalar");
-    ASSERT_TOKEN(YAMLTokenEOF, "Ensure next token is eof");
+    ASSERT_TOKEN(YAMLTokenEndStream, "Ensure next token is eof");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -207,7 +207,7 @@ static void testOnlyNull(void)
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
 
     ASSERT_TOKEN(YAMLTokenScalar, "Ensure first token scalar");
-    ASSERT_TOKEN(YAMLTokenEOF, "Ensure next token is eof");
+    ASSERT_TOKEN(YAMLTokenEndStream, "Ensure next token is eof");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -304,7 +304,7 @@ static void testMultiDocumentAndFlowContainers(void)
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "100", "45. Plain scalar '100'");
     ASSERT_TOKEN(YAMLTokenFlowSequenceEnd, "46. Flow sequence end (])");
 
-    ASSERT_TOKEN(YAMLTokenEOF, "47. EOF reached");
+    ASSERT_TOKEN(YAMLTokenEndStream, "47. EOF reached");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -372,7 +372,7 @@ static void testMixed(void)
 
     // EOF Indent Unwinding (2 spaces -> 0 spaces)
     ASSERT_TOKEN(YAMLTokenDedent, "32. Dedent at EOF (2 -> 0 spaces)");
-    ASSERT_TOKEN(YAMLTokenEOF, "33. End of file");
+    ASSERT_TOKEN(YAMLTokenEndStream, "33. End of file");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -396,7 +396,7 @@ static void testBlockLiteralSimple()
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "foo\nbar\nfizz\nbuzz\nbazz\n",
                           "3. Literal block scalar payload");
-    ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
+    ASSERT_TOKEN(YAMLTokenEndStream, "4. End of file");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -421,7 +421,7 @@ static void testBlockLiteralSimpleStrip()
     ASSERT_TOKEN_WITH_VAL(
         YAMLTokenScalar, "foo\nbar\nfizz\nbuzz\nbazz",
         "3. Strip block scalar payload (no trailing newline)");
-    ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
+    ASSERT_TOKEN(YAMLTokenEndStream, "4. End of file");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -446,7 +446,7 @@ static void testBlockLiteralSimpleKeep()
     ASSERT_TOKEN_WITH_VAL(
         YAMLTokenScalar, "foo\nbar\nfizz\nbuzz\nbazz\n\n\n\n\n",
         "3. Keep block scalar payload (all trailing newlines preserved)");
-    ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
+    ASSERT_TOKEN(YAMLTokenEndStream, "4. End of file");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -473,7 +473,7 @@ static void testBlockLiteralSimpleWithNumber()
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar,
                           "  leading spaces are content\n  second line\n",
                           "3. Literal block scalar with explicit indent |2");
-    ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
+    ASSERT_TOKEN(YAMLTokenEndStream, "4. End of file");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -512,7 +512,7 @@ static void testBlockLiteralSimpleNested()
 
     ASSERT_TOKEN(YAMLTokenDedent, "12. Dedent (4 -> 2 spaces)");
     ASSERT_TOKEN(YAMLTokenDedent, "13. Dedent (2 -> 0 spaces)");
-    ASSERT_TOKEN(YAMLTokenEOF, "14. End of file");
+    ASSERT_TOKEN(YAMLTokenEndStream, "14. End of file");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -538,7 +538,7 @@ static void testBlockLiteralSimpleWithLeadingLines()
     ASSERT_TOKEN_WITH_VAL(
         YAMLTokenScalar, "\n\nhello\n  world\n",
         "3. Payload with leading blank lines and relative indent");
-    ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
+    ASSERT_TOKEN(YAMLTokenEndStream, "4. End of file");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -567,7 +567,7 @@ static void testBlockScalarSimpleAfterDash()
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "indented further\nsecond line\n",
                           "4. Compact block scalar payload (4 spaces)");
 
-    ASSERT_TOKEN(YAMLTokenEOF, "5. End of file");
+    ASSERT_TOKEN(YAMLTokenEndStream, "5. End of file");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -597,7 +597,7 @@ static void testBlockLiteralSimpleWithDashAndNumber()
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "exact base indent\n",
                           "4. Scalar payload matching explicit base indent");
 
-    ASSERT_TOKEN(YAMLTokenEOF, "5. End of file");
+    ASSERT_TOKEN(YAMLTokenEndStream, "5. End of file");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -634,7 +634,7 @@ static void testBlockFoldedSimple()
     ASSERT_TOKEN_WITH_VAL(
         YAMLTokenScalar, "foo bar\n",
         "3. Folded block scalar payload (newlines folded to spaces)");
-    ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
+    ASSERT_TOKEN(YAMLTokenEndStream, "4. End of file");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -660,7 +660,7 @@ static void testBlockSimpleFoldedWithKeepChomping()
     ASSERT_TOKEN_WITH_VAL(
         YAMLTokenScalar, "foo bar fizz buzz\nbazz\n\n\n",
         "3. Folded block scalar payload (newlines folded to spaces)");
-    ASSERT_TOKEN(YAMLTokenEOF, "4. End of file");
+    ASSERT_TOKEN(YAMLTokenEndStream, "4. End of file");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -685,7 +685,7 @@ static void testBlockSimpleFoldedAfterDash()
     ASSERT_TOKEN_WITH_VAL(
         YAMLTokenScalar, "first line second line\n",
         "2. Folded block scalar payload (newlines folded to spaces)");
-    ASSERT_TOKEN(YAMLTokenEOF, "3. End of file");
+    ASSERT_TOKEN(YAMLTokenEndStream, "3. End of file");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -748,7 +748,7 @@ static void testDepartmentsNoAnchors()
     ASSERT_TOKEN(YAMLTokenNewline, "29");
     ASSERT_TOKEN(YAMLTokenDedent, "30");
     ASSERT_TOKEN(YAMLTokenDedent, "31");
-    ASSERT_TOKEN(YAMLTokenEOF, "32");
+    ASSERT_TOKEN(YAMLTokenEndStream, "32");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -806,7 +806,7 @@ static void testDepartments()
     ASSERT_TOKEN(YAMLTokenNewline, "29");
     ASSERT_TOKEN(YAMLTokenDedent, "30");
     ASSERT_TOKEN(YAMLTokenDedent, "31");
-    ASSERT_TOKEN(YAMLTokenEOF, "32");
+    ASSERT_TOKEN(YAMLTokenEndStream, "32");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -854,7 +854,43 @@ static void testSimpleMergeKey()
     ASSERT_TOKEN(YAMLTokenNewline, "18");
 
     ASSERT_TOKEN(YAMLTokenDedent, "30");
-    ASSERT_TOKEN(YAMLTokenEOF, "32");
+    ASSERT_TOKEN(YAMLTokenEndStream, "32");
+
+    YAMLLexerFree(lexer);
+    fclose(file_ptr);
+}
+
+static void testAliasesInList()
+{
+    FILE *file_ptr = fopen("./testfiles/anchors/aliases-in-list.yaml", "rb");
+    TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
+    if (!file_ptr)
+    {
+        return;
+    }
+
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
+    YAMLToken *token = NULL;
+
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "test", "15");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "16");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenAnchor, "base_settings", "2");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "8080", "15");
+    ASSERT_TOKEN(YAMLTokenNewline, "18");
+
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "ports", "15");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "16");
+    ASSERT_TOKEN(YAMLTokenFlowSequenceStart, "16");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenAlias, "default_port", "17");
+    ASSERT_TOKEN(YAMLTokenFlowEntry, "16");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenAlias, "default_port", "17");
+    ASSERT_TOKEN(YAMLTokenFlowSequenceEnd, "16");
+
+    ASSERT_TOKEN(YAMLTokenNewline, "18");
+    ASSERT_TOKEN(YAMLTokenNewline, "18");
+
+    ASSERT_TOKEN(YAMLTokenEndStream, "32");
 
     YAMLLexerFree(lexer);
     fclose(file_ptr);
@@ -864,11 +900,12 @@ static void testAnchors()
 {
     testDepartments();
     testSimpleMergeKey();
+    testAliasesInList();
 }
 
 extern void TestLexer(void)
 {
-    YAMLLexerDebugTest("./testfiles/anchors/simple-merge-key.yaml");
+    YAMLLexerDebugTest("./testfiles/anchors/aliases-in-list.yaml");
     // YAMLLexerDebugTest("./testfiles/indent/different-levels.yaml");
     // exit(1);
     testOnly();

@@ -1,0 +1,2 @@
+test: &default_port 8080
+ports: [*default_port, *default_port]

@@ -62,7 +62,7 @@ enum YAMLTokenType
     YAMLTokenAT,       // @
     YAMLTokenBacktick, // `
 
-    YAMLTokenEOF,
+    YAMLTokenEndStream,
     YAMLTokenIllegal
 };
 

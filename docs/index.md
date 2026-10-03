@@ -63,7 +63,7 @@ enum YAMLTokenType
 | `YAMLTokenTag`                 |             |
 | `YAMLTokenAT`                  |             |
 | `YAMLTokenBacktick`            |             |
-| `YAMLTokenEOF`                 |             |
+| `YAMLTokenEndStream`           |             |
 | `YAMLTokenIllegal`             |             |
 
 ---
