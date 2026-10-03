@@ -18,6 +18,7 @@ vars:
     - dynstring.c
   TEST_SOURCE_FILES:
     - lexer.test.c
+    - parser.test.c
   # for releasing
   DYLIB_NAME: libstandardloop-yaml.dylib
   DYLIB_HEADER: yaml.h

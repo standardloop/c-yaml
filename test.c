@@ -7,10 +7,11 @@
 int main(void)
 {
     // YAMLFree(yaml);
-    TestingInit();
-    TestLexer();
+    // TestingInit();
+    // TestLexer();
+    TestParser();
     // TestYaml();
-    TestingTearDown();
+    // TestingTearDown();
 
     return EXIT_SUCCESS;
 }

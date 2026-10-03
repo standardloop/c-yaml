@@ -43,9 +43,9 @@ extern YAML *StringToYAML(char *yaml_string)
     return NULL;
 }
 
-extern YAML *YAMLFromFile(FILE *file_ptr, size_t buffer_size)
+extern YAML *YAMLFromFile(FILE *file_ptr)
 {
-    Log(TRACE, "entering YAMLFromFile");
+    Log(TRACE, "%s", __FUNCTION__);
     if (file_ptr == NULL)
     {
         Log(ERROR, "file is NULL");
@@ -53,13 +53,14 @@ extern YAML *YAMLFromFile(FILE *file_ptr, size_t buffer_size)
     }
     Log(TRACE, "file_ptr is not NULL");
 
-    YAMLParser *parser = YAMLParserInit();
-    if (parser == NULL || buffer_size)
+    YAMLParser *parser = YAMLParserInit(file_ptr);
+    if (parser == NULL)
     {
         return NULL;
     }
 
-    YAML *yaml = YAMLParserParse(parser);
+    YAML *yaml = YAMLParse(parser);
+    fclose(file_ptr);
 
     // if (ferror(file_ptr))
     // {

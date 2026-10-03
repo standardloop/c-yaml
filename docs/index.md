@@ -257,18 +257,10 @@ void YAMLLexerFree(YAMLLexer * lexer)
 
 ---
 
-### YAMLLexerDebugTest
-
-```cpp
-void YAMLLexerDebugTest(char * file_name)
-```
-
----
-
 ### YAMLParserInit
 
 ```cpp
-YAMLParser * YAMLParserInit()
+YAMLParser * YAMLParserInit(FILE * file_ptr)
 ```
 
 ---
@@ -300,7 +292,7 @@ YAML * StringToYAML(char *)
 ### YAMLFromFile
 
 ```cpp
-YAML * YAMLFromFile(FILE *, size_t)
+YAML * YAMLFromFile(FILE * file_ptr)
 ```
 
 ---
@@ -337,18 +329,10 @@ void YAMLPrint(YAML *)
 
 ---
 
-### YAMLParserParse
+### YAMLParse
 
 ```cpp
-YAML * YAMLParserParse(YAMLParser * parser)
-```
-
----
-
-### YAMLParseFile
-
-```cpp
-YAML * YAMLParseFile(YAMLParser * parser, FILE * file_ptr, size_t buffer_size)
+YAML * YAMLParse(YAMLParser * parser)
 ```
 
 ## YAML
@@ -642,7 +626,7 @@ struct YAMLValue
 | Return                                                               | Name                                                                                                     | Description |
 | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------- |
 | `enum YAMLValueType`                                                 | [`value_type`](#value_type)                                                                              |             |
-| `union YAMLValue::@027336223146000335222027022202053122010174050143` | [`@056073055070301067077232157254230012151024272147`](#056073055070301067077232157254230012151024272147) |             |
+| `union YAMLValue::@164241133151322264244351313220306251143335010005` | [`@306142324131216233076101367267331363154064025165`](#306142324131216233076101367267331363154064025165) |             |
 
 ---
 
@@ -654,10 +638,10 @@ enum YAMLValueType value_type
 
 ---
 
-#### @056073055070301067077232157254230012151024272147
+#### @306142324131216233076101367267331363154064025165
 
 ```cpp
-union YAMLValue::@027336223146000335222027022202053122010174050143 @056073055070301067077232157254230012151024272147
+union YAMLValue::@164241133151322264244351313220306251143335010005 @306142324131216233076101367267331363154064025165
 ```
 
 ## [union].**unnamed0**
@@ -733,42 +717,12 @@ struct YAMLParser
 
 ### Public Attributes
 
-| Return                                                                | Name                                                                                                     | Description |
-| --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------- |
-| `enum YAMLParserInputMode`                                            | [`input_mode`](#input_mode)                                                                              |             |
-| `union YAMLParser::@164241133151322264244351313220306251143335010005` | [`@306142324131216233076101367267331363154064025165`](#306142324131216233076101367267331363154064025165) |             |
-| `size_t`                                                              | [`buffer_size`](#buffer_size-1)                                                                          |             |
-| `YAMLLexer *`                                                         | [`lexer`](#lexer)                                                                                        |             |
-| `YAMLToken *`                                                         | [`current_token`](#current_token)                                                                        |             |
-| `YAMLToken *`                                                         | [`peek_token`](#peek_token)                                                                              |             |
-| `char *`                                                              | [`error_message`](#error_message)                                                                        |             |
-| `char *`                                                              | [`current_buffer`](#current_buffer)                                                                      |             |
-| `char *`                                                              | [`next_buffer`](#next_buffer)                                                                            |             |
-| `size_t`                                                              | [`current_bytes`](#current_bytes)                                                                        |             |
-
----
-
-#### input_mode
-
-```cpp
-enum YAMLParserInputMode input_mode
-```
-
----
-
-#### @306142324131216233076101367267331363154064025165
-
-```cpp
-union YAMLParser::@164241133151322264244351313220306251143335010005 @306142324131216233076101367267331363154064025165
-```
-
----
-
-#### buffer_size
-
-```cpp
-size_t buffer_size
-```
+| Return        | Name                              | Description |
+| ------------- | --------------------------------- | ----------- |
+| `YAMLLexer *` | [`lexer`](#lexer)                 |             |
+| `YAMLToken *` | [`current_token`](#current_token) |             |
+| `YAMLToken *` | [`peek_token`](#peek_token)       |             |
+| `char *`      | [`error_message`](#error_message) |             |
 
 ---
 
@@ -800,50 +754,6 @@ YAMLToken * peek_token
 
 ```cpp
 char * error_message
-```
-
----
-
-#### current_buffer
-
-```cpp
-char * current_buffer
-```
-
----
-
-#### next_buffer
-
-```cpp
-char * next_buffer
-```
-
----
-
-#### current_bytes
-
-```cpp
-size_t current_bytes
-```
-
-## [union].**unnamed0**
-
-```cpp
-union [union].__unnamed0__
-```
-
-### Public Attributes
-
-| Return   | Name                      | Description |
-| -------- | ------------------------- | ----------- |
-| `FILE *` | [`file_ptr`](#file_ptr-1) |             |
-
----
-
-#### file_ptr
-
-```cpp
-FILE * file_ptr
 ```
 
 ## block_scalar_options_s
@@ -956,24 +866,4 @@ char * str
 
 ```cpp
 bool * boolean
-```
-
-## [union].**unnamed0**
-
-```cpp
-union [union].__unnamed0__
-```
-
-### Public Attributes
-
-| Return   | Name                      | Description |
-| -------- | ------------------------- | ----------- |
-| `FILE *` | [`file_ptr`](#file_ptr-1) |             |
-
----
-
-#### file_ptr
-
-```cpp
-FILE * file_ptr
 ```

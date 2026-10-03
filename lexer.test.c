@@ -903,9 +903,9 @@ static void testAnchors()
 
 extern void TestLexer(void)
 {
-    // YAMLLexerDebugTest("./testfiles/anchors/simple.yaml");
+    // YAMLLexerDebugTest("./testfiles/only/string.yaml");
     // YAMLLexerDebugTest("./testfiles/indent/different-levels.yaml");
-    // exit(1);
+    exit(1);
     testOnly();
     testMultiDocumentAndFlowContainers();
     testMixed();
