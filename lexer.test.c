@@ -833,11 +833,13 @@ static void testSimpleMergeKey()
 
     ASSERT_TOKEN(YAMLTokenIndent, "8");
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "timeout", "6");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "2");
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "30", "9");
 
     ASSERT_TOKEN(YAMLTokenNewline, "8");
     ASSERT_TOKEN(YAMLTokenDedent, "19");
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "production", "9");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "2");
     ASSERT_TOKEN(YAMLTokenNewline, "25");
 
     ASSERT_TOKEN(YAMLTokenIndent, "8");
@@ -852,7 +854,6 @@ static void testSimpleMergeKey()
     ASSERT_TOKEN(YAMLTokenNewline, "18");
 
     ASSERT_TOKEN(YAMLTokenDedent, "30");
-    ASSERT_TOKEN(YAMLTokenDedent, "31");
     ASSERT_TOKEN(YAMLTokenEOF, "32");
 
     YAMLLexerFree(lexer);
