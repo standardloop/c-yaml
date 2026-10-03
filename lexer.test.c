@@ -28,6 +28,8 @@ static void testOnlyEmpty(void)
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
+
     ASSERT_TOKEN(YAMLTokenEOF, "Ensure empty file only has eof token");
 
     YAMLLexerFree(lexer);
@@ -45,6 +47,8 @@ static void testOnlyDocStart(void)
 
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
+
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
 
     ASSERT_TOKEN(YAMLTokenStartOfDocument, "Ensure first token is doc start");
     ASSERT_TOKEN(YAMLTokenEOF, "Ensure next token is eof");
@@ -65,6 +69,8 @@ static void testOnlyDocEnd(void)
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
+
     ASSERT_TOKEN(YAMLTokenEndOfDocument, "Ensure first token is doc end");
     ASSERT_TOKEN(YAMLTokenEOF, "Ensure next token is eof");
 
@@ -83,6 +89,8 @@ static void testOnlyListFlow(void)
 
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
+
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
 
     ASSERT_TOKEN(YAMLTokenFlowSequenceStart, "Ensure token is start flow");
     ASSERT_TOKEN(YAMLTokenScalar, "Ensure token scalar");
@@ -105,6 +113,8 @@ static void testOnlyListNormal(void)
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
+
     ASSERT_TOKEN(YAMLTokenListDash, "Ensure token is dash");
     ASSERT_TOKEN(YAMLTokenScalar, "Ensure token scalar");
     ASSERT_TOKEN(YAMLTokenEOF, "Ensure token is eof");
@@ -124,6 +134,8 @@ static void testOnlyMapNormal(void)
 
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
+
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
 
     ASSERT_TOKEN(YAMLTokenScalar, "Ensure token is scalar");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "Ensure token value indicator");
@@ -145,6 +157,8 @@ static void testOnlyMapFlow(void)
 
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
+
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
 
     ASSERT_TOKEN(YAMLTokenFlowMappingStart, "Ensure token is flowstart");
     ASSERT_TOKEN(YAMLTokenScalar, "Ensure token is scalar");
@@ -169,6 +183,8 @@ static void testOnlyString(void)
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
+
     ASSERT_TOKEN(YAMLTokenScalar, "Ensure first token scalar");
     ASSERT_TOKEN(YAMLTokenEOF, "Ensure next token is eof");
 
@@ -187,6 +203,8 @@ static void testOnlyNull(void)
 
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
+
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
 
     ASSERT_TOKEN(YAMLTokenScalar, "Ensure first token scalar");
     ASSERT_TOKEN(YAMLTokenEOF, "Ensure next token is eof");
@@ -219,6 +237,8 @@ static void testMultiDocumentAndFlowContainers(void)
 
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
+
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
 
     ASSERT_TOKEN(YAMLTokenStartOfDocument, "1. Start of Document (---)");
     ASSERT_TOKEN(YAMLTokenNewline, "2. Newline after doc start");
@@ -302,6 +322,8 @@ static void testMixed(void)
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
+
     // foo: "bar with \"quotes\""
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "foo", "1. Scalar 'foo'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
@@ -368,6 +390,8 @@ static void testBlockLiteralSimple()
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
+
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "test", "1. Scalar 'test'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "foo\nbar\nfizz\nbuzz\nbazz\n",
@@ -389,6 +413,8 @@ static void testBlockLiteralSimpleStrip()
 
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
+
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
 
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "test", "1. Scalar 'test'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
@@ -412,6 +438,8 @@ static void testBlockLiteralSimpleKeep()
 
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
+
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
 
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "test", "1. Scalar 'test'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
@@ -437,6 +465,8 @@ static void testBlockLiteralSimpleWithNumber()
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
+
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "doc_explicit_indent",
                           "1. Scalar 'doc_explicit_indent'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
@@ -461,6 +491,8 @@ static void testBlockLiteralSimpleNested()
 
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
+
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
 
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "foo", "1. Scalar 'foo'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
@@ -499,6 +531,8 @@ static void testBlockLiteralSimpleWithLeadingLines()
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
+
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "example", "1. Scalar 'example'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
     ASSERT_TOKEN_WITH_VAL(
@@ -522,6 +556,8 @@ static void testBlockScalarSimpleAfterDash()
 
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
+
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
 
     ASSERT_TOKEN(YAMLTokenListDash, "1. Block entry indicator (-)");
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "first line\nsecond line\n",
@@ -549,6 +585,8 @@ static void testBlockLiteralSimpleWithDashAndNumber()
 
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
+
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
 
     ASSERT_TOKEN(YAMLTokenListDash, "1. Sequence entry dash (-)");
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar,
@@ -589,6 +627,8 @@ static void testBlockFoldedSimple()
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
+
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "test", "1. Scalar 'test'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
     ASSERT_TOKEN_WITH_VAL(
@@ -613,6 +653,8 @@ static void testBlockSimpleFoldedWithKeepChomping()
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
+
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "test", "1. Scalar 'test'");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2. Value indicator (:)");
     ASSERT_TOKEN_WITH_VAL(
@@ -636,6 +678,8 @@ static void testBlockSimpleFoldedAfterDash()
 
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
+
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
 
     ASSERT_TOKEN(YAMLTokenListDash, "1. Value dash (-)");
     ASSERT_TOKEN_WITH_VAL(
@@ -665,6 +709,8 @@ static void testDepartmentsNoAnchors()
 
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
+
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
 
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "company_name", "1");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2");
@@ -721,6 +767,8 @@ static void testDepartments()
     YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
+
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "company_name", "1");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "2");
     ASSERT_TOKEN_WITH_VAL(YAMLTokenAnchor, "corp", "2");
@@ -764,14 +812,62 @@ static void testDepartments()
     fclose(file_ptr);
 }
 
+static void testSimpleMergeKey()
+{
+    FILE *file_ptr = fopen("./testfiles/anchors/simple-merge-key.yaml", "rb");
+    TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
+    if (!file_ptr)
+    {
+        return;
+    }
+
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
+    YAMLToken *token = NULL;
+
+    ASSERT_TOKEN(YAMLTokenStartStream, "Start");
+
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "defaults", "1");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "2");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenAnchor, "base_settings", "2");
+    ASSERT_TOKEN(YAMLTokenNewline, "4");
+
+    ASSERT_TOKEN(YAMLTokenIndent, "8");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "timeout", "6");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "30", "9");
+
+    ASSERT_TOKEN(YAMLTokenNewline, "8");
+    ASSERT_TOKEN(YAMLTokenDedent, "19");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "production", "9");
+    ASSERT_TOKEN(YAMLTokenNewline, "25");
+
+    ASSERT_TOKEN(YAMLTokenIndent, "8");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "<<", "11");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "2");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenAlias, "base_settings", "17");
+    ASSERT_TOKEN(YAMLTokenNewline, "14");
+
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "timeout", "15");
+    ASSERT_TOKEN(YAMLTokenValueIndicator, "16");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "60", "20");
+    ASSERT_TOKEN(YAMLTokenNewline, "18");
+
+    ASSERT_TOKEN(YAMLTokenDedent, "30");
+    ASSERT_TOKEN(YAMLTokenDedent, "31");
+    ASSERT_TOKEN(YAMLTokenEOF, "32");
+
+    YAMLLexerFree(lexer);
+    fclose(file_ptr);
+}
+
 static void testAnchors()
 {
     testDepartments();
+    testSimpleMergeKey();
 }
 
 extern void TestLexer(void)
 {
-    YAMLLexerDebugTest("./testfiles/anchors/departments.yaml");
+    YAMLLexerDebugTest("./testfiles/anchors/simple-merge-key.yaml");
     // YAMLLexerDebugTest("./testfiles/indent/different-levels.yaml");
     // exit(1);
     testOnly();

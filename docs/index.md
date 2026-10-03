@@ -42,6 +42,7 @@ enum YAMLTokenType
 
 | Value                          | Description |
 | ------------------------------ | ----------- |
+| `YAMLTokenStartStream`         |             |
 | `YAMLTokenStartOfDocument`     |             |
 | `YAMLTokenEndOfDocument`       |             |
 | `YAMLTokenDirective`           |             |
@@ -75,6 +76,7 @@ enum YAMLLexerState
 
 | Value                                            | Description |
 | ------------------------------------------------ | ----------- |
+| `YAMLLexerStartStream`                           |             |
 | `YAMLLexerStateNormal`                           |             |
 | `YAMLLexerStateJustGotNewline`                   |             |
 | `YAMLLexerStatePopDedent`                        |             |

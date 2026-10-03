@@ -149,7 +149,7 @@ extern YAMLLexer *YAMLLexerInit(FILE *file_ptr)
     lexer->cursor = 0;
     lexer->bytes_in_buffer = 0;
     lexer->eof_reached = false;
-    lexer->state = YAMLLexerStateJustGotNewline;
+    lexer->state = YAMLLexerStartStream;
 
     // Read initial 4096 bytes into Left Half
     size_t read_bytes = fread(lexer->buffer, 1, CHUNK_SIZE, lexer->file_ptr);
@@ -172,12 +172,11 @@ extern YAMLLexer *YAMLLexerInit(FILE *file_ptr)
     lexer->indent_stack = ListInitDefault();
     int *zero_int = malloc(sizeof(int));
     *zero_int = 0;
-    Item *indent_zero_start = ItemInit(zero_int, &ItemValueIntOperations);
-    ListAddFirst(lexer->indent_stack, indent_zero_start);
+    ListAddFirst(lexer->indent_stack,
+                 ItemInit(zero_int, &ItemValueIntOperations));
 
     lexer->flow_stack = ListInitDefault();
     resetLexerSpaceCount(lexer);
-    lexer->state = YAMLLexerStateJustGotNewline;
     resetLexerBlockScalarOptions(lexer);
     return lexer;
 }
@@ -1003,8 +1002,20 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
     return NULL;
 }
 
+static YAMLToken *handleYAMLLexerStartStream(YAMLLexer *lexer)
+{
+    assert(lexer->state == YAMLLexerStartStream);
+
+    lexer->state = YAMLLexerStateJustGotNewline;
+    return YAMLTokenInit(YAMLTokenStartStream, 0, 0, lexer->line, NULL);
+}
+
 extern YAMLToken *YAMLLex(YAMLLexer *lexer)
 {
+    if (lexer->state == YAMLLexerStartStream)
+    {
+        return handleYAMLLexerStartStream(lexer);
+    }
     assert(lexer != NULL);
     if (lexer->current_char == '#')
     {
@@ -1126,7 +1137,11 @@ extern void YAMLTokenPrint(YAMLToken *token)
 
 extern char *YAMLTokenTypeToString(enum YAMLTokenType type)
 {
-    if (type == YAMLTokenStartOfDocument)
+    if (type == YAMLTokenStartStream)
+    {
+        return "YAMLTokenStartStream";
+    }
+    else if (type == YAMLTokenStartOfDocument)
     {
         return "YAMLTokenStartOfDocument";
     }

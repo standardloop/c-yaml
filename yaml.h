@@ -28,6 +28,8 @@ extern DynString *DynStringDefaultInit();
 // ————————— LEXER START —————————
 enum YAMLTokenType
 {
+    YAMLTokenStartStream,
+
     YAMLTokenStartOfDocument, // ---
     YAMLTokenEndOfDocument,   // ...
 
@@ -81,12 +83,13 @@ extern void YAMLTokenPrint(YAMLToken *);
 
 enum YAMLLexerState
 {
-    YAMLLexerStateNormal = 0,
-    YAMLLexerStateJustGotNewline = 1,
-    YAMLLexerStatePopDedent = 2,
-    YAMLLexerStateFoundEOFNeedToPopRemainingDedent = 3,
-    YAMLLexerStateCurlyFlow = 4,
-    YAMLLexerStateSequenceFlow = 5,
+    YAMLLexerStartStream = 0,
+    YAMLLexerStateNormal = 1,
+    YAMLLexerStateJustGotNewline = 2,
+    YAMLLexerStatePopDedent = 3,
+    YAMLLexerStateFoundEOFNeedToPopRemainingDedent = 4,
+    YAMLLexerStateCurlyFlow = 5,
+    YAMLLexerStateSequenceFlow = 6,
 };
 
 #define CHUNK_SIZE 4096
