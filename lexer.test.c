@@ -875,7 +875,7 @@ static void testAliasesInList()
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "test", "15");
     ASSERT_TOKEN(YAMLTokenValueIndicator, "16");
-    ASSERT_TOKEN_WITH_VAL(YAMLTokenAnchor, "base_settings", "2");
+    ASSERT_TOKEN_WITH_VAL(YAMLTokenAnchor, "default_port", "2");
     ASSERT_TOKEN_WITH_VAL(YAMLTokenScalar, "8080", "15");
     ASSERT_TOKEN(YAMLTokenNewline, "18");
 
@@ -886,8 +886,6 @@ static void testAliasesInList()
     ASSERT_TOKEN(YAMLTokenFlowEntry, "16");
     ASSERT_TOKEN_WITH_VAL(YAMLTokenAlias, "default_port", "17");
     ASSERT_TOKEN(YAMLTokenFlowSequenceEnd, "16");
-
-    ASSERT_TOKEN(YAMLTokenNewline, "18");
     ASSERT_TOKEN(YAMLTokenNewline, "18");
 
     ASSERT_TOKEN(YAMLTokenEndStream, "32");
@@ -905,7 +903,7 @@ static void testAnchors()
 
 extern void TestLexer(void)
 {
-    YAMLLexerDebugTest("./testfiles/anchors/aliases-in-list.yaml");
+    // YAMLLexerDebugTest("./testfiles/anchors/simple.yaml");
     // YAMLLexerDebugTest("./testfiles/indent/different-levels.yaml");
     // exit(1);
     testOnly();
