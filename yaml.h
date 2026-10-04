@@ -185,48 +185,12 @@ extern void YAMLParserDebugTest(YAMLParser *parser);
 /// @endcond
 
 // ————————— PARSER END —————————
-
-enum YAMLValueType
-{
-    /**  */
-    YAMLOBJ_t,
-    /**  */
-    YAMLNUMBER_INT_t,
-    /**  */
-    YAMLNUMBER_DOUBLE_t,
-    /**  */
-    YAMLSTRING_t,
-    /**  */
-    YAMLBOOL_t,
-    /**  */
-    YAMLNULL_t,
-    /**  */
-    YAMLLIST_t,
-};
-
-typedef struct
-{
-    enum YAMLValueType value_type;
-    union
-    {
-        List *list;
-        ComplexHashMap *map;
-        int64_t *num_int;
-        double *num_double;
-        // void *null_yaml; // if null, then do need to hold it
-        char *str;
-        bool *boolean;
-    };
-} YAMLValue;
-
-typedef struct
-{
-    YAMLValue *root;
-} YAML;
+typedef Item YAMLValue; // a value
+typedef List YAML;      // list of documents
 
 extern YAML *YAMLInit();
 extern YAML *StringToYAML(char *);
-extern YAML *YAMLFromFile(FILE *file_ptr);
+extern YAML *YAMLFromFile(char *file_name);
 extern YAML *YAMLFromSTDIN(size_t);
 extern char *YAMLToString(YAML *);
 

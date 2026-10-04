@@ -4,11 +4,9 @@
 
 | Name                                                | Description |
 | --------------------------------------------------- | ----------- |
-| [`YAML`](#yaml)                                     |             |
 | [`DynString`](#dynstring)                           |             |
 | [`YAMLLexer`](#yamllexer)                           |             |
 | [`YAMLToken`](#yamltoken)                           |             |
-| [`YAMLValue`](#yamlvalue)                           |             |
 | [`YAMLParser`](#yamlparser)                         |             |
 | [`block_scalar_options_s`](#block_scalar_options_s) |             |
 
@@ -123,23 +121,23 @@ enum YAMLParserInputMode
 | --------------------- | ----------- |
 | `YAMLParserInputFile` |             |
 
+## Typedefs
+
 ---
 
-### YAMLValueType
+### YAMLValue
 
 ```cpp
-enum YAMLValueType
+using YAMLValue = Item
 ```
 
-| Value                 | Description |
-| --------------------- | ----------- |
-| `YAMLOBJ_t`           |             |
-| `YAMLNUMBER_INT_t`    |             |
-| `YAMLNUMBER_DOUBLE_t` |             |
-| `YAMLSTRING_t`        |             |
-| `YAMLBOOL_t`          |             |
-| `YAMLNULL_t`          |             |
-| `YAMLLIST_t`          |             |
+---
+
+### YAML
+
+```cpp
+using YAML = List
+```
 
 ## Functions
 
@@ -292,7 +290,7 @@ YAML * StringToYAML(char *)
 ### YAMLFromFile
 
 ```cpp
-YAML * YAMLFromFile(FILE * file_ptr)
+YAML * YAMLFromFile(char * file_name)
 ```
 
 ---
@@ -333,26 +331,6 @@ void YAMLPrint(YAML *)
 
 ```cpp
 YAML * YAMLParse(YAMLParser * parser)
-```
-
-## YAML
-
-```cpp
-struct YAML
-```
-
-### Public Attributes
-
-| Return        | Name            | Description |
-| ------------- | --------------- | ----------- |
-| `YAMLValue *` | [`root`](#root) |             |
-
----
-
-#### root
-
-```cpp
-YAMLValue * root
 ```
 
 ## DynString
@@ -615,100 +593,6 @@ u_int32_t line
 char * literal
 ```
 
-## YAMLValue
-
-```cpp
-struct YAMLValue
-```
-
-### Public Attributes
-
-| Return                                                               | Name                                                                                                     | Description |
-| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------- |
-| `enum YAMLValueType`                                                 | [`value_type`](#value_type)                                                                              |             |
-| `union YAMLValue::@164241133151322264244351313220306251143335010005` | [`@306142324131216233076101367267331363154064025165`](#306142324131216233076101367267331363154064025165) |             |
-
----
-
-#### value_type
-
-```cpp
-enum YAMLValueType value_type
-```
-
----
-
-#### @306142324131216233076101367267331363154064025165
-
-```cpp
-union YAMLValue::@164241133151322264244351313220306251143335010005 @306142324131216233076101367267331363154064025165
-```
-
-## [union].**unnamed0**
-
-```cpp
-union [union].__unnamed0__
-```
-
-### Public Attributes
-
-| Return             | Name                        | Description |
-| ------------------ | --------------------------- | ----------- |
-| `List *`           | [`list`](#list)             |             |
-| `ComplexHashMap *` | [`map`](#map)               |             |
-| `int64_t *`        | [`num_int`](#num_int)       |             |
-| `double *`         | [`num_double`](#num_double) |             |
-| `char *`           | [`str`](#str)               |             |
-| `bool *`           | [`boolean`](#boolean)       |             |
-
----
-
-#### list
-
-```cpp
-List * list
-```
-
----
-
-#### map
-
-```cpp
-ComplexHashMap * map
-```
-
----
-
-#### num_int
-
-```cpp
-int64_t * num_int
-```
-
----
-
-#### num_double
-
-```cpp
-double * num_double
-```
-
----
-
-#### str
-
-```cpp
-char * str
-```
-
----
-
-#### boolean
-
-```cpp
-bool * boolean
-```
-
 ## YAMLParser
 
 ```cpp
@@ -801,69 +685,4 @@ enum BlockScalarChomping chomping
 
 ```cpp
 uint8_t explicit_indent
-```
-
-## [union].**unnamed0**
-
-```cpp
-union [union].__unnamed0__
-```
-
-### Public Attributes
-
-| Return             | Name                        | Description |
-| ------------------ | --------------------------- | ----------- |
-| `List *`           | [`list`](#list)             |             |
-| `ComplexHashMap *` | [`map`](#map)               |             |
-| `int64_t *`        | [`num_int`](#num_int)       |             |
-| `double *`         | [`num_double`](#num_double) |             |
-| `char *`           | [`str`](#str)               |             |
-| `bool *`           | [`boolean`](#boolean)       |             |
-
----
-
-#### list
-
-```cpp
-List * list
-```
-
----
-
-#### map
-
-```cpp
-ComplexHashMap * map
-```
-
----
-
-#### num_int
-
-```cpp
-int64_t * num_int
-```
-
----
-
-#### num_double
-
-```cpp
-double * num_double
-```
-
----
-
-#### str
-
-```cpp
-char * str
-```
-
----
-
-#### boolean
-
-```cpp
-bool * boolean
 ```

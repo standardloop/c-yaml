@@ -9,8 +9,8 @@ int main(void)
     // YAMLFree(yaml);
     // TestingInit();
     // TestLexer();
-    TestParser();
-    // TestYaml();
+    // TestParser();
+    TestYaml();
     // TestingTearDown();
 
     return EXIT_SUCCESS;

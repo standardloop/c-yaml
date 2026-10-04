@@ -4,6 +4,7 @@
 #include <standardloop/util.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/_types/_u_int8_t.h>
 
 #include "./yaml.h"
 
@@ -59,58 +60,102 @@ extern void YAMLParserDebugTest(YAMLParser *parser)
     }
 }
 
-[[maybe_unused]] static YAMLValue *yamlValueInitBlank()
+static void skipNewlines(YAMLParser *parser)
 {
-    return malloc(sizeof(YAMLValue));
+    while (parser->current_token->type == YAMLTokenNewline)
+    {
+        nextYAMLToken(parser);
+    }
 }
 
-[[maybe_unused]] static YAMLValue *yamlValueInit(enum YAMLValueType value_type,
-                                                 void *value)
+static bool isAllowedEndings(enum YAMLTokenType type)
 {
-    YAMLValue *yaml_value = malloc(sizeof(YAMLValue));
-    yaml_value->value_type = value_type;
-    if (value_type == YAMLOBJ_t)
+    return type == YAMLTokenEndOfDocument || type == YAMLTokenStartOfDocument;
+}
+
+static YAMLValue *parseScalar(YAMLParser *parser)
+{
+    Log(TRACE, "%s", __FUNCTION__);
+    assert(parser->current_token->type == YAMLTokenScalar);
+    YAMLValue *return_value =
+        ItemInit(parser->current_token->literal, &ItemValueStringOperations);
+    skipNewlines(parser);
+    YAMLTokenPrint(parser->current_token);
+    nextYAMLToken(parser);
+    YAMLTokenPrint(parser->current_token);
+    if (parser->current_token->type == YAMLTokenEndStream)
     {
-        yaml_value->map = value;
+        return return_value;
     }
-    else if (value_type == YAMLLIST_t)
-    {
-        yaml_value->list = value;
-    }
-    else if (value_type == YAMLSTRING_t)
-    {
-        yaml_value->str = value;
-    }
-    else if (value_type == YAMLNUMBER_INT_t)
-    {
-        yaml_value->num_int = value;
-    }
-    else if (value_type == YAMLNUMBER_DOUBLE_t)
-    {
-        yaml_value->num_double = value;
-    }
-    else if (value_type == YAMLBOOL_t)
-    {
-        yaml_value->boolean = value;
-    }
-    // else if (value_type == YAMLNULL_t)
     else
     {
+        assert(isAllowedEndings(parser->current_token->type));
+        nextYAMLToken(parser);
+        Log(FATAL, "wip");
+        return NULL;
     }
-    return yaml_value;
 }
 
+static YAMLValue *parseFlowSequence(YAMLParser *parser)
+{
+    assert(parser != NULL);
+    return NULL;
+}
+
+static YAMLValue *parseFlowMapping(YAMLParser *parser)
+{
+    assert(parser != NULL);
+    return NULL;
+}
+
+static YAMLValue *parseMap(YAMLParser *parser)
+{
+    assert(parser != NULL);
+    return NULL;
+}
+
+static YAMLValue *parseList(YAMLParser *parser)
+{
+    assert(parser != NULL);
+    return NULL;
+}
+
+//
 static YAMLValue *parse(YAMLParser *parser)
 {
     assert(parser != NULL);
-    YAMLValue *yaml_value = NULL;
-    if (parser->current_token->type == YAMLTokenStartStream)
+    // nextYAMLToken(parser);
+    if (parser->current_token->type == YAMLTokenScalar &&
+        parser->peek_token->type != YAMLTokenValueIndicator)
     {
+        return parseScalar(parser);
     }
-    if (parser->current_token->type == YAMLTokenScalar)
+    else if (parser->current_token->type == YAMLTokenScalar &&
+             parser->peek_token->type == YAMLTokenValueIndicator)
     {
+        return parseMap(parser);
     }
-    return yaml_value;
+    else if (parser->current_token->type == YAMLTokenListDash)
+    {
+        return parseList(parser);
+    }
+    else if (parser->current_token->type == YAMLTokenFlowSequenceStart)
+    {
+        return parseFlowSequence(parser);
+    }
+    else if (parser->current_token->type == YAMLTokenFlowMappingStart)
+    {
+        return parseFlowMapping(parser);
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+static bool parserDone(YAMLParser *parser)
+{
+    return parser->current_token->type == YAMLTokenEndStream;
 }
 
 extern YAML *YAMLParse(YAMLParser *parser)
@@ -125,7 +170,22 @@ extern YAML *YAMLParse(YAMLParser *parser)
     {
         YAMLParserFree(parser);
     }
-    yaml->root = parse(parser);
+    u_int8_t doc_count = 0;
+    assert(parser->current_token->type == YAMLTokenStartStream);
+    nextYAMLToken(parser);
+    while (ALWAYS)
+    {
+        Log(DEBUG, "looping");
+        YAMLValue *yaml_item = parse(parser);
+        ListAddAtIndex(yaml, yaml_item, doc_count);
+        doc_count++;
+        if (parserDone(parser))
+        {
+            break;
+        }
+        exit(1);
+    }
+    YAMLParserFree(parser);
 
     return yaml;
 }

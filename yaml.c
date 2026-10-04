@@ -11,12 +11,11 @@
 
 extern YAML *YAMLInit()
 {
-    YAML *yaml = malloc(sizeof(YAML));
+    YAML *yaml = ListInit(1, 2);
     if (yaml == NULL)
     {
         return NULL;
     }
-    yaml->root = NULL;
     return yaml;
 }
 
@@ -43,9 +42,14 @@ extern YAML *StringToYAML(char *yaml_string)
     return NULL;
 }
 
-extern YAML *YAMLFromFile(FILE *file_ptr)
+extern YAML *YAMLFromFile(char *file_name)
 {
-    Log(TRACE, "%s", __FUNCTION__);
+    FILE *file_ptr = fopen(file_name, "rb");
+    if (file_ptr == NULL)
+    {
+        Log(FATAL, "file_ptr is NULL in %s", __FUNCTION__);
+    }
+    // Log(TRACE, "%s", __FUNCTION__);
     if (file_ptr == NULL)
     {
         Log(ERROR, "file is NULL");
@@ -87,12 +91,7 @@ extern void YAMLFree(YAML *yaml)
 {
     if (yaml != NULL)
     {
-        if (yaml->root != NULL)
-        {
-            // FIXME, custom free function needed here
-            free(yaml->root);
-        }
-        free(yaml);
+        ListFree(yaml);
     }
 }
 
@@ -101,8 +100,7 @@ extern void YAMLPrint(YAML *yaml)
     if (yaml != NULL)
     {
         // FIXME, custom print needed here.
+        ListPrint(yaml);
         return;
     }
 }
-
-extern void TestYaml(void) {}
