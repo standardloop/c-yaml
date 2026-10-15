@@ -172,8 +172,9 @@ extern YAMLLexer *YAMLLexerInit(FILE *file_ptr)
     lexer->indent_stack = ListInitDefault();
     int *zero_int = malloc(sizeof(int));
     *zero_int = 0;
-    ListAddFirst(lexer->indent_stack,
-                 ItemInit(zero_int, &ItemValueIntOperations));
+    ListAddFirst(
+        lexer->indent_stack,
+        ItemInit(zero_int, &SL_COLLECTIONS_TYPE_INT, &ItemValueIntOperations));
 
     lexer->flow_stack = ListInitDefault();
     resetLexerSpaceCount(lexer);
@@ -702,7 +703,8 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         char *flow_entry_char = malloc(sizeof(char));
         *flow_entry_char = BRACKET_OPEN_CHAR;
         Item *flow_entry =
-            ItemInit(flow_entry_char, &ItemValueStringOperations);
+            ItemInit(flow_entry_char, &SL_COLLECTIONS_TYPE_STRING,
+                     &ItemValueStringOperations);
         ListAddFirst(lexer->flow_stack, flow_entry);
 
         advanceChar(lexer);
@@ -749,7 +751,8 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         char *flow_entry_char = malloc(sizeof(char));
         *flow_entry_char = CURLY_OPEN_CHAR;
         Item *flow_entry =
-            ItemInit(flow_entry_char, &ItemValueStringOperations);
+            ItemInit(flow_entry_char, &SL_COLLECTIONS_TYPE_STRING,
+                     &ItemValueStringOperations);
         ListAddFirst(lexer->flow_stack, flow_entry);
         advanceChar(lexer);
         skipSpaceAndNewline(lexer);
@@ -967,7 +970,8 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
             // Log(DEBUG, "%d", __LINE__);
             int *new_top = malloc(sizeof(int));
             *new_top = lexer->space_count;
-            Item *new_top_item = ItemInit(new_top, &ItemValueIntOperations);
+            Item *new_top_item = ItemInit(new_top, &SL_COLLECTIONS_TYPE_INT,
+                                          &ItemValueIntOperations);
             ListAddFirst(lexer->indent_stack, new_top_item);
             // ListPrint(lexer->indent_stack);
 

@@ -55,7 +55,7 @@ extern YAML *YAMLFromFile(char *file_name)
         Log(ERROR, "file is NULL");
         return NULL;
     }
-    Log(TRACE, "file_ptr is not NULL");
+    // Log(TRACE, "file_ptr is not NULL");
 
     YAMLParser *parser = YAMLParserInit(file_ptr);
     if (parser == NULL)
@@ -99,8 +99,12 @@ extern void YAMLPrint(YAML *yaml)
 {
     if (yaml != NULL)
     {
-        // FIXME, custom print needed here.
-        ListPrint(yaml);
+        for (u_int32_t i = 0; i < yaml->size; i++)
+        {
+            printf("---\n");
+            ItemPrint(yaml->items[i]);
+            printf("\n...\n");
+        }
         return;
     }
 }

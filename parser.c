@@ -75,14 +75,15 @@ static bool isAllowedEndings(enum YAMLTokenType type)
 
 static YAMLValue *parseScalar(YAMLParser *parser)
 {
-    Log(TRACE, "%s", __FUNCTION__);
+    // Log(TRACE, "%s", __FUNCTION__);
     assert(parser->current_token->type == YAMLTokenScalar);
     YAMLValue *return_value =
-        ItemInit(parser->current_token->literal, &ItemValueStringOperations);
+        ItemInit(parser->current_token->literal, &SL_COLLECTIONS_TYPE_STRING,
+                 &ItemValueStringOperations);
     skipNewlines(parser);
-    YAMLTokenPrint(parser->current_token);
+    // YAMLTokenPrint(parser->current_token);
     nextYAMLToken(parser);
-    YAMLTokenPrint(parser->current_token);
+    // YAMLTokenPrint(parser->current_token);
     if (parser->current_token->type == YAMLTokenEndStream)
     {
         return return_value;
@@ -175,7 +176,7 @@ extern YAML *YAMLParse(YAMLParser *parser)
     nextYAMLToken(parser);
     while (ALWAYS)
     {
-        Log(DEBUG, "looping");
+        // Log(DEBUG, "looping");
         YAMLValue *yaml_item = parse(parser);
         ListAddAtIndex(yaml, yaml_item, doc_count);
         doc_count++;
@@ -183,7 +184,6 @@ extern YAML *YAMLParse(YAMLParser *parser)
         {
             break;
         }
-        exit(1);
     }
     YAMLParserFree(parser);
 
