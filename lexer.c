@@ -611,8 +611,9 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         // move past
         advanceChar(lexer);
         lexer->state = YAMLLexerStateJustGotNewline;
-        return YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->cursor + 1,
-                             lexer->line, NULL);
+        return handleYAMLLexerStateJustGotNewline(lexer);
+        // return YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->cursor + 1,
+        //                      lexer->line, NULL);
     }
 
     if (isDocStart(lexer))
@@ -932,6 +933,12 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
         }
     }
 
+    // we don't need to emit extra newlines
+    while (lexer->current_char == NEWLINE_CHAR)
+    {
+        advanceChar(lexer);
+    }
+
     if (lexer->current_char == TAB_CHAR)
     {
         Log(DEBUG, "%d", __LINE__);
@@ -940,13 +947,13 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
         return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor + 1,
                              lexer->line, NULL);
     }
-    else if (lexer->current_char == NEWLINE_CHAR)
-    {
-        lexer->state = YAMLLexerStateJustGotNewline;
-        advanceChar(lexer);
-        return YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->cursor + 1,
-                             lexer->line, NULL);
-    }
+    // else if (lexer->current_char == NEWLINE_CHAR)
+    // {
+    //     lexer->state = YAMLLexerStateJustGotNewline;
+    //     advanceChar(lexer);
+    //     return YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->cursor + 1,
+    //                          lexer->line, NULL);
+    // }
     else if (isInFlow(lexer))
     {
         resetLexerSpaceCount(lexer);
