@@ -11,7 +11,7 @@
 
 extern void TestYaml(void)
 {
-    YAML *test = YAMLFromFile("./testfiles/only/string.yaml");
+    YAML *test = YAMLFromFile("./testfiles/playground.yaml");
     YAMLPrint(test);
     YAMLFree(test);
     return;

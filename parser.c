@@ -4,7 +4,8 @@
 #include <standardloop/util.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/_types/_u_int8_t.h>
+
+#define ENTER_FUNC_LOG Log(TRACE, "entering %s...", __PRETTY_FUNCTION__);
 
 #include "./yaml.h"
 
@@ -60,13 +61,13 @@ extern void YAMLParserDebugTest(YAMLParser *parser)
     }
 }
 
-static void skipNewlines(YAMLParser *parser)
-{
-    while (parser->current_token->type == YAMLTokenNewline)
-    {
-        nextYAMLToken(parser);
-    }
-}
+// static void skipNewlines(YAMLParser *parser)
+// {
+//     while (parser->current_token->type == YAMLTokenNewline)
+//     {
+//         nextYAMLToken(parser);
+//     }
+// }
 
 static bool isAllowedEndings(enum YAMLTokenType type)
 {
@@ -80,7 +81,7 @@ static YAMLValue *parseScalar(YAMLParser *parser)
     YAMLValue *return_value =
         ItemInit(parser->current_token->literal, &SL_COLLECTIONS_TYPE_STRING,
                  &ItemValueStringOperations);
-    skipNewlines(parser);
+    // skipNewlines(parser); // this should be handled by the lexer tbh
     // YAMLTokenPrint(parser->current_token);
     nextYAMLToken(parser);
     // YAMLTokenPrint(parser->current_token);
@@ -111,8 +112,45 @@ static YAMLValue *parseFlowMapping(YAMLParser *parser)
 
 static YAMLValue *parseMap(YAMLParser *parser)
 {
+    ENTER_FUNC_LOG
     assert(parser != NULL);
-    return NULL;
+    assert(parser->current_token->type == YAMLTokenScalar);
+    assert(parser->peek_token->type == YAMLTokenValueIndicator);
+
+    // create the map
+    ComplexHashMap *map = ComplexHashMapInitDefault();
+    YAMLValue *yaml_value_item =
+        ItemInit(map, &SL_COLLECTIONS_TYPE_COMPLEX_HASHMAP,
+                 &ItemValueComplexHashMapOperations);
+    while (ALWAYS)
+    {
+        YAMLTokenPrint(parser->current_token);
+        assert(parser->current_token->type == YAMLTokenScalar);
+        Item *key =
+            ItemInit(parser->current_token->literal,
+                     &SL_COLLECTIONS_TYPE_STRING, &ItemValueStringOperations);
+
+        nextYAMLToken(parser);
+        assert(parser->current_token->type == YAMLTokenValueIndicator);
+        nextYAMLToken(parser);
+        if (parser->current_token->type == YAMLTokenScalar)
+        {
+            ComplexHashMapInsert(map, key,
+                                 ItemInit(parser->current_token->literal,
+                                          &SL_COLLECTIONS_TYPE_STRING,
+                                          &ItemValueStringOperations));
+        }
+        else
+        {
+            Log(FATAL, "not ready for this yet");
+        }
+        nextYAMLToken(parser);
+        if (parser->current_token->type == YAMLTokenEndStream)
+        {
+            break;
+        }
+    }
+    return yaml_value_item;
 }
 
 static YAMLValue *parseList(YAMLParser *parser)
@@ -124,6 +162,7 @@ static YAMLValue *parseList(YAMLParser *parser)
 //
 static YAMLValue *parse(YAMLParser *parser)
 {
+    ENTER_FUNC_LOG
     assert(parser != NULL);
     // nextYAMLToken(parser);
     if (parser->current_token->type == YAMLTokenScalar &&
@@ -174,10 +213,19 @@ extern YAML *YAMLParse(YAMLParser *parser)
     u_int8_t doc_count = 0;
     assert(parser->current_token->type == YAMLTokenStartStream);
     nextYAMLToken(parser);
+    if (parser->current_token->type == YAMLTokenStartOfDocument)
+    {
+        nextYAMLToken(parser);
+    }
     while (ALWAYS)
     {
-        // Log(DEBUG, "looping");
+        YAMLTokenPrint(parser->current_token);
+        Log(DEBUG, "looping");
         YAMLValue *yaml_item = parse(parser);
+        if (yaml_item == NULL)
+        {
+            Log(FATAL, "null yaml_item");
+        }
         ListAddAtIndex(yaml, yaml_item, doc_count);
         doc_count++;
         if (parserDone(parser))
