@@ -73,13 +73,8 @@ typedef struct
     u_int32_t end;
     u_int32_t line;
     char *literal;
+    bool quoted;
 } YAMLToken;
-
-extern YAMLToken *YAMLTokenInit(enum YAMLTokenType, u_int32_t, u_int32_t,
-                                u_int32_t, char *);
-
-extern char *YAMLTokenTypeToString(enum YAMLTokenType);
-extern void YAMLTokenPrint(YAMLToken *);
 
 enum YAMLLexerState
 {
@@ -147,8 +142,12 @@ extern void YAMLLexerDebugTest(char *file_name);
 
 extern YAMLToken *YAMLLex(YAMLLexer *lexer);
 extern void YAMLTokenFree(YAMLToken *token);
+extern void YAMLTokenPrint(YAMLToken *);
 extern YAMLToken *YAMLTokenInit(enum YAMLTokenType type, u_int32_t start,
-                                u_int32_t end, u_int32_t line, char *literal);
+                                u_int32_t end, u_int32_t line, char *literal,
+                                bool quoted);
+extern char *YAMLTokenTypeToString(enum YAMLTokenType);
+
 extern YAMLLexer *YAMLLexerInit(FILE *file_ptr);
 extern void YAMLLexerFree(YAMLLexer *lexer);
 

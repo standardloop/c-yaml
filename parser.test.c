@@ -7,7 +7,7 @@
 
 extern void TestParser()
 {
-    FILE *file_ptr = fopen("./testfiles/only/string.yaml", "rb");
+    FILE *file_ptr = fopen("./testfiles/only/playground.yaml", "rb");
     // TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
     // if (!file_ptr)
     // {

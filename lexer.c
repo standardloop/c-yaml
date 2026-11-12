@@ -367,6 +367,7 @@ static char *eatScalar(YAMLLexer *lexer, bool in_anchor)
     if (lexer->current_char == '\"' || lexer->current_char == '\'')
     {
         quote_char = lexer->current_char;
+        // lexer->quoted_scalar = true;
         advanceChar(lexer);
     }
     bool in_quotes = quote_char != NULL_CHAR;
@@ -461,7 +462,7 @@ static YAMLToken *handleBlockScalar(YAMLLexer *lexer)
         lexer->current_char != SPACE_CHAR && lexer->current_char != '#')
     {
         return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor,
-                             lexer->line, NULL);
+                             lexer->line, NULL, false);
     }
     else
     {
@@ -483,7 +484,7 @@ static YAMLToken *handleBlockScalar(YAMLLexer *lexer)
     }
     char *scalar = eatBlockScalar(lexer);
     return YAMLTokenInit(YAMLTokenScalar, curr_pos, lexer->cursor, lexer->line,
-                         scalar);
+                         scalar, false);
 }
 
 static inline bool isWhiteSpaceOrBreak(char c)
@@ -514,7 +515,7 @@ handleYAMLLexerStateFoundEOFNeedToPopRemainingDedent(YAMLLexer *lexer)
     if (lexer->indent_stack->size == 1)
     {
         return YAMLTokenInit(YAMLTokenEndStream, curr_pos, lexer->cursor + 1,
-                             lexer->line, NULL);
+                             lexer->line, NULL, false);
     }
     else
     {
@@ -525,7 +526,7 @@ handleYAMLLexerStateFoundEOFNeedToPopRemainingDedent(YAMLLexer *lexer)
             YAMLLexerStateFoundEOFNeedToPopRemainingDedent; // maintain
                                                             // state
         return YAMLTokenInit(YAMLTokenDedent, curr_pos, lexer->cursor + 1,
-                             lexer->line, NULL);
+                             lexer->line, NULL, false);
     }
 }
 
@@ -613,7 +614,7 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         lexer->state = YAMLLexerStateJustGotNewline;
         return handleYAMLLexerStateJustGotNewline(lexer);
         // return YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->cursor + 1,
-        //                      lexer->line, NULL);
+        //                      lexer->line, NULL, false);
     }
 
     if (isDocStart(lexer))
@@ -624,7 +625,7 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         // move past
         advanceChar(lexer);
         return YAMLTokenInit(YAMLTokenStartOfDocument, curr_pos,
-                             lexer->cursor + 1, lexer->line, NULL);
+                             lexer->cursor + 1, lexer->line, NULL, false);
     }
     else if (isEndOfDocStart(lexer))
     {
@@ -634,7 +635,7 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         // move past
         advanceChar(lexer);
         return YAMLTokenInit(YAMLTokenEndOfDocument, curr_pos,
-                             lexer->cursor + 1, lexer->line, NULL);
+                             lexer->cursor + 1, lexer->line, NULL, false);
     }
     else if (lexer->current_char == DASH_MINUS_CHAR)
     {
@@ -644,14 +645,14 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
             advanceChar(lexer);
             advanceChar(lexer);
             return YAMLTokenInit(YAMLTokenListDash, curr_pos, lexer->cursor + 1,
-                                 lexer->line, NULL);
+                                 lexer->line, NULL, false);
         }
         else
         {
             advanceChar(lexer);
             Log(DEBUG, "%d", __LINE__);
             return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor + 1,
-                                 lexer->line, NULL);
+                                 lexer->line, NULL, false);
         }
     }
     else if (lexer->current_char == COLON_CHAR)
@@ -676,14 +677,14 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
             // }
 
             return YAMLTokenInit(YAMLTokenValueIndicator, curr_pos,
-                                 lexer->cursor, lexer->line, NULL);
+                                 lexer->cursor, lexer->line, NULL, false);
         }
         else
         {
             advanceChar(lexer);
             Log(DEBUG, "%d", __LINE__);
             return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor,
-                                 lexer->line, NULL);
+                                 lexer->line, NULL, false);
         }
     }
     else if (lexer->current_char == COMMA_CHAR)
@@ -696,7 +697,7 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         skipSpaceAndNewline(lexer);
 
         return YAMLTokenInit(YAMLTokenFlowEntry, curr_pos, lexer->cursor,
-                             lexer->line, NULL);
+                             lexer->line, NULL, false);
     }
     else if (lexer->current_char == BRACKET_OPEN_CHAR)
     {
@@ -712,7 +713,7 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         skipSpaceAndNewline(lexer);
 
         return YAMLTokenInit(YAMLTokenFlowSequenceStart, curr_pos,
-                             lexer->cursor, lexer->line, NULL);
+                             lexer->cursor, lexer->line, NULL, false);
         // Log(FATAL, "%d", __LINE__);
     }
     else if (lexer->current_char == BRACKET_CLOSE_CHAR)
@@ -744,7 +745,7 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         }
 
         return YAMLTokenInit(YAMLTokenFlowSequenceEnd, curr_pos, lexer->cursor,
-                             lexer->line, NULL);
+                             lexer->line, NULL, false);
         // Log(FATAL, "%d", __LINE__);
     }
     else if (lexer->current_char == CURLY_OPEN_CHAR)
@@ -758,7 +759,7 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         advanceChar(lexer);
         skipSpaceAndNewline(lexer);
         return YAMLTokenInit(YAMLTokenFlowMappingStart, curr_pos, lexer->cursor,
-                             lexer->line, NULL);
+                             lexer->line, NULL, false);
     }
     else if (lexer->current_char == CURLY_CLOSE_CHAR)
     {
@@ -789,7 +790,7 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         }
 
         return YAMLTokenInit(YAMLTokenFlowMappingEnd, curr_pos, lexer->cursor,
-                             lexer->line, NULL);
+                             lexer->line, NULL, false);
     }
     else if (lexer->current_char == '|' || lexer->current_char == '>')
     {
@@ -797,7 +798,7 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         {
             advanceChar(lexer);
             return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor,
-                                 lexer->line, NULL);
+                                 lexer->line, NULL, false);
         }
         return handleBlockScalar(lexer);
     }
@@ -812,7 +813,7 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         }
         // lexer->state = YAMLLexerStateJustGotNewline;
         return YAMLTokenInit(YAMLTokenAnchor, curr_pos, lexer->cursor,
-                             lexer->line, scalar);
+                             lexer->line, scalar, false);
     }
     else if (lexer->current_char == '*')
     {
@@ -821,20 +822,20 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         char *scalar = eatScalar(lexer, false);
         // lexer->state = YAMLLexerStateJustGotNewline;
         return YAMLTokenInit(YAMLTokenAlias, curr_pos, lexer->cursor,
-                             lexer->line, scalar);
+                             lexer->line, scalar, false);
     }
     else if (lexer->current_char == QUESTION_CHAR)
     {
         advanceChar(lexer);
         return YAMLTokenInit(YAMLTokenComplexKeyIndicator, curr_pos,
-                             lexer->cursor, lexer->line, NULL);
+                             lexer->cursor, lexer->line, NULL, false);
     }
     else
     {
         // printchar(lexer->current_char);
         char *scalar = eatScalar(lexer, false);
         return YAMLTokenInit(YAMLTokenScalar, curr_pos, lexer->cursor,
-                             lexer->line, scalar);
+                             lexer->line, scalar, false);
     }
 }
 
@@ -865,7 +866,7 @@ static YAMLToken *handleYAMLLexerStatePopDedent(YAMLLexer *lexer)
             }
             // lexer->space_count -= lexer->this_indent_space_count;
             return YAMLTokenInit(YAMLTokenDedent, curr_pos, lexer->cursor + 1,
-                                 lexer->line, NULL);
+                                 lexer->line, NULL, false);
         }
         else
         {
@@ -874,7 +875,7 @@ static YAMLToken *handleYAMLLexerStatePopDedent(YAMLLexer *lexer)
             Log(DEBUG, "%d", __LINE__);
 
             return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor + 1,
-                                 lexer->line, NULL);
+                                 lexer->line, NULL, false);
         }
     }
 }
@@ -945,7 +946,7 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
         resetLexerSpaceCount(lexer);
         resetLexerState(lexer);
         return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor + 1,
-                             lexer->line, NULL);
+                             lexer->line, NULL, false);
     }
     // else if (lexer->current_char == NEWLINE_CHAR)
     // {
@@ -986,7 +987,7 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
             resetLexerState(lexer);
             // advanceChar(lexer);
             return YAMLTokenInit(YAMLTokenIndent, curr_pos, lexer->cursor + 1,
-                                 lexer->line, NULL);
+                                 lexer->line, NULL, false);
         }
         else if (lexer->space_count < top_of_stack_value)
         {
@@ -1018,7 +1019,7 @@ static YAMLToken *handleYAMLLexerStartStream(YAMLLexer *lexer)
     assert(lexer->state == YAMLLexerStartStream);
 
     lexer->state = YAMLLexerStateJustGotNewline;
-    return YAMLTokenInit(YAMLTokenStartStream, 0, 0, lexer->line, NULL);
+    return YAMLTokenInit(YAMLTokenStartStream, 0, 0, lexer->line, NULL, false);
 }
 
 extern YAMLToken *YAMLLex(YAMLLexer *lexer)
@@ -1098,7 +1099,8 @@ extern void YAMLLexerDebugTest(char *file_name)
 }
 
 extern YAMLToken *YAMLTokenInit(enum YAMLTokenType type, u_int32_t start,
-                                u_int32_t end, u_int32_t line, char *literal)
+                                u_int32_t end, u_int32_t line, char *literal,
+                                bool quoted)
 {
     YAMLToken *token = malloc(sizeof(YAMLToken));
     if (token == NULL)
@@ -1111,6 +1113,7 @@ extern YAMLToken *YAMLTokenInit(enum YAMLTokenType type, u_int32_t start,
     token->end = end;
     token->literal = literal;
     token->line = line;
+    token->quoted = quoted;
     return token;
 }
 

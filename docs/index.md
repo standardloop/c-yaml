@@ -199,30 +199,6 @@ DynString * DynStringDefaultInit()
 
 ---
 
-### YAMLTokenInit
-
-```cpp
-YAMLToken * YAMLTokenInit(enum YAMLTokenType, u_int32_t, u_int32_t, u_int32_t, char *)
-```
-
----
-
-### YAMLTokenTypeToString
-
-```cpp
-char * YAMLTokenTypeToString(enum YAMLTokenType)
-```
-
----
-
-### YAMLTokenPrint
-
-```cpp
-void YAMLTokenPrint(YAMLToken *)
-```
-
----
-
 ### YAMLLex
 
 ```cpp
@@ -235,6 +211,30 @@ YAMLToken * YAMLLex(YAMLLexer * lexer)
 
 ```cpp
 void YAMLTokenFree(YAMLToken * token)
+```
+
+---
+
+### YAMLTokenPrint
+
+```cpp
+void YAMLTokenPrint(YAMLToken *)
+```
+
+---
+
+### YAMLTokenInit
+
+```cpp
+YAMLToken * YAMLTokenInit(enum YAMLTokenType type, u_int32_t start, u_int32_t end, u_int32_t line, char * literal, bool quoted)
+```
+
+---
+
+### YAMLTokenTypeToString
+
+```cpp
+char * YAMLTokenTypeToString(enum YAMLTokenType)
 ```
 
 ---
@@ -552,6 +552,7 @@ struct YAMLToken
 | `u_int32_t`          | [`end`](#end)         |             |
 | `u_int32_t`          | [`line`](#line-1)     |             |
 | `char *`             | [`literal`](#literal) |             |
+| `bool`               | [`quoted`](#quoted)   |             |
 
 ---
 
@@ -591,6 +592,14 @@ u_int32_t line
 
 ```cpp
 char * literal
+```
+
+---
+
+#### quoted
+
+```cpp
+bool quoted
 ```
 
 ## YAMLParser
