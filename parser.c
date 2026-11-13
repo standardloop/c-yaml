@@ -10,6 +10,7 @@
 #include "./yaml.h"
 
 static void nextYAMLToken(YAMLParser *parser);
+static YAMLValue *parse(YAMLParser *parser);
 
 extern YAMLParser *YAMLParserInit(FILE *file_ptr)
 {
@@ -124,30 +125,64 @@ static YAMLValue *parseMap(YAMLParser *parser)
                  &ItemValueComplexHashMapOperations);
     while (ALWAYS)
     {
-        YAMLTokenPrint(parser->current_token);
-        assert(parser->current_token->type == YAMLTokenScalar);
-        Item *key =
-            ItemInit(parser->current_token->literal,
-                     &SL_COLLECTIONS_TYPE_STRING, &ItemValueStringOperations);
 
-        nextYAMLToken(parser);
-        assert(parser->current_token->type == YAMLTokenValueIndicator);
-        nextYAMLToken(parser);
-        if (parser->current_token->type == YAMLTokenScalar)
+        YAMLTokenPrint(parser->current_token);
+        while (parser->current_token->type == YAMLTokenNewline)
         {
-            ComplexHashMapInsert(map, key,
-                                 ItemInit(parser->current_token->literal,
-                                          &SL_COLLECTIONS_TYPE_STRING,
-                                          &ItemValueStringOperations));
+            nextYAMLToken(parser);
         }
-        else
-        {
-            Log(FATAL, "not ready for this yet");
-        }
-        nextYAMLToken(parser);
-        if (parser->current_token->type == YAMLTokenEndStream)
+        if (parser->current_token->type == YAMLTokenEndStream ||
+            parser->current_token->type == YAMLTokenDedent) // handle nested
         {
             break;
+        }
+
+        if (parser->current_token->type == YAMLTokenScalar)
+        {
+            Item *key = ItemInit(parser->current_token->literal,
+                                 &SL_COLLECTIONS_TYPE_STRING,
+                                 &ItemValueStringOperations);
+
+            nextYAMLToken(parser);
+            Log(DEBUG, "should be value indicator");
+            assert(parser->current_token->type == YAMLTokenValueIndicator);
+            nextYAMLToken(parser);
+            Log(DEBUG, "should be value or nested now");
+            if (parser->current_token->type == YAMLTokenScalar)
+            {
+                Log(DEBUG, "it is value");
+                ComplexHashMapInsert(map, key,
+                                     ItemInit(parser->current_token->literal,
+                                              &SL_COLLECTIONS_TYPE_STRING,
+                                              &ItemValueStringOperations));
+                nextYAMLToken(parser);
+            }
+            else
+            {
+                while (parser->current_token->type == YAMLTokenNewline)
+                {
+                    nextYAMLToken(parser);
+                }
+
+                if (parser->current_token->type == YAMLTokenIndent)
+                {
+                    Log(DEBUG, "nested?");
+                    nextYAMLToken(parser);
+                    assert(parser->current_token->type == YAMLTokenScalar);
+                    ComplexHashMapInsert(map, key, parse(parser));
+                    nextYAMLToken(parser);
+                }
+                else
+                {
+                    YAMLTokenPrint(parser->current_token);
+                    Log(FATAL, "not ready for this yet");
+                }
+            }
+        }
+        else // if (parser->current_token->type == YAMLTokenIndent)
+        {
+            YAMLTokenPrint(parser->current_token);
+            Log(FATAL, "not ready for this yet");
         }
     }
     return yaml_value_item;
@@ -217,9 +252,13 @@ extern YAML *YAMLParse(YAMLParser *parser)
     {
         nextYAMLToken(parser);
     }
+    while (parser->current_token->type == YAMLTokenNewline)
+    {
+        nextYAMLToken(parser);
+    }
     while (ALWAYS)
     {
-        YAMLTokenPrint(parser->current_token);
+        // YAMLTokenPrint(parser->current_token);
         Log(DEBUG, "looping");
         YAMLValue *yaml_item = parse(parser);
         if (yaml_item == NULL)

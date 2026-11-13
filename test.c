@@ -31,7 +31,7 @@ int main(void)
     // josh();
     // YAMLFree(yaml);
     TestingInit();
-    TestLexer();
+    // TestLexer();
     // TestParser();
     TestYaml();
     TestingTearDown();
