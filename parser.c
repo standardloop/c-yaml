@@ -70,7 +70,7 @@ static inline void skipNewlines(YAMLParser *parser)
     }
 }
 
-static bool isAllowedEndings(enum YAMLTokenType type)
+[[maybe_unused]] static bool isAllowedEndings(enum YAMLTokenType type)
 {
     return type == YAMLTokenEndOfDocument || type == YAMLTokenStartOfDocument;
 }
@@ -82,21 +82,21 @@ static YAMLValue *parseScalar(YAMLParser *parser)
     YAMLValue *return_value =
         ItemInit(parser->current_token->literal, &SL_COLLECTIONS_TYPE_STRING,
                  &ItemValueStringOperations);
-    // skipNewlines(parser); // this should be handled by the lexer tbh
-    // YAMLTokenPrint(parser->current_token);
     nextYAMLToken(parser);
+    return return_value;
+
     // YAMLTokenPrint(parser->current_token);
-    if (parser->current_token->type == YAMLTokenEndStream)
-    {
-        return return_value;
-    }
-    else
-    {
-        assert(isAllowedEndings(parser->current_token->type));
-        nextYAMLToken(parser);
-        Log(FATAL, "wip");
-        return NULL;
-    }
+    // if (parser->current_token->type == YAMLTokenEndStream)
+    // {
+    //     return return_value;
+    // }
+    // else
+    // {
+    //     assert(isAllowedEndings(parser->current_token->type));
+    //     nextYAMLToken(parser);
+    //     Log(FATAL, "wip");
+    //     return NULL;
+    // }
 }
 
 static YAMLValue *parseFlowSequence(YAMLParser *parser)
@@ -223,20 +223,14 @@ static YAMLValue *parseList(YAMLParser *parser)
         if (parser->current_token->type == YAMLTokenListDash)
         {
             nextYAMLToken(parser);
-
-            if (parser->current_token->type == YAMLTokenScalar)
-            {
-                Item *entry = ItemInit(parser->current_token->literal,
-                                       &SL_COLLECTIONS_TYPE_STRING,
-                                       &ItemValueStringOperations);
-                ListAddAtIndex(list, entry, idx);
-                idx++;
-                nextYAMLToken(parser);
-            }
-            else
-            {
-                Log(FATAL, "not ready for this yet");
-            }
+            Item *entry = parse(parser);
+            ListAddAtIndex(list, entry, idx);
+            idx++;
+            nextYAMLToken(parser);
+        }
+        else
+        {
+            Log(FATAL, "HUH");
         }
     }
 
