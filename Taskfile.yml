@@ -4,8 +4,8 @@ version: "3"
 # silent: true
 
 includes:
-  c: https://raw.githubusercontent.com/standardloop/taskfiles/refs/heads/main/c.yml # can pin in future
-  # c: ../taskfiles/c.yml
+  # c: https://raw.githubusercontent.com/standardloop/taskfiles/refs/heads/main/c.yml # can pin in future
+  c: ../taskfiles/c.yml
 
 vars:
   CC: /opt/homebrew/opt/llvm/bin/clang -I/usr/local/include

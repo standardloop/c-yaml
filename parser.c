@@ -62,13 +62,13 @@ extern void YAMLParserDebugTest(YAMLParser *parser)
     }
 }
 
-// static void skipNewlines(YAMLParser *parser)
-// {
-//     while (parser->current_token->type == YAMLTokenNewline)
-//     {
-//         nextYAMLToken(parser);
-//     }
-// }
+static inline void skipNewlines(YAMLParser *parser)
+{
+    while (parser->current_token->type == YAMLTokenNewline)
+    {
+        nextYAMLToken(parser);
+    }
+}
 
 static bool isAllowedEndings(enum YAMLTokenType type)
 {
@@ -127,10 +127,9 @@ static YAMLValue *parseMap(YAMLParser *parser)
     {
 
         YAMLTokenPrint(parser->current_token);
-        while (parser->current_token->type == YAMLTokenNewline)
-        {
-            nextYAMLToken(parser);
-        }
+
+        skipNewlines(parser);
+
         if (parser->current_token->type == YAMLTokenEndStream ||
             parser->current_token->type == YAMLTokenDedent) // handle nested
         {
@@ -159,10 +158,7 @@ static YAMLValue *parseMap(YAMLParser *parser)
             }
             else
             {
-                while (parser->current_token->type == YAMLTokenNewline)
-                {
-                    nextYAMLToken(parser);
-                }
+                skipNewlines(parser);
 
                 if (parser->current_token->type == YAMLTokenIndent)
                 {
@@ -188,10 +184,63 @@ static YAMLValue *parseMap(YAMLParser *parser)
     return yaml_value_item;
 }
 
+// FIXME: eventually we will need to handle a null for example
+
+/*
+```yaml
+-
+-
+-
+```
+is equal to
+```json
+[
+  null,
+  null,
+  null
+]
+```
+*/
 static YAMLValue *parseList(YAMLParser *parser)
 {
+    ENTER_FUNC_LOG
     assert(parser != NULL);
-    return NULL;
+    assert(parser->current_token->type == YAMLTokenListDash);
+    // create the list
+    List *list = ListInitDefault();
+    assert(list != NULL);
+    YAMLValue *yaml_value_item =
+        ItemInit(list, &SL_COLLECTIONS_TYPE_LIST, &ItemValueListOperations);
+    u_int32_t idx = 0;
+    while (ALWAYS)
+    {
+        skipNewlines(parser);
+        if (parser->current_token->type == YAMLTokenEndStream)
+        {
+            break;
+        }
+
+        if (parser->current_token->type == YAMLTokenListDash)
+        {
+            nextYAMLToken(parser);
+
+            if (parser->current_token->type == YAMLTokenScalar)
+            {
+                Item *entry = ItemInit(parser->current_token->literal,
+                                       &SL_COLLECTIONS_TYPE_STRING,
+                                       &ItemValueStringOperations);
+                ListAddAtIndex(list, entry, idx);
+                idx++;
+                nextYAMLToken(parser);
+            }
+            else
+            {
+                Log(FATAL, "not ready for this yet");
+            }
+        }
+    }
+
+    return yaml_value_item;
 }
 
 //
