@@ -150,6 +150,7 @@ extern YAMLLexer *YAMLLexerInit(FILE *file_ptr)
     lexer->bytes_in_buffer = 0;
     lexer->eof_reached = false;
     lexer->state = YAMLLexerStartStream;
+    lexer->quoted_scalar = false;
 
     // Read initial 4096 bytes into Left Half
     size_t read_bytes = fread(lexer->buffer, 1, CHUNK_SIZE, lexer->file_ptr);
@@ -367,7 +368,7 @@ static char *eatScalar(YAMLLexer *lexer, bool in_anchor)
     if (lexer->current_char == '\"' || lexer->current_char == '\'')
     {
         quote_char = lexer->current_char;
-        // lexer->quoted_scalar = true;
+        lexer->quoted_scalar = true;
         advanceChar(lexer);
     }
     bool in_quotes = quote_char != NULL_CHAR;
@@ -612,9 +613,9 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         // move past
         advanceChar(lexer);
         lexer->state = YAMLLexerStateJustGotNewline;
-        return handleYAMLLexerStateJustGotNewline(lexer);
-        // return YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->cursor + 1,
-        //                      lexer->line, NULL, false);
+        // return handleYAMLLexerStateJustGotNewline(lexer);
+        return YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->cursor + 1,
+                             lexer->line, NULL, false);
     }
 
     if (isDocStart(lexer))
@@ -835,7 +836,7 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         // printchar(lexer->current_char);
         char *scalar = eatScalar(lexer, false);
         return YAMLTokenInit(YAMLTokenScalar, curr_pos, lexer->cursor,
-                             lexer->line, scalar, false);
+                             lexer->line, scalar, lexer->quoted_scalar);
     }
 }
 
@@ -934,11 +935,11 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
         }
     }
 
-    // we don't need to emit extra newlines
-    while (lexer->current_char == NEWLINE_CHAR)
-    {
-        advanceChar(lexer);
-    }
+    // TODO, do we want to emit extra newlines
+    // while (lexer->current_char == NEWLINE_CHAR)
+    // {
+    //     advanceChar(lexer);
+    // }
 
     if (lexer->current_char == TAB_CHAR)
     {
@@ -948,13 +949,13 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
         return YAMLTokenInit(YAMLTokenIllegal, curr_pos, lexer->cursor + 1,
                              lexer->line, NULL, false);
     }
-    // else if (lexer->current_char == NEWLINE_CHAR)
-    // {
-    //     lexer->state = YAMLLexerStateJustGotNewline;
-    //     advanceChar(lexer);
-    //     return YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->cursor + 1,
-    //                          lexer->line, NULL);
-    // }
+    else if (lexer->current_char == NEWLINE_CHAR)
+    {
+        lexer->state = YAMLLexerStateJustGotNewline;
+        advanceChar(lexer);
+        return YAMLTokenInit(YAMLTokenNewline, curr_pos, lexer->cursor + 1,
+                             lexer->line, NULL, false);
+    }
     else if (isInFlow(lexer))
     {
         resetLexerSpaceCount(lexer);
@@ -1024,6 +1025,7 @@ static YAMLToken *handleYAMLLexerStartStream(YAMLLexer *lexer)
 
 extern YAMLToken *YAMLLex(YAMLLexer *lexer)
 {
+    lexer->quoted_scalar = false;
     if (lexer->state == YAMLLexerStartStream)
     {
         return handleYAMLLexerStartStream(lexer);

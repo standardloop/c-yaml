@@ -119,6 +119,7 @@ typedef struct
     u_int32_t line;
     char current_char;
     bool eof_reached;
+    bool quoted_scalar;
     enum YAMLLexerState state;
     List *flow_stack;
     List *indent_stack;

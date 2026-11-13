@@ -379,6 +379,7 @@ struct YAMLLexer
 | `u_int32_t`                                | [`line`](#line)                                       |             |
 | `char`                                     | [`current_char`](#current_char)                       |             |
 | `bool`                                     | [`eof_reached`](#eof_reached)                         |             |
+| `bool`                                     | [`quoted_scalar`](#quoted_scalar)                     |             |
 | `enum YAMLLexerState`                      | [`state`](#state)                                     |             |
 | `List *`                                   | [`flow_stack`](#flow_stack)                           |             |
 | `List *`                                   | [`indent_stack`](#indent_stack)                       |             |
@@ -440,6 +441,14 @@ char current_char
 
 ```cpp
 bool eof_reached
+```
+
+---
+
+#### quoted_scalar
+
+```cpp
+bool quoted_scalar
 ```
 
 ---
