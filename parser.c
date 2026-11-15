@@ -11,6 +11,7 @@
 
 static void nextYAMLToken(YAMLParser *parser);
 static YAMLValue *parse(YAMLParser *parser);
+static YAMLValue *parseList(YAMLParser *parser);
 
 extern YAMLParser *YAMLParserInit(FILE *file_ptr)
 {
@@ -126,30 +127,57 @@ static YAMLValue *parseMap(YAMLParser *parser)
     while (ALWAYS)
     {
 
-        YAMLTokenPrint(parser->current_token);
+        // YAMLTokenPrint(parser->current_token);
 
         skipNewlines(parser);
 
-        if (parser->current_token->type == YAMLTokenEndStream ||
-            parser->current_token->type == YAMLTokenDedent) // handle nested
+        if (parser->current_token->type == YAMLTokenEndStream)
         {
+            Log(TRACE, "breaking because of end of stream");
+            break;
+        }
+        else if (parser->current_token->type == YAMLTokenDedent)
+        {
+            Log(TRACE, "break cause of dedent...");
+            nextYAMLToken(parser);
+            // YAMLTokenPrint(parser->current_token);
+            // exit(1);
             break;
         }
 
         if (parser->current_token->type == YAMLTokenScalar)
         {
+            Log(TRACE, "found key: %s", parser->current_token->literal);
             Item *key = ItemInit(parser->current_token->literal,
                                  &SL_COLLECTIONS_TYPE_STRING,
                                  &ItemValueStringOperations);
 
             nextYAMLToken(parser);
-            Log(DEBUG, "should be value indicator");
             assert(parser->current_token->type == YAMLTokenValueIndicator);
             nextYAMLToken(parser);
-            Log(DEBUG, "should be value or nested now");
-            if (parser->current_token->type == YAMLTokenScalar)
+            skipNewlines(parser);
+            // Log(DEBUG, "should be value or nested now");
+
+            // FIXME: the value can be any kind, not just a scalar
+            // need to call parse() here
+
+            if (parser->current_token->type == YAMLTokenIndent)
             {
-                Log(DEBUG, "it is value");
+                Log(TRACE, "found an indent token");
+                nextYAMLToken(parser);
+                ComplexHashMapInsert(map, key, parse(parser));
+                continue;
+            }
+            if (parser->current_token->type == YAMLTokenListDash)
+            {
+                Log(TRACE, "list dash inside map with no indent");
+                ComplexHashMapInsert(map, key, parseList(parser));
+                nextYAMLToken(parser);
+            }
+            else if (parser->current_token->type == YAMLTokenScalar)
+            {
+                Log(TRACE, "found a normal value: %s",
+                    parser->current_token->literal);
                 ComplexHashMapInsert(map, key,
                                      ItemInit(parser->current_token->literal,
                                               &SL_COLLECTIONS_TYPE_STRING,
@@ -158,21 +186,9 @@ static YAMLValue *parseMap(YAMLParser *parser)
             }
             else
             {
-                skipNewlines(parser);
-
-                if (parser->current_token->type == YAMLTokenIndent)
-                {
-                    Log(DEBUG, "nested?");
-                    nextYAMLToken(parser);
-                    assert(parser->current_token->type == YAMLTokenScalar);
-                    ComplexHashMapInsert(map, key, parse(parser));
-                    nextYAMLToken(parser);
-                }
-                else
-                {
-                    YAMLTokenPrint(parser->current_token);
-                    Log(FATAL, "not ready for this yet");
-                }
+                // could be end of stream here
+                Log(ERROR, "hmmmm");
+                YAMLTokenPrint(parser->current_token);
             }
         }
         else // if (parser->current_token->type == YAMLTokenIndent)
@@ -215,7 +231,8 @@ static YAMLValue *parseList(YAMLParser *parser)
     while (ALWAYS)
     {
         skipNewlines(parser);
-        if (parser->current_token->type == YAMLTokenEndStream)
+        if (parser->current_token->type == YAMLTokenEndStream ||
+            parser->current_token->type == YAMLTokenDedent)
         {
             break;
         }
@@ -230,7 +247,7 @@ static YAMLValue *parseList(YAMLParser *parser)
         }
         else
         {
-            Log(FATAL, "HUH");
+            // Log(FATAL, "HUH");
         }
     }
 
