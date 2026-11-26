@@ -14,6 +14,6 @@ extern void TestParser()
     //     return;
     // }
 
-    YAMLParser *parser = YAMLParserInit(file_ptr);
+    YAMLParser *parser = YAMLParserInit(InputModeFile, file_ptr);
     YAMLParserDebugTest(parser);
 }

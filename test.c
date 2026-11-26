@@ -31,9 +31,9 @@ int main(void)
     // josh();
     // YAMLFree(yaml);
     TestingInit();
-    // TestLexer();
+    TestLexer();
     // TestParser();
-    TestYaml();
+    // TestYaml();
     TestingTearDown();
 
     return EXIT_SUCCESS;

@@ -13,13 +13,13 @@ static void nextYAMLToken(YAMLParser *parser);
 static YAMLValue *parse(YAMLParser *parser);
 static YAMLValue *parseList(YAMLParser *parser);
 
-extern YAMLParser *YAMLParserInit(FILE *file_ptr)
+extern YAMLParser *YAMLParserInit(enum InputMode input_mode, void *input_ptr)
 {
     // Log(TRACE, "%s", __FUNCTION__);
 
     YAMLParser *parser = malloc(sizeof(YAMLParser));
 
-    parser->lexer = YAMLLexerInit(file_ptr);
+    parser->lexer = YAMLLexerInit(input_mode, input_ptr);
     parser->error_message = NULL;
     parser->current_token = NULL;
     parser->peek_token = NULL;

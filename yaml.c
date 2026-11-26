@@ -57,7 +57,7 @@ extern YAML *YAMLFromFile(char *file_name)
     }
     // Log(TRACE, "file_ptr is not NULL");
 
-    YAMLParser *parser = YAMLParserInit(file_ptr);
+    YAMLParser *parser = YAMLParserInit(InputModeFile, file_ptr);
     if (parser == NULL)
     {
         return NULL;

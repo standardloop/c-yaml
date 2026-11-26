@@ -110,9 +110,16 @@ enum BlockScalarChomping
         '+', // Retains all trailing \n characters and blank lines verbatim.
 };
 
+enum InputMode
+{
+    InputModeFile,
+    InputModeString,
+};
+
 typedef struct
 {
-    FILE *file_ptr;
+    enum InputMode input_mode;
+    void *input_ptr; // FILE * or char * based on InputMode
     char buffer[BUFFER_SIZE];
     size_t cursor;
     size_t bytes_in_buffer;
@@ -149,34 +156,24 @@ extern YAMLToken *YAMLTokenInit(enum YAMLTokenType type, u_int32_t start,
                                 bool quoted);
 extern char *YAMLTokenTypeToString(enum YAMLTokenType);
 
-extern YAMLLexer *YAMLLexerInit(FILE *file_ptr);
+extern YAMLLexer *YAMLLexerInit(enum InputMode input_mode, void *input_ptr);
 extern void YAMLLexerFree(YAMLLexer *lexer);
 
 // ————————— LEXER END —————————
 
 // ————————— PARSER START —————————
 
-enum YAMLParserInputMode
-{
-    YAMLParserInputFile,
-    // YAMLParserInputString
-};
-
 typedef struct
 {
-    // enum YAMLParserInputMode input_mode;
-    // union
-    // {
-    // FILE *file_ptr;
-    // char *string_ptr;
-    // };
+    enum InputMode input_mode;
+    void *input_ptr;
     YAMLLexer *lexer;
     YAMLToken *current_token;
     YAMLToken *peek_token;
     char *error_message;
 } YAMLParser;
 
-extern YAMLParser *YAMLParserInit(FILE *file_ptr);
+extern YAMLParser *YAMLParserInit(enum InputMode input_mode, void *input_ptr);
 extern void YAMLParserFree(YAMLParser *parser);
 
 /// @cond INTERNAL
