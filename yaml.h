@@ -9,22 +9,6 @@
 
 #include <standardloop/collections.h>
 
-typedef struct
-{
-    char *value;
-    size_t size;
-    // size_t chars;
-    // size_t cur_idx;
-} DynString;
-
-extern char *DynStringToCString(DynString *str);
-extern void DynStringFree(DynString *str);
-extern void DynStringPrint(DynString *str);
-extern void DynStringAddCharAt(DynString *str, size_t idx, char c);
-extern void DynStringTrimEnd(DynString *str);
-extern void DynStringShiftLeft(DynString *str, size_t index);
-extern DynString *DynStringDefaultInit();
-
 // ————————— LEXER START —————————
 enum YAMLTokenType
 {
@@ -112,7 +96,7 @@ enum BlockScalarChomping
 
 typedef struct
 {
-    void *file_ptr;
+    FILE *file_ptr;
     char buffer[BUFFER_SIZE];
     size_t cursor;
     size_t bytes_in_buffer;

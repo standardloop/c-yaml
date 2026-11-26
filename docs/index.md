@@ -4,7 +4,6 @@
 
 | Name                                                | Description |
 | --------------------------------------------------- | ----------- |
-| [`DynString`](#dynstring)                           |             |
 | [`YAMLLexer`](#yamllexer)                           |             |
 | [`YAMLToken`](#yamltoken)                           |             |
 | [`YAMLParser`](#yamlparser)                         |             |
@@ -128,62 +127,6 @@ using YAML = List
 ```
 
 ## Functions
-
----
-
-### DynStringToCString
-
-```cpp
-char * DynStringToCString(DynString * str)
-```
-
----
-
-### DynStringFree
-
-```cpp
-void DynStringFree(DynString * str)
-```
-
----
-
-### DynStringPrint
-
-```cpp
-void DynStringPrint(DynString * str)
-```
-
----
-
-### DynStringAddCharAt
-
-```cpp
-void DynStringAddCharAt(DynString * str, size_t idx, char c)
-```
-
----
-
-### DynStringTrimEnd
-
-```cpp
-void DynStringTrimEnd(DynString * str)
-```
-
----
-
-### DynStringShiftLeft
-
-```cpp
-void DynStringShiftLeft(DynString * str, size_t index)
-```
-
----
-
-### DynStringDefaultInit
-
-```cpp
-DynString * DynStringDefaultInit()
-```
 
 ---
 
@@ -321,35 +264,6 @@ void YAMLPrint(YAML *)
 YAML * YAMLParse(YAMLParser * parser)
 ```
 
-## DynString
-
-```cpp
-struct DynString
-```
-
-### Public Attributes
-
-| Return   | Name              | Description |
-| -------- | ----------------- | ----------- |
-| `char *` | [`value`](#value) |             |
-| `size_t` | [`size`](#size)   |             |
-
----
-
-#### value
-
-```cpp
-char * value
-```
-
----
-
-#### size
-
-```cpp
-size_t size
-```
-
 ## YAMLLexer
 
 ```cpp
@@ -360,7 +274,7 @@ struct YAMLLexer
 
 | Return                                     | Name                                                  | Description |
 | ------------------------------------------ | ----------------------------------------------------- | ----------- |
-| `void *`                                   | [`file_ptr`](#file_ptr)                               |             |
+| `FILE *`                                   | [`file_ptr`](#file_ptr)                               |             |
 | `char`                                     | [`buffer`](#buffer)                                   |             |
 | `size_t`                                   | [`cursor`](#cursor)                                   |             |
 | `size_t`                                   | [`bytes_in_buffer`](#bytes_in_buffer)                 |             |
@@ -380,7 +294,7 @@ struct YAMLLexer
 #### file_ptr
 
 ```cpp
-void * file_ptr
+FILE * file_ptr
 ```
 
 ---

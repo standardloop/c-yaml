@@ -1,4 +1,3 @@
-#include <_stdio.h>
 #include <assert.h>
 #include <errno.h>
 #include <stdbool.h>
@@ -8,6 +7,7 @@
 #include <strings.h>
 
 #include <standardloop/collections.h>
+#include <standardloop/dynstring.h>
 #include <standardloop/logger.h>
 #include <standardloop/util.h>
 

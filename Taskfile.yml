@@ -8,13 +8,12 @@ includes:
 
 vars:
   CC: clang -I/usr/local/include
-  DYN_LIBS_USED: "-lstandardloop-logger -lstandardloop-collections -lstandardloop-util"
+  DYN_LIBS_USED: "-lstandardloop-logger -lstandardloop-collections -lstandardloop-util -lstandardloop-dynstring"
   TEST_EXECUTABLE_NAME: test
   SOURCE_FILES:
     - yaml.c
     - parser.c
     - lexer.c
-    - dynstring.c
   TEST_SOURCE_FILES:
     - lexer.test.c
     - parser.test.c
@@ -40,6 +39,7 @@ tasks:
       - task: c:dependencies:logger
       - task: c:dependencies:util
       - task: c:dependencies:collections
+      - task: c:dependencies:dynstring
 
   release:
     desc: "Release the dylib, used by GitHub actions."
@@ -110,6 +110,7 @@ tasks:
           "libstandardloop-util.dylib",
           "libstandardloop-collections.dylib",
           "libstandardloop-testing.dylib",
+          "libstandardloop-dynstring.dylib",
         ]
     cmds:
       - |
