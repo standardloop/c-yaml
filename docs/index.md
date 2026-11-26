@@ -243,7 +243,7 @@ char * YAMLTokenTypeToString(enum YAMLTokenType)
 ### YAMLLexerInit
 
 ```cpp
-YAMLLexer * YAMLLexerInit(enum InputMode input_mode, void * input_ptr)
+YAMLLexer * YAMLLexerInit(FILE * file_ptr)
 ```
 
 ---
@@ -373,8 +373,7 @@ struct YAMLLexer
 
 | Return                                     | Name                                                  | Description |
 | ------------------------------------------ | ----------------------------------------------------- | ----------- |
-| `enum InputMode`                           | [`input_mode`](#input_mode)                           |             |
-| `void *`                                   | [`input_ptr`](#input_ptr)                             |             |
+| `void *`                                   | [`file_ptr`](#file_ptr)                               |             |
 | `char`                                     | [`buffer`](#buffer)                                   |             |
 | `size_t`                                   | [`cursor`](#cursor)                                   |             |
 | `size_t`                                   | [`bytes_in_buffer`](#bytes_in_buffer)                 |             |
@@ -391,18 +390,10 @@ struct YAMLLexer
 
 ---
 
-#### input_mode
+#### file_ptr
 
 ```cpp
-enum InputMode input_mode
-```
-
----
-
-#### input_ptr
-
-```cpp
-void * input_ptr
+void * file_ptr
 ```
 
 ---
@@ -631,8 +622,8 @@ struct YAMLParser
 
 | Return           | Name                              | Description |
 | ---------------- | --------------------------------- | ----------- |
-| `enum InputMode` | [`input_mode`](#input_mode-1)     |             |
-| `void *`         | [`input_ptr`](#input_ptr-1)       |             |
+| `enum InputMode` | [`input_mode`](#input_mode)       |             |
+| `void *`         | [`input_ptr`](#input_ptr)         |             |
 | `YAMLLexer *`    | [`lexer`](#lexer)                 |             |
 | `YAMLToken *`    | [`current_token`](#current_token) |             |
 | `YAMLToken *`    | [`peek_token`](#peek_token)       |             |

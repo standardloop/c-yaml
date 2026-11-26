@@ -25,7 +25,7 @@ static void testOnlyEmpty(void)
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -45,7 +45,7 @@ static void testOnlyDocStart(void)
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -66,7 +66,7 @@ static void testOnlyDocEnd(void)
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -87,7 +87,7 @@ static void testOnlyListFlow(void)
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -110,7 +110,7 @@ static void testOnlyListNormal(void)
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -132,7 +132,7 @@ static void testOnlyMapNormal(void)
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -155,7 +155,7 @@ static void testOnlyMapFlow(void)
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -180,7 +180,7 @@ static void testOnlyString(void)
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -201,7 +201,7 @@ static void testOnlyNull(void)
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -235,7 +235,7 @@ static void testMultiDocumentAndFlowContainers(void)
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -319,7 +319,7 @@ static void testMixed(void)
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -387,7 +387,7 @@ static void testBlockLiteralSimple()
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -411,7 +411,7 @@ static void testBlockLiteralSimpleStrip()
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -436,7 +436,7 @@ static void testBlockLiteralSimpleKeep()
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -462,7 +462,7 @@ static void testBlockLiteralSimpleWithNumber()
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -489,7 +489,7 @@ static void testBlockLiteralSimpleNested()
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -528,7 +528,7 @@ static void testBlockLiteralSimpleWithLeadingLines()
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -554,7 +554,7 @@ static void testBlockScalarSimpleAfterDash()
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -583,7 +583,7 @@ static void testBlockLiteralSimpleWithDashAndNumber()
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -624,7 +624,7 @@ static void testBlockFoldedSimple()
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -650,7 +650,7 @@ static void testBlockSimpleFoldedWithKeepChomping()
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -676,7 +676,7 @@ static void testBlockSimpleFoldedAfterDash()
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -707,7 +707,7 @@ static void testDepartmentsNoAnchors()
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -764,7 +764,7 @@ static void testDepartments()
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -821,7 +821,7 @@ static void testSimpleMergeKey()
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");
@@ -869,7 +869,7 @@ static void testAliasesInList()
         return;
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
     YAMLToken *token = NULL;
 
     ASSERT_TOKEN(YAMLTokenStartStream, "Start");

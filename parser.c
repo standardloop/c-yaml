@@ -19,7 +19,18 @@ extern YAMLParser *YAMLParserInit(enum InputMode input_mode, void *input_ptr)
 
     YAMLParser *parser = malloc(sizeof(YAMLParser));
 
-    parser->lexer = YAMLLexerInit(input_mode, input_ptr);
+    FILE *file_ptr = NULL;
+    if (input_mode == InputModeFile)
+    {
+        file_ptr = input_ptr;
+    }
+    else if (input_mode == InputModeString)
+    {
+        size_t size = strlen(input_ptr);
+        file_ptr = fmemopen((void *)input_ptr, size == 0 ? 1 : size, "rb");
+    }
+
+    parser->lexer = YAMLLexerInit(file_ptr);
     parser->error_message = NULL;
     parser->current_token = NULL;
     parser->peek_token = NULL;

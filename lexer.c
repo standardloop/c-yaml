@@ -78,7 +78,7 @@ void reload(YAMLLexer *lexer)
         if (!lexer->eof_reached)
         {
             size_t read_bytes = fread(lexer->buffer + lexer->bytes_in_buffer, 1,
-                                      CHUNK_SIZE, lexer->input_ptr);
+                                      CHUNK_SIZE, lexer->file_ptr);
             lexer->bytes_in_buffer += read_bytes;
             if (read_bytes < CHUNK_SIZE)
             {
@@ -105,7 +105,7 @@ char peek(YAMLLexer *lexer, size_t offset)
         }
         // Read into the unused trailing space of the buffer
         size_t read_bytes = fread(lexer->buffer + lexer->bytes_in_buffer, 1,
-                                  space_left, lexer->input_ptr);
+                                  space_left, lexer->file_ptr);
 
         lexer->bytes_in_buffer += read_bytes;
 
@@ -141,12 +141,11 @@ static void resetLexerBlockScalarOptions(YAMLLexer *lexer)
     lexer->block_scalar_options.chomping = BlockScalarStyleClip;
 }
 
-extern YAMLLexer *YAMLLexerInit(enum InputMode input_mode, void *input_ptr)
+extern YAMLLexer *YAMLLexerInit(FILE *file_ptr)
 {
-    assert(input_ptr != NULL);
+    assert(file_ptr != NULL);
     YAMLLexer *lexer = malloc(sizeof(YAMLLexer));
-    lexer->input_mode = input_mode;
-    lexer->input_ptr = input_ptr;
+    lexer->file_ptr = file_ptr;
     lexer->cursor = 0;
     lexer->bytes_in_buffer = 0;
     lexer->eof_reached = false;
@@ -154,7 +153,7 @@ extern YAMLLexer *YAMLLexerInit(enum InputMode input_mode, void *input_ptr)
     lexer->quoted_scalar = false;
 
     // Read initial 4096 bytes into Left Half
-    size_t read_bytes = fread(lexer->buffer, 1, CHUNK_SIZE, lexer->input_ptr);
+    size_t read_bytes = fread(lexer->buffer, 1, CHUNK_SIZE, lexer->file_ptr);
     lexer->bytes_in_buffer = read_bytes;
     if (read_bytes < CHUNK_SIZE)
     {
@@ -1084,7 +1083,7 @@ extern void YAMLLexerDebugTest(char *file_name)
         Log(FATAL, "file_ptr is NULL in %s", __FUNCTION__);
     }
 
-    YAMLLexer *lexer = YAMLLexerInit(InputModeFile, file_ptr);
+    YAMLLexer *lexer = YAMLLexerInit(file_ptr);
 
     while (true)
     {

@@ -110,16 +110,9 @@ enum BlockScalarChomping
         '+', // Retains all trailing \n characters and blank lines verbatim.
 };
 
-enum InputMode
-{
-    InputModeFile,
-    InputModeString,
-};
-
 typedef struct
 {
-    enum InputMode input_mode;
-    void *input_ptr; // FILE * or char * based on InputMode
+    void *file_ptr;
     char buffer[BUFFER_SIZE];
     size_t cursor;
     size_t bytes_in_buffer;
@@ -156,12 +149,18 @@ extern YAMLToken *YAMLTokenInit(enum YAMLTokenType type, u_int32_t start,
                                 bool quoted);
 extern char *YAMLTokenTypeToString(enum YAMLTokenType);
 
-extern YAMLLexer *YAMLLexerInit(enum InputMode input_mode, void *input_ptr);
+extern YAMLLexer *YAMLLexerInit(FILE *file_ptr);
 extern void YAMLLexerFree(YAMLLexer *lexer);
 
 // ————————— LEXER END —————————
 
 // ————————— PARSER START —————————
+
+enum InputMode
+{
+    InputModeFile,
+    InputModeString,
+};
 
 typedef struct
 {
