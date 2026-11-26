@@ -7,15 +7,13 @@
 
 extern void TestParser()
 {
-    // FILE *file_ptr = fopen("./testfiles/playground.yaml", "rb");
-    // TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
-    // if (!file_ptr)
-    // {
-    //     return;
-    // }
+    FILE *file_ptr = fopen("./testfiles/playground.yaml", "rb");
+    TestCaseVerify(true, "File opened successfully", file_ptr != NULL);
+    if (!file_ptr)
+    {
+        return;
+    }
 
-    char *input_str = "---";
-
-    YAMLParser *parser = YAMLParserInit(InputModeString, input_str);
+    YAMLParser *parser = YAMLParserInit(file_ptr);
     YAMLParserDebugTest(parser);
 }

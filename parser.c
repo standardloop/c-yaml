@@ -13,22 +13,11 @@ static void nextYAMLToken(YAMLParser *parser);
 static YAMLValue *parse(YAMLParser *parser);
 static YAMLValue *parseList(YAMLParser *parser);
 
-extern YAMLParser *YAMLParserInit(enum InputMode input_mode, void *input_ptr)
+extern YAMLParser *YAMLParserInit(FILE *file_ptr)
 {
     // Log(TRACE, "%s", __FUNCTION__);
 
     YAMLParser *parser = malloc(sizeof(YAMLParser));
-
-    FILE *file_ptr = NULL;
-    if (input_mode == InputModeFile)
-    {
-        file_ptr = input_ptr;
-    }
-    else if (input_mode == InputModeString)
-    {
-        size_t size = strlen(input_ptr);
-        file_ptr = fmemopen((void *)input_ptr, size == 0 ? 1 : size, "rb");
-    }
 
     parser->lexer = YAMLLexerInit(file_ptr);
     parser->error_message = NULL;

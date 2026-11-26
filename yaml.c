@@ -42,6 +42,20 @@ extern YAML *StringToYAML(char *yaml_string)
     return NULL;
 }
 
+extern YAML *YAMLFromString(char *input_str, size_t input_str_len)
+{
+    FILE *file_ptr = fmemopen((void *)input_str,
+                              input_str_len == 0 ? 1 : input_str_len, "rb");
+    YAMLParser *parser = YAMLParserInit(file_ptr);
+    if (parser == NULL)
+    {
+        return NULL;
+    }
+    YAML *yaml = YAMLParse(parser);
+    fclose(file_ptr);
+    return yaml;
+}
+
 extern YAML *YAMLFromFile(char *file_name)
 {
     FILE *file_ptr = fopen(file_name, "rb");
@@ -57,7 +71,7 @@ extern YAML *YAMLFromFile(char *file_name)
     }
     // Log(TRACE, "file_ptr is not NULL");
 
-    YAMLParser *parser = YAMLParserInit(InputModeFile, file_ptr);
+    YAMLParser *parser = YAMLParserInit(file_ptr);
     if (parser == NULL)
     {
         return NULL;
@@ -65,15 +79,6 @@ extern YAML *YAMLFromFile(char *file_name)
 
     YAML *yaml = YAMLParse(parser);
     fclose(file_ptr);
-
-    // if (ferror(file_ptr))
-    // {
-    //     perror("Error reading file");
-    // }
-    // else if (feof(file_ptr))
-    // {
-    //     fclose(file_ptr);
-    // }
 
     return yaml;
 }

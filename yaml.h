@@ -156,23 +156,16 @@ extern void YAMLLexerFree(YAMLLexer *lexer);
 
 // ————————— PARSER START —————————
 
-enum InputMode
-{
-    InputModeFile,
-    InputModeString,
-};
-
 typedef struct
 {
-    enum InputMode input_mode;
-    void *input_ptr;
+    FILE *file_ptr;
     YAMLLexer *lexer;
     YAMLToken *current_token;
     YAMLToken *peek_token;
     char *error_message;
 } YAMLParser;
 
-extern YAMLParser *YAMLParserInit(enum InputMode input_mode, void *input_ptr);
+extern YAMLParser *YAMLParserInit(FILE *file_ptr);
 extern void YAMLParserFree(YAMLParser *parser);
 
 /// @cond INTERNAL

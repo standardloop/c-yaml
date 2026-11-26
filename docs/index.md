@@ -109,19 +109,6 @@ enum BlockScalarChomping
 | `BlockScalarStyleStrip` |             |
 | `BlockScalarStyleKeep`  |             |
 
----
-
-### InputMode
-
-```cpp
-enum InputMode
-```
-
-| Value             | Description |
-| ----------------- | ----------- |
-| `InputModeFile`   |             |
-| `InputModeString` |             |
-
 ## Typedefs
 
 ---
@@ -259,7 +246,7 @@ void YAMLLexerFree(YAMLLexer * lexer)
 ### YAMLParserInit
 
 ```cpp
-YAMLParser * YAMLParserInit(enum InputMode input_mode, void * input_ptr)
+YAMLParser * YAMLParserInit(FILE * file_ptr)
 ```
 
 ---
@@ -620,29 +607,20 @@ struct YAMLParser
 
 ### Public Attributes
 
-| Return           | Name                              | Description |
-| ---------------- | --------------------------------- | ----------- |
-| `enum InputMode` | [`input_mode`](#input_mode)       |             |
-| `void *`         | [`input_ptr`](#input_ptr)         |             |
-| `YAMLLexer *`    | [`lexer`](#lexer)                 |             |
-| `YAMLToken *`    | [`current_token`](#current_token) |             |
-| `YAMLToken *`    | [`peek_token`](#peek_token)       |             |
-| `char *`         | [`error_message`](#error_message) |             |
+| Return        | Name                              | Description |
+| ------------- | --------------------------------- | ----------- |
+| `FILE *`      | [`file_ptr`](#file_ptr-1)         |             |
+| `YAMLLexer *` | [`lexer`](#lexer)                 |             |
+| `YAMLToken *` | [`current_token`](#current_token) |             |
+| `YAMLToken *` | [`peek_token`](#peek_token)       |             |
+| `char *`      | [`error_message`](#error_message) |             |
 
 ---
 
-#### input_mode
+#### file_ptr
 
 ```cpp
-enum InputMode input_mode
-```
-
----
-
-#### input_ptr
-
-```cpp
-void * input_ptr
+FILE * file_ptr
 ```
 
 ---
