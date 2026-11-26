@@ -32,7 +32,7 @@ static inline void maintainLexerState(YAMLLexer *lexer,
 
 static bool isInFlow(YAMLLexer *lexer)
 {
-    return lexer->flow_stack->size > 0;
+    return StackSize(lexer->flow_stack) > 0;
 }
 
 static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer);
@@ -170,14 +170,15 @@ extern YAMLLexer *YAMLLexerInit(FILE *file_ptr)
         lexer->current_char = NULL_CHAR;
     }
 
-    lexer->indent_stack = ListInitDefault();
+    lexer->indent_stack = StackInitDefault();
     int *zero_int = malloc(sizeof(int));
     *zero_int = 0;
-    ListAddFirst(
-        lexer->indent_stack,
-        ItemInit(zero_int, &SL_COLLECTIONS_TYPE_INT, &ItemValueIntOperations));
+    StackPush(lexer->indent_stack, ItemInit(zero_int, &SL_COLLECTIONS_TYPE_INT,
+                                            &ItemValueIntOperations));
+    // StackPrint(lexer->indent_stack);
 
-    lexer->flow_stack = ListInitDefault();
+    lexer->flow_stack = StackInitDefault();
+    // StackPrint(lexer->flow_stack);
     resetLexerSpaceCount(lexer);
     resetLexerBlockScalarOptions(lexer);
     return lexer;
@@ -264,7 +265,7 @@ static char *eatBlockScalar(YAMLLexer *lexer)
     DynString *str = DynStringDefaultInit();
     size_t chars_found = 0;
 
-    int parent_indent = *(int *)ListGetFirst(lexer->indent_stack)->value;
+    int parent_indent = *(int *)StackPeek(lexer->indent_stack)->value;
 
     // skip leading newlines
     while (lexer->current_char == NEWLINE_CHAR)
@@ -513,14 +514,14 @@ handleYAMLLexerStateFoundEOFNeedToPopRemainingDedent(YAMLLexer *lexer)
 {
     u_int32_t curr_pos = lexer->cursor;
     assert(lexer->state == YAMLLexerStateFoundEOFNeedToPopRemainingDedent);
-    if (lexer->indent_stack->size == 1)
+    if (StackSize(lexer->indent_stack) == 1)
     {
         return YAMLTokenInit(YAMLTokenEndStream, curr_pos, lexer->cursor + 1,
                              lexer->line, NULL, false);
     }
     else
     {
-        Item *dedent_item = ListPopFirst(lexer->indent_stack);
+        Item *dedent_item = StackPop(lexer->indent_stack);
         ItemFree(dedent_item);
 
         lexer->state =
@@ -708,7 +709,7 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         Item *flow_entry =
             ItemInit(flow_entry_char, &SL_COLLECTIONS_TYPE_STRING,
                      &ItemValueStringOperations);
-        ListAddFirst(lexer->flow_stack, flow_entry);
+        StackPush(lexer->flow_stack, flow_entry);
 
         advanceChar(lexer);
         skipSpaceAndNewline(lexer);
@@ -719,20 +720,22 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
     }
     else if (lexer->current_char == BRACKET_CLOSE_CHAR)
     {
-        if (lexer->flow_stack == 0)
+        if (StackSize(lexer->flow_stack) == 0)
         {
             Log(FATAL, "%d", __LINE__);
         }
         else
         {
-            if (*(char *)ListGetFirst(lexer->flow_stack)->value !=
+            if (*(char *)StackPeek(lexer->flow_stack)->value !=
                 BRACKET_OPEN_CHAR)
             {
                 Log(FATAL, "%d", __LINE__);
             }
             else
             {
-                ItemFree(ListPopFirst(lexer->flow_stack));
+                // Log(ERROR, "%d", StackSize(lexer->flow_stack));
+                ItemFree(StackPop(lexer->flow_stack));
+                // Log(ERROR, "%d", StackSize(lexer->flow_stack));
             }
         }
         advanceChar(lexer);
@@ -756,7 +759,7 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         Item *flow_entry =
             ItemInit(flow_entry_char, &SL_COLLECTIONS_TYPE_STRING,
                      &ItemValueStringOperations);
-        ListAddFirst(lexer->flow_stack, flow_entry);
+        StackPush(lexer->flow_stack, flow_entry);
         advanceChar(lexer);
         skipSpaceAndNewline(lexer);
         return YAMLTokenInit(YAMLTokenFlowMappingStart, curr_pos, lexer->cursor,
@@ -770,14 +773,13 @@ static YAMLToken *handleYAMLLexerStateNormal(YAMLLexer *lexer)
         }
         else
         {
-            if (*(char *)ListGetFirst(lexer->flow_stack)->value !=
-                CURLY_OPEN_CHAR)
+            if (*(char *)StackPeek(lexer->flow_stack)->value != CURLY_OPEN_CHAR)
             {
                 Log(FATAL, "%d", __LINE__);
             }
             else
             {
-                ItemFree(ListPopFirst(lexer->flow_stack));
+                ItemFree(StackPop(lexer->flow_stack));
             }
         }
         advanceChar(lexer);
@@ -844,19 +846,19 @@ static YAMLToken *handleYAMLLexerStatePopDedent(YAMLLexer *lexer)
 {
     assert(lexer->state == YAMLLexerStatePopDedent);
     u_int32_t curr_pos = lexer->cursor;
-    if (lexer->indent_stack->size == 1)
+    if (StackSize(lexer->indent_stack) == 1)
     {
         resetLexerState(lexer);
         return handleYAMLLexerStateNormal(lexer);
     }
     else
     {
-        Item *dedent_item = ListPopFirst(lexer->indent_stack);
+        Item *dedent_item = StackPop(lexer->indent_stack);
         int dedent_item_value = *(int *)dedent_item->value;
         if (dedent_item_value > lexer->space_count)
         {
             ItemFree(dedent_item);
-            if (*(int *)ListGetFirst(lexer->indent_stack)->value ==
+            if (*(int *)StackPeek(lexer->indent_stack)->value ==
                 lexer->space_count)
             {
                 resetLexerState(lexer);
@@ -901,7 +903,7 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
             advanceChar(lexer);
         }
         // we only set this on the first one
-        if (lexer->indent_stack->size == 1)
+        if (StackSize(lexer->indent_stack) == 1)
         {
             lexer->this_indent_space_count = lexer->space_count;
         }
@@ -965,8 +967,7 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
     else
     {
         // Log(DEBUG, "%d", __LINE__);
-        int top_of_stack_value =
-            *(int *)ListGetFirst(lexer->indent_stack)->value;
+        int top_of_stack_value = *(int *)StackPeek(lexer->indent_stack)->value;
         if (lexer->space_count == top_of_stack_value)
         {
             // Log(DEBUG, "same indent %d", __LINE__);
@@ -981,7 +982,7 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
             *new_top = lexer->space_count;
             Item *new_top_item = ItemInit(new_top, &SL_COLLECTIONS_TYPE_INT,
                                           &ItemValueIntOperations);
-            ListAddFirst(lexer->indent_stack, new_top_item);
+            StackPush(lexer->indent_stack, new_top_item);
             // ListPrint(lexer->indent_stack);
 
             resetLexerSpaceCount(lexer);
@@ -993,7 +994,7 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
         else if (lexer->space_count < top_of_stack_value)
         {
             // Log(DEBUG, "%d", lexer->space_count);
-            if (lexer->indent_stack->size > 1)
+            if (StackSize(lexer->indent_stack) > 1)
             {
                 lexer->state = YAMLLexerStatePopDedent;
                 assert(lexer->this_indent_space_count >= 1);

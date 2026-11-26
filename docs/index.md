@@ -381,8 +381,8 @@ struct YAMLLexer
 | `bool`                                     | [`eof_reached`](#eof_reached)                         |             |
 | `bool`                                     | [`quoted_scalar`](#quoted_scalar)                     |             |
 | `enum YAMLLexerState`                      | [`state`](#state)                                     |             |
-| `List *`                                   | [`flow_stack`](#flow_stack)                           |             |
-| `List *`                                   | [`indent_stack`](#indent_stack)                       |             |
+| `Stack *`                                  | [`flow_stack`](#flow_stack)                           |             |
+| `Stack *`                                  | [`indent_stack`](#indent_stack)                       |             |
 | `u_int8_t`                                 | [`this_indent_space_count`](#this_indent_space_count) |             |
 | `int`                                      | [`space_count`](#space_count)                         |             |
 | `struct YAMLLexer::block_scalar_options_s` | [`block_scalar_options`](#block_scalar_options)       |             |
@@ -464,7 +464,7 @@ enum YAMLLexerState state
 #### flow_stack
 
 ```cpp
-List * flow_stack
+Stack * flow_stack
 ```
 
 ---
@@ -472,7 +472,7 @@ List * flow_stack
 #### indent_stack
 
 ```cpp
-List * indent_stack
+Stack * indent_stack
 ```
 
 ---
