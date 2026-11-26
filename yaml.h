@@ -62,7 +62,7 @@ typedef struct
 
 enum YAMLLexerState
 {
-    YAMLLexerStartStream = 0,
+    YAMLLexerStateStartStream = 0,
     YAMLLexerStateNormal = 1,
     YAMLLexerStateJustGotNewline = 2,
     YAMLLexerStatePopDedent = 3,

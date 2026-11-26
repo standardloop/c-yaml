@@ -149,7 +149,7 @@ extern YAMLLexer *YAMLLexerInit(FILE *file_ptr)
     lexer->cursor = 0;
     lexer->bytes_in_buffer = 0;
     lexer->eof_reached = false;
-    lexer->state = YAMLLexerStartStream;
+    lexer->state = YAMLLexerStateStartStream;
     lexer->quoted_scalar = false;
 
     // Read initial 4096 bytes into Left Half
@@ -1016,9 +1016,9 @@ static YAMLToken *handleYAMLLexerStateJustGotNewline(YAMLLexer *lexer)
     return NULL;
 }
 
-static YAMLToken *handleYAMLLexerStartStream(YAMLLexer *lexer)
+static YAMLToken *handleYAMLLexerStateStartStream(YAMLLexer *lexer)
 {
-    assert(lexer->state == YAMLLexerStartStream);
+    assert(lexer->state == YAMLLexerStateStartStream);
 
     lexer->state = YAMLLexerStateJustGotNewline;
     return YAMLTokenInit(YAMLTokenStartStream, 0, 0, lexer->line, NULL, false);
@@ -1027,9 +1027,9 @@ static YAMLToken *handleYAMLLexerStartStream(YAMLLexer *lexer)
 extern YAMLToken *YAMLLex(YAMLLexer *lexer)
 {
     lexer->quoted_scalar = false;
-    if (lexer->state == YAMLLexerStartStream)
+    if (lexer->state == YAMLLexerStateStartStream)
     {
-        return handleYAMLLexerStartStream(lexer);
+        return handleYAMLLexerStateStartStream(lexer);
     }
     assert(lexer != NULL);
     if (lexer->current_char == '#')

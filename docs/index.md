@@ -73,7 +73,7 @@ enum YAMLLexerState
 
 | Value                                            | Description |
 | ------------------------------------------------ | ----------- |
-| `YAMLLexerStartStream`                           |             |
+| `YAMLLexerStateStartStream`                      |             |
 | `YAMLLexerStateNormal`                           |             |
 | `YAMLLexerStateJustGotNewline`                   |             |
 | `YAMLLexerStatePopDedent`                        |             |
