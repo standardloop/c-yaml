@@ -19,30 +19,7 @@ extern YAML *YAMLInit()
     return yaml;
 }
 
-extern YAML *StringToYAML(char *yaml_string)
-{
-    if (yaml_string == NULL)
-    {
-        return NULL;
-    }
-
-    // YAMLLexer *lexer = YAMLLexerInit();
-
-    // if (lexer == NULL)
-    // {
-    //     return NULL;
-    // }
-    // YAMLParser *parser = YAMLParserInit(lexer, YAMLParserInputFile, );
-    // if (parser == NULL)
-    // {
-    //     YAMLLexerFree(lexer);
-    //     return NULL;
-    // }
-
-    return NULL;
-}
-
-extern YAML *YAMLFromString(char *input_str, size_t input_str_len)
+extern YAML *StringToYAML(char *input_str, size_t input_str_len)
 {
     FILE *file_ptr = fmemopen((void *)input_str,
                               input_str_len == 0 ? 1 : input_str_len, "rb");

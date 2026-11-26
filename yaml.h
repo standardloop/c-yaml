@@ -178,7 +178,7 @@ typedef Item YAMLValue; // a value
 typedef List YAML;      // list of documents
 
 extern YAML *YAMLInit();
-extern YAML *StringToYAML(char *);
+extern YAML *StringToYAML(char *input_str, size_t input_str_len);
 extern YAML *YAMLFromFile(char *file_name);
 extern YAML *YAMLFromSTDIN(size_t);
 extern char *YAMLToString(YAML *);

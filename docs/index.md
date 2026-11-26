@@ -270,7 +270,7 @@ YAML * YAMLInit()
 ### StringToYAML
 
 ```cpp
-YAML * StringToYAML(char *)
+YAML * StringToYAML(char * input_str, size_t input_str_len)
 ```
 
 ---
